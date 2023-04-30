@@ -41,7 +41,7 @@ namespace Core.Service
             //var account = (await ReadAll(id)).FirstOrDefault(a => a.Id.Equals(id));
             //return account;
             var parameterizedQuery = new QueryDefinition(
-                query: "SELECT TOP 1 FROM Account a WHERE a.id = @partitionKey")
+                query: "SELECT TOP 1 * FROM Account a WHERE a.id = @partitionKey")
                 .WithParameter("@partitionKey", id);
 
             // Query multiple items from container
@@ -60,11 +60,9 @@ namespace Core.Service
             return result;
         }
 
-        public async Task Update(Guid id, AccountDto follower)
+        public async Task Update(Account updated)
         {
-            var accountToFollow = await ReadSingle(id);
-            accountToFollow.Followers.Add(follower);
-            await _container.UpsertItemAsync(accountToFollow);
+            await _container.UpsertItemAsync(updated);
         }
 
         public async Task Delete(Guid id)

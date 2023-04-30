@@ -1,7 +1,6 @@
 ﻿using API.ViewModels;
 using AutoMapper;
 using Core.Service;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.Models;
 using System.Web.Http.Description;
@@ -27,7 +26,9 @@ namespace API.Controllers
         public async Task<IActionResult> GetProfileInfo([FromRoute] Guid id)
         {
             var account = await _accountRepository.ReadSingle(id);
-            ProfilePageModel profilePage = _mapper.Map<ProfilePageModel>(account);
+            ProfileModel profile = _mapper.Map<ProfileModel>(account);
+            var posts = account.Posts?.Select(p => _mapper.Map<PostModel>(p));
+            ProfilePageModel profilePage = new(profile, posts);
             return Ok(profilePage);
         }
     }
