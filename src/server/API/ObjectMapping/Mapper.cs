@@ -1,7 +1,8 @@
-﻿using Models.Models;
+﻿using API.ViewModels;
+using Models.Models;
 using Models.SubModels.Account;
 
-namespace API.ViewModels
+namespace API.ObjectMapping
 {
     public class Mapper : AutoMapper.Profile
     {

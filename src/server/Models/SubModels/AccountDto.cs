@@ -1,6 +1,4 @@
-﻿using Models.SubModels;
-
-namespace Models.DataTransferObjects
+﻿namespace Models.SubModels
 {
     public class AccountDto
     {

@@ -1,6 +1,6 @@
 ﻿namespace API.ViewModels
 {
-    public record ProfileModel
+    public class ProfileModel
     {
         public string? Tag { get; set; }
         public string? Fullname { get; set; }

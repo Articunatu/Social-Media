@@ -1,14 +1,21 @@
 ﻿
 namespace API.ViewModels
 {
-    public record ProfilePageModel
+    public class ProfilePageModel
     {
         public ProfileModel Profile;
-        public IEnumerable<PostModel>? Posts;
-        public ProfilePageModel(ProfileModel profile, IEnumerable<PostModel>? posts)
+        public int FollowerCount;
+        public int FollowingCount;
+        public int MutualCount;
+        public IEnumerable<PostModel>? First10Posts;
+        public ProfilePageModel(ProfileModel profile, IEnumerable<PostModel>? posts,
+            int followerCount, int mutualCount, int followingCount)
         {
             Profile = profile;
-            Posts = posts;
+            First10Posts = posts;
+            MutualCount = mutualCount;
+            FollowingCount = followingCount;
+            FollowerCount = followerCount;
         }
     }
 }

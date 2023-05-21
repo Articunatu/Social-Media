@@ -4,8 +4,8 @@ namespace Models.Models
 {
     public class Reaction
     {
-        public ReactionType Type { get; set; }
-        public Image Icon { get; set; }
+        public ReactionType? Type { get; set; }
+        public Image? Icon { get; set; }
     }
 
     public enum ReactionType

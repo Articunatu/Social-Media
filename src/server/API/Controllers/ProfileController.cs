@@ -11,24 +11,32 @@ namespace API.Controllers
     [ApiController]
     public class ProfileController : ControllerBase
     {
-        readonly IRepository<Account> _accountRepository;
+        readonly IAccountRepository _accountRepository;
+        readonly IMessageRepository _messageRepository;
         readonly IMapper _mapper;
 
-        public ProfileController(IRepository<Account> accountRepository, IMapper mapper)
+        public ProfileController(IAccountRepository accountRepository, IMessageRepository messageRepository,IMapper mapper)
         {
             _accountRepository = accountRepository;
+            _messageRepository = messageRepository;
             _mapper = mapper;
         }
 
         [HttpGet]
         [Route("{id:guid}")]
         [ResponseType(typeof(ProfilePageModel))]
-        public async Task<IActionResult> GetProfileInfo([FromRoute] Guid id)
+        public async Task<IActionResult> GetProfilePage([FromRoute] Guid accountId)
         {
-            var account = await _accountRepository.ReadSingle(id);
+            var account = await _accountRepository.GetAccount(accountId);
             ProfileModel profile = _mapper.Map<ProfileModel>(account);
-            var posts = account.Posts?.Select(p => _mapper.Map<PostModel>(p));
-            ProfilePageModel profilePage = new(profile, posts);
+            var messages = await _messageRepository.GetTop10NewestMessagesFromAccount(accountId, null);
+            var posts = messages.Results.Select(p => _mapper.Map<PostModel>(p));
+
+            var followerCount = account.Followers.Count();
+            var followingCount = account.Follwing.Count();
+            var mutualCount = await _accountRepository.GetMutualsCount(accountId);
+
+            ProfilePageModel profilePage = new(profile, posts, followerCount, followerCount, mutualCount);
             return Ok(profilePage);
         }
     }

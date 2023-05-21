@@ -1,7 +1,8 @@
-using Core.Service;
 using Microsoft.Azure.Cosmos;
 using Models.Models;
 using AutoMapper;
+using Core.Service.Reaction;
+using Core.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +14,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-builder.Services.AddScoped<IRepository<Account>>(options =>
+builder.Services.AddScoped<IReaction<Account>>(options =>
 {
     string Url = builder.Configuration.GetSection("AzureCosmosDBSettings")
     .GetValue<string>("URL");
@@ -32,7 +33,7 @@ builder.Services.AddScoped<IRepository<Account>>(options =>
     return new AccountRepository(cosmosClient, databaseName);
 });
 
-builder.Services.AddScoped<IRepository<Message>>(options =>
+builder.Services.AddScoped<IReaction<Message>>(options =>
 {
     string Url = builder.Configuration.GetSection("AzureCosmosDBSettings")
     .GetValue<string>("URL");

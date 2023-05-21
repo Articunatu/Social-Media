@@ -6,9 +6,9 @@ namespace API.Controllers
 {
     public class AccountController : Controller
     {
-        readonly IRepository<Account> _repository;
+        readonly IReaction<Account> _repository;
 
-        public AccountController(IRepository<Account> repository)
+        public AccountController(IReaction<Account> repository)
         {
             _repository = repository;
         }
