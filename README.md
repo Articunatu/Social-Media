@@ -6,18 +6,18 @@ Social Media site with an appearance
 ## Technical Overview
 
 ### Server
-* Framework & Language: .NET 6 / C#
+* Framework & language: .NET 6 / C#
 * Database: Azure Cosmos DB (NoSQL Cloud)
 * Database driver: Cosmos SDK
 * Structure: Repository Pattern - Will shift to CQRS when first deployment is done
 * Authentication: JSON Web Token
-* Object Mapping: Automapper
-* Unit Tests: xUnit
+* Object mapping: Automapper
+* Unit tests: xUnit
 
 ### Client
 * Framework: ReactJS
 * Preprocessor: SCSS
-* Additional Style Utility: Tailwind CSS
+* Additional style utility: Tailwind CSS
 
 ## Technical Details
 
