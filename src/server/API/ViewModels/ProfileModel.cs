@@ -1,9 +1,11 @@
-﻿namespace API.ViewModels
+﻿using Models.SubModels;
+
+namespace API.ViewModels
 {
-    public class ProfileModel
+    public record ProfileModel
     {
         public string? Tag { get; set; }
-        public string? Fullname { get; set; }
-        public string? ProfilePicture { get; set; }
+        public string? FullName { get; set; }
+        public Photo? ProfilePicture { get; set; }
     }
 }
