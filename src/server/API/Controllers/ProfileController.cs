@@ -2,7 +2,6 @@
 using AutoMapper;
 using Core.Service;
 using Microsoft.AspNetCore.Mvc;
-using Models.Models;
 using System.Web.Http.Description;
 
 namespace API.Controllers
@@ -12,31 +11,59 @@ namespace API.Controllers
     public class ProfileController : ControllerBase
     {
         readonly IAccountRepository _accountRepository;
-        readonly IMessageRepository _messageRepository;
         readonly IMapper _mapper;
 
-        public ProfileController(IAccountRepository accountRepository, IMessageRepository messageRepository,IMapper mapper)
+        public ProfileController(IAccountRepository accountRepository, IMapper mapper)
         {
             _accountRepository = accountRepository;
-            _messageRepository = messageRepository;
             _mapper = mapper;
         }
 
         [HttpGet]
         [Route("{id:guid}")]
         [ResponseType(typeof(ProfilePageModel))]
-        public async Task<IActionResult> GetProfilePage([FromRoute] Guid accountId)
+        public async Task<IActionResult> GetProfileInfo([FromRoute] Guid id)
         {
-            var account = await _accountRepository.GetAccount(accountId);
+            var account = await _accountRepository.ReadSingle(id);
             ProfileModel profile = _mapper.Map<ProfileModel>(account);
-            var messages = await _messageRepository.GetTop10NewestMessagesFromAccount(accountId, null);
-            var posts = messages.Results.Select(p => _mapper.Map<PostModel>(p));
+            var posts = account.Posts?.Select(p => _mapper.Map<PostModel>(p));
+            ProfilePageModel profilePage = new(profile, posts);
+            return Ok(profilePage);
+        }
 
-            var followerCount = account.Followers.Count();
-            var followingCount = account.Follwing.Count();
-            var mutualCount = await _accountRepository.GetMutualsCount(accountId);
-
-            ProfilePageModel profilePage = new(profile, posts, followerCount, followerCount, mutualCount);
+        [HttpGet]
+        [Route("{id:guid}")]
+        [ResponseType(typeof(ProfilePageModel))]
+        public async Task<IActionResult> GetProfileFollowers([FromRoute] Guid id)
+        {
+            var account = await _accountRepository.ReadSingle(id);
+            ProfileModel profile = _mapper.Map<ProfileModel>(account);
+            var posts = account.Posts?.Select(p => _mapper.Map<PostModel>(p));
+            ProfilePageModel profilePage = new(profile, posts);
+            return Ok(profilePage);
+        }
+        
+        [HttpGet]
+        [Route("{id:guid}")]
+        [ResponseType(typeof(ProfilePageModel))]
+        public async Task<IActionResult> GetProfileFollowings([FromRoute] Guid id)
+        {
+            var account = await _accountRepository.ReadSingle(id);
+            ProfileModel profile = _mapper.Map<ProfileModel>(account);
+            var posts = account.Posts?.Select(p => _mapper.Map<PostModel>(p));
+            ProfilePageModel profilePage = new(profile, posts);
+            return Ok(profilePage);
+        }
+        
+        [HttpGet]
+        [Route("{id:guid}")]
+        [ResponseType(typeof(ProfilePageModel))]
+        public async Task<IActionResult> GetProfilePhotos([FromRoute] Guid id)
+        {
+            var account = await _accountRepository.ReadSingle(id);
+            ProfileModel profile = _mapper.Map<ProfileModel>(account);
+            var posts = account.Posts?.Select(p => _mapper.Map<PostModel>(p));
+            ProfilePageModel profilePage = new(profile, posts);
             return Ok(profilePage);
         }
     }

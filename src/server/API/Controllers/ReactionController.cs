@@ -10,56 +10,33 @@ namespace API.Controllers
     [ApiController]
     public class ReactionController : ControllerBase
     {
-        readonly IReactionRepository _repository;
+        readonly IReactionRepository _reactionRepository;
+        readonly IMessageRepository _messageRepository;
+        readonly IAccountRepository _accountRepository;
 
-        public ReactionController(IReactionRepository repository)
+        public ReactionController(IReactionRepository reaction, IMessageRepository message, IAccountRepository account)
         {
-            _repository = repository;
-        }
-
-        [HttpPost]
-        [Route("create")]
-        public async Task<IActionResult> CreateAccount([FromBody] Reaction created)
-        {
-            await _repository.Create(created);
-            return Ok();
-        }
-
-        //[Authorize(Roles ="Admin")]
-        [HttpGet]
-        [Route("read-all")]
-        public async Task<IActionResult> ReadAllAccounts()
-        {
-            var result = await _repository.ReadAll();
-            if (result is null)
-            {
-                return NotFound();
-            }
-            return Ok(result);
-        }
-
-        [HttpGet]
-        [Route("single/{id:guid}")]
-        public async Task<IActionResult> ReadSingleAccount([FromRoute] int id)
-        {
-            var result = await _repository.ReadSingle(id);
-            return Ok(result);
+            _reactionRepository = reaction;
+            _messageRepository = message;
+            _accountRepository = account;
         }
 
         [HttpPut]
-        [Route("update")]
-        public async Task<IActionResult> UpdateAccount(Reaction updated)
+        [Route("react-post")]
+        public async Task<IActionResult> ReactToPost([FromBody] Reaction reaction)
         {
-            await _repository.Update(updated);
+            await _messageRepository.AddReactionToMessage(reaction, );
+            await _accountRepository.AddReactedPostToAccount();
             return Ok();
         }
-
-        [HttpDelete]
-        [Route("delete")]
-        public async Task<IActionResult> DeleteAccount(int id, string name)
+        
+        [HttpPut]
+        [Route("react-comment")]
+        public async Task<IActionResult> ReactToComment([FromBody] Reaction reaction)
         {
-            await _repository.Delete(id);
-            return Ok($"Kontot med ID={id} och namnet {name} har raderats från databasen.");
+            await _messageRepository.AddReactionToMessage(reaction, );
+            await _accountRepository.UpdateSingleAccountsComment();
+            return Ok();
         }
     }
 }
