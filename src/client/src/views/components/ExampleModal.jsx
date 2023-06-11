@@ -1,6 +1,6 @@
 import React from "react";
 
-export default class GPT_Modal extends React.Component {
+export default class ExmapleModal extends React.Component {
     render() {
     
     const { post, onClose } = this.props;

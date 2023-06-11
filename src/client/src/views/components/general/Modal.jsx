@@ -1,5 +1,5 @@
 import React from "react";
-import BaseModal from "../GPT_Modal";
+import BaseModal from "../ExampleModal";
 
 export default class Modal extends React.Component {
     render() {
