@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Models.DataTransferObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,6 @@ namespace Models.SubModels.Message
         public AccountDto Author { get; set; }
         public string Text { get; set; }
         public DateTime Date { get; set; }
-        public IEnumerable<MessageReaction>? Reactions { get; set; }
+        public ICollection<MessageReaction>? Reactions { get; set; }
     }
 }

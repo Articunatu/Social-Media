@@ -8,6 +8,6 @@ namespace Models.SubModels.Account
         public Post Post { get; set; }
         public string? Text { get; set; }
         public DateTime Date { get; set; }
-        public IEnumerable<MessageReaction>? Reactions { get; set; }
+        public ICollection<MessageReaction>? Reactions { get; set; }
     }
 }
