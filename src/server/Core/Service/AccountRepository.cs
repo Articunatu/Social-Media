@@ -1,6 +1,10 @@
 ﻿using Microsoft.Azure.Cosmos;
+using Models.DataTransferObjects;
 using Models.Models;
 using Models.SubModels;
+using Models.SubModels.Account;
+using Models.SubModels.Message;
+using System.Security.Principal;
 
 namespace Core.Service
 {
@@ -8,6 +12,7 @@ namespace Core.Service
     {
         readonly Container _container;
         readonly string containerName = "Account";
+        string query2 = "SELECT VALUE a.lastName\r\nFROM Account a\r\nWHERE IS_DEFINED(a.lastName)\r\n";
 
         public AccountRepository(CosmosClient client, string databaseName)
         {
@@ -19,30 +24,14 @@ namespace Core.Service
             created.Id = Guid.NewGuid();
             await _container.CreateItemAsync(created);
         }
-        public async Task<IEnumerable<Account>> ReadAll()
-        {
-            string query = "SELECT * FROM c";
-
-            var selected = _container.GetItemQueryIterator<Account>(new QueryDefinition(query));
-
-            List<Account> result = new();
-            while (selected.HasMoreResults)
-            {
-                var response = await selected.ReadNextAsync();
-                result.AddRange(response);
-            }
-
-            return result.ToArray();
-        }
 
         public async Task<Account> ReadSingle(Guid id)
         {
-            await _container.ReadItemAsync<Account>(id.ToString(), new PartitionKey(id.ToString()));
             // Read existing item from container
             //var account = (await ReadAll(id)).FirstOrDefault(a => a.Id.Equals(id));
             //return account;
             var parameterizedQuery = new QueryDefinition(
-                query: "SELECT TOP 1 id, firstName, lastName, tag FROM Account a WHERE a.id = @partitionKey")
+                query: "SELECT TOP 1 * FROM Account a WHERE a.id = @partitionKey")
                 .WithParameter("@partitionKey", id);
 
             // Query multiple items from container
@@ -61,116 +50,90 @@ namespace Core.Service
             return result;
         }
 
-        public async Task Update(Account updated)
-        {
-            await _container.UpsertItemAsync(updated);
-        }
-
-        public async Task Delete(Guid id)
-        {
-            var newId = id.ToString();
-            await _container.DeleteItemAsync<Account>(newId, new PartitionKey(newId));
-        }
-
-        public async Task<IEnumerable<AccountDto>> GetTop20PagedFollowers(Guid accountId)
+        public async Task<IEnumerable<Account>> ReadAccountsFollowingById(Guid id)
         {
             var parameterizedQuery = new QueryDefinition(
-                query: "SELECT TOP 10 Followers FROM Account a WHERE a.id = @partitionKey")
-                .WithParameter("@partitionKey", accountId);
+                query: "SELECT a.Following FROM Account a WHERE a.id @partitionKey")
+                .WithParameter("@partitionKey", id);
 
-            // Query multiple items from container
-            using FeedIterator<AccountDto> filteredFeed = _container.GetItemQueryIterator<AccountDto>(
+            var queryIterator = _container.GetItemQueryIterator<Account>(
                 queryDefinition: parameterizedQuery
             );
 
-            List<AccountDto> result = new();
-            while (filteredFeed.HasMoreResults)
+            var result = new List<Account>();
+
+            while (queryIterator.HasMoreResults)
             {
-                var response = await filteredFeed.ReadNextAsync();
-                result.AddRange(response);
+                var response = await queryIterator.ReadNextAsync();
+                result.AddRange(response.ToList());
             }
 
-            return result.ToArray();
+            return result;
         }
 
-        public Task<IEnumerable<AccountDto>> GetTop20PagedFollowing(Guid accountId)
+        public async Task<IEnumerable<Account>> ReadAccountsFollowersById(Guid id)
         {
-            throw new NotImplementedException();
+            var parameterizedQuery = new QueryDefinition(
+                query: "SELECT a.Followers FROM Account a WHERE a.id @partitionKey")
+                .WithParameter("@partitionKey", id);
+
+            var queryIterator = _container.GetItemQueryIterator<Account>(
+                queryDefinition: parameterizedQuery
+            );
+
+            var result = new List<Account>();
+
+            while (queryIterator.HasMoreResults)
+            {
+                var response = await queryIterator.ReadNextAsync();
+                result.AddRange(response.ToList());
+            }
+
+            return result;
         }
 
-        public Task<Account> GetAccount(Guid accountId)
+        public async Task AddReactedPostToAccount(ReactedPost reactedPost, Account account)
         {
-            throw new NotImplementedException();
+            account.ReactedPosts ??= new List<ReactedPost>();
+
+            account.ReactedPosts.Add(reactedPost);
+
+            await _container.UpsertItemAsync(account);
         }
 
-        public Task<IEnumerable<AccountDto>> GetTop20PagedMutuals(Guid accountId)
+        public async Task AddPostToAccount(Account account, Post post)
         {
-            throw new NotImplementedException();
+            account.Posts??= new List<Post>();
+
+            account.Posts.Add(post);
+
+            await _container.UpsertItemAsync(account);
+        }
+        
+        public async Task AddCommentToAccount(Account account, Models.SubModels.Account.Comment comment)
+        {
+            account.Comments ??= new List<Models.SubModels.Account.Comment>();
+            account.Comments.Add(comment);
+
+            await _container.UpsertItemAsync(account);
         }
 
-        public Task<int> GetMutualsCount(Guid accountId)
+        public async Task UploadPhoto(Photo photo, Account account)
         {
-            throw new NotImplementedException();
+            account.Photos ??= new List<Photo>();
+            account.Photos.Add(photo);
+
+            if (photo.IsProfilePhoto)
+            {
+                account.ProfilePicture = photo;
+            }
+
+            if (photo.IsBackgroundPhoto)
+            {
+                account.BackgroundPicture = photo;
+            }
+
+            await _container.UpsertItemAsync(account);
         }
     }
 }
-
-//private static async Task<KeyValuePair<string, IEnumerable<CeleryTask>>> QueryDocumentsByPage(int pageNumber, int pageSize, string continuationToken)
-//{
-//    DocumentClient documentClient = new DocumentClient(new Uri("https://{CosmosDB/SQL Account Name}.documents.azure.com:443/"), "{CosmosDB/SQL Account Key}");
-
-//    var feedOptions = new FeedOptions
-//    {
-//        MaxItemCount = pageSize,
-//        EnableCrossPartitionQuery = true,
-
-//        // IMPORTANT: Set the continuation token (NULL for the first ever request/page)
-//        RequestContinuation = continuationToken
-//    };
-
-//    IQueryable<CeleryTask> filter = documentClient.CreateDocumentQuery<CeleryTask>("dbs/{Database Name}/colls/{Collection Name}", feedOptions);
-//    IDocumentQuery<CeleryTask> query = filter.AsDocumentQuery();
-
-//    FeedResponse<CeleryTask> feedRespose = await query.ExecuteNextAsync<CeleryTask>();
-
-//    List<CeleryTask> documents = new List<CeleryTask>();
-//    foreach (CeleryTask t in feedRespose)
-//    {
-//        documents.Add(t);
-//    }
-
-//    // IMPORTANT: Ensure the continuation token is kept for the next requests
-//    return new KeyValuePair<string, IEnumerable<CeleryTask>>(feedRespose.ResponseContinuation, documents);
-//}
-
-//private static async Task QueryPageByPage()
-//{
-//    // Number of documents per page
-//    const int PAGE_SIZE = 3;
-
-//    int currentPageNumber = 1;
-//    int documentNumber = 1;
-
-//    // Continuation token for subsequent queries (NULL for the very first request/page)
-//    string continuationToken = null;
-
-//    do
-//    {
-//        Console.WriteLine($"----- PAGE {currentPageNumber} -----");
-
-//        // Loads ALL documents for the current page
-//        KeyValuePair<string, IEnumerable<CeleryTask>> currentPage = await QueryDocumentsByPage(currentPageNumber, PAGE_SIZE, continuationToken);
-
-//        foreach (CeleryTask celeryTask in currentPage.Value)
-//        {
-//            Console.WriteLine($"[{documentNumber}] {celeryTask.Id}");
-//            documentNumber++;
-//        }
-
-//        // Ensure the continuation token is kept for the next page query execution
-//        continuationToken = currentPage.Key;
-//        currentPageNumber++;
-//    } while (continuationToken != null);
-
-//    Console.WriteLine("\n--- END: Finished Querying ALL Dcuments ---");
-//}
