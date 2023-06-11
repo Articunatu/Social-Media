@@ -1,15 +1,21 @@
-﻿using Models.SubModels;
+﻿using Models.DataTransferObjects;
+using Models.SubModels;
 using Models.SubModels.Account;
 
 namespace Models.Models
 {
     public class Account
     {
-        public Guid? Id { get; set; }
-        public string? Tag { get; set; }
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public bool? IsVerified { get; set; } = false;
+        public Guid Id { get; set; }
+        public string Tag { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public bool IsVerified { get; set; } = false;
+        public string Mail { get; set; }
+        public Login Login { get; set; }
+        public RefreshToken Token { get; set; }
+        public Photo? ProfilePicture { get; set; }
+        public Photo? BackgroundPicture { get; set; }
 
         public ICollection<AccountDto>? Follwing { get; set; }
         public ICollection<AccountDto>? Followers { get; set; }

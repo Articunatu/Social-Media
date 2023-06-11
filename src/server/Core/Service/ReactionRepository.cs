@@ -16,6 +16,7 @@ namespace Core.Service
         {
             await _container.CreateItemAsync(created);
         }
+
         public async Task<IEnumerable<Reaction>> ReadAll()
         {
             string query = "SELECT * FROM c";
