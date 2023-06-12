@@ -1,8 +1,5 @@
 # Social-Media
 
-## Intro
-Social Media site with an appearance 
-
 ## Technical Overview
 
 ### Server
