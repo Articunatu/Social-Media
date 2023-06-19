@@ -1,25 +1,29 @@
 # Social-Media
 
-## Intro
-Social Media site with an appearance 
-
 ## Technical Overview
 
 ### Server
-* Framework & Language: .NET 6 / C#
+* Framework & language: .NET 6 / C#
 * Database: Azure Cosmos DB (NoSQL Cloud)
 * Database driver: Cosmos SDK
 * Structure: Repository Pattern - Will shift to CQRS when first deployment is done
 * Authentication: JSON Web Token
-* Object Mapping: Automapper
-* Unit Tests: xUnit
+* Object mapping: Automapper
+* Unit tests: xUnit
 
 ### Client
 * Framework: ReactJS
 * Preprocessor: SCSS
-* Additional Style Utility: Tailwind CSS
+* Additional style utility: Tailwind CSS
 
 ## Technical Details
 
-The backend project is divided into 1 web API and 3 class libaries: Models, Core and Tests 
-No TypeScript, in order to get more used to not relying on type checkers.
+The backend project is divided into 1 web API and 3 class libaries: Core, Business Logic and Tests. <br/>
+No TypeScript is used in the client project, in order to get more used to not relying on type checkers.
+
+### Database
+This project uses a document-approach for the database - when a user posts something a message object will be added
+to both the message container and as a sub model to the user posting the message.
+
+Since almost every document is extremely large in terms of the amount of objects, every get request will
+only select the necessary properties from each document, in order to not 
