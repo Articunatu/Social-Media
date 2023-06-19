@@ -28,3 +28,28 @@ export default class Comment extends React.Component {
         )
     }
 };
+
+import React, { useState } from 'react';
+
+function MyComponent() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleModal = () => {
+    setIsOpen(!isOpen);
+  };
+
+  return (
+    <div>
+      <button onClick={toggleModal}>Open Modal</button>
+      {isOpen && (
+        <div className="modal">
+          <div className="modal-content">
+            <h2>Modal Title</h2>
+            <p>This is the content of the modal.</p>
+            <button onClick={toggleModal}>Close Modal</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

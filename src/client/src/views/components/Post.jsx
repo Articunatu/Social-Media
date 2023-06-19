@@ -10,7 +10,7 @@ import { ButtonGroup } from '@mui/material';
 import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import StarOutlinedIcon from '@mui/icons-material/StarOutlined';
 import Grid from '@mui/material/Grid'; // Grid version 1
-
+import CommentIcon from '@mui/icons-material/Comment';
 
 export default class Post extends React.Component {
     render() {
@@ -37,6 +37,7 @@ export default class Post extends React.Component {
                         <Grid xs={4} sm={8} md={4}>
                             <Button color="warning" variant="contained">REPLY</Button>
                         </Grid>
+                        <CommentIcon></CommentIcon>
                     </Grid>
                 </div>
             </Card>
