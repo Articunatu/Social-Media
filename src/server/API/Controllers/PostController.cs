@@ -51,5 +51,33 @@ namespace API.Controllers
 
             return Ok();
         }
+
+        [HttpGet]
+        [Route("get")]
+        public async Task<IActionResult> GetPostsComments(Account account, Message post, Comment comment)
+        {
+            message.Account = _mapper.Map<AccountDto>(account);
+
+            await _messageRepository.AddCommentToPost(post, comment);
+
+            var post = _mapper.Map<Post>(message);
+            await _accountRepository.AddCommentToAccount(account, comment);
+
+            return Ok();
+        }
+        
+        [HttpGet]
+        [Route("get")]
+        public async Task<IActionResult> GetPostsReactions(Account account, Message post, Comment comment)
+        {
+            message.Account = _mapper.Map<AccountDto>(account);
+
+            await _messageRepository.AddCommentToPost(post, comment);
+
+            var post = _mapper.Map<Post>(message);
+            await _accountRepository.AddCommentToAccount(account, comment);
+
+            return Ok();
+        }
     }
 }
