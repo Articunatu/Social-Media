@@ -15,8 +15,10 @@ namespace Core.Service
         Task Create(Account created);
         Task AddPostToAccount(Account account, Post post);
         Task AddReactedPostToAccount(ReactedPost reactedPost, Account account);
-        Task AddCommentToAccount(Account account, Models.SubModels.Account.Comment comment);
+        Task AddCommentToAccount(Account account, Models.SubModels.Account.A_Comment comment);
         Task UploadPhoto(Photo photo, Account account);
+        Task<Account> GetAccountByTag(string tag);
+        Task<Account> GetAccountByToken(string token);
     }
     
     public interface IMessageRepository
@@ -28,7 +30,7 @@ namespace Core.Service
         Task Update(Message updated);
         Task AddReactionToMessage(AccountDto reactor, Message message, Reaction reaction);
         Task AddReactionToComment(AccountDto reactor, Message message, Reaction reaction);
-        Task AddCommentToPost(Post post, Models.SubModels.Message.Comment comment);
+        Task AddCommentToPost(Post post, Models.SubModels.Message.M_Comment comment);
         Task Delete(Guid id);
     }
     

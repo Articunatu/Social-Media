@@ -9,6 +9,6 @@ namespace Models.SubModels.Account
         public DateTime Date { get; set; }
 
         public IEnumerable<MessageReaction>? Reactions { get; set; }
-        public IEnumerable<Comment>? Comments { get; set; }
+        public IEnumerable<A_Comment>? Comments { get; set; }
     }
 }

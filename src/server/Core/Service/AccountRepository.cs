@@ -27,26 +27,17 @@ namespace Core.Service
 
         public async Task<Account> ReadSingle(Guid id)
         {
-            // Read existing item from container
-            //var account = (await ReadAll(id)).FirstOrDefault(a => a.Id.Equals(id));
-            //return account;
             var parameterizedQuery = new QueryDefinition(
-                query: "SELECT TOP 1 * FROM Account a WHERE a.id = @partitionKey")
-                .WithParameter("@partitionKey", id);
+            query: "SELECT TOP 1 * FROM Account a WHERE a.id = @partitionKey")
+            .WithParameter("@partitionKey", id);
 
-            // Query multiple items from container
             using FeedIterator<Account> filteredFeed = _container.GetItemQueryIterator<Account>(
                 queryDefinition: parameterizedQuery
             );
 
-            Account? result = new();
+            FeedResponse<Account> response = await filteredFeed.ReadNextAsync();
+            Account? result = response.FirstOrDefault();
 
-            // Iterate query result pages
-            while (filteredFeed.HasMoreResults)
-            {
-                FeedResponse<Account> response = await filteredFeed.ReadNextAsync();
-                result = response.FirstOrDefault() ?? result;
-            }
             return result;
         }
 
@@ -103,16 +94,16 @@ namespace Core.Service
 
         public async Task AddPostToAccount(Account account, Post post)
         {
-            account.Posts??= new List<Post>();
+            account.Posts ??= new List<Post>();
 
             account.Posts.Add(post);
 
             await _container.UpsertItemAsync(account);
         }
-        
-        public async Task AddCommentToAccount(Account account, Models.SubModels.Account.Comment comment)
+
+        public async Task AddCommentToAccount(Account account, A_Comment comment)
         {
-            account.Comments ??= new List<Models.SubModels.Account.Comment>();
+            account.Comments ??= new List<A_Comment>();
             account.Comments.Add(comment);
 
             await _container.UpsertItemAsync(account);
@@ -134,6 +125,33 @@ namespace Core.Service
             }
 
             await _container.UpsertItemAsync(account);
+        }
+
+        public async Task<Account?> GetAccountByTag(string tag)
+        {
+            var parameterizedQuery = new QueryDefinition(
+            query: "SELECT TOP 1 * FROM Account a WHERE a.Tag = @partitionKey")
+            .WithParameter("@partitionKey", tag);
+
+            using FeedIterator<Account> filteredFeed = _container.GetItemQueryIterator<Account>(
+                queryDefinition: parameterizedQuery
+            );
+
+            FeedResponse<Account> response = await filteredFeed.ReadNextAsync();
+            Account? result = response.FirstOrDefault();
+
+            return result;
+        }
+
+        public async Task<Account> GetAccountByToken(string token)
+        {
+            // Implement the logic to retrieve an account by token from the Cosmos DB container
+            // This method should return the Account entity or null if not found
+            // Example:
+            var query = $"SELECT * FROM c WHERE c.Token.Text = '{token}'";
+            var iterator = _container.GetItemQueryIterator<Account>(query);
+            var response = await iterator.ReadNextAsync();
+            return response.FirstOrDefault();
         }
     }
 }
