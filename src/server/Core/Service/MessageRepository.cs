@@ -126,13 +126,13 @@ namespace Core.Service
             await _container.UpsertItemAsync(message);
         }
 
-        public async Task AddCommentToPost(Message post, Models.SubModels.Message.Comment comment)
+        public async Task AddCommentToPost(Post post, Models.SubModels.Message.M_Comment comment)
         {
-            post.Comments ??= new List<Models.SubModels.Message.Comment>();
+            //post.Comments ??= new List<Models.SubModels.Message.Comment>();
 
-            post.Comments.Add(comment);
+            //post.Comments.Add(comment);
 
-            await _container.UpsertItemAsync(post);
+            //await _container.UpsertItemAsync(post);
         }
     }
 }
