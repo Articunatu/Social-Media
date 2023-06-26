@@ -41,7 +41,7 @@ namespace Core.Service
         public async Task<Account?> GetAccountByTag(string tag)
         {
             var parameterizedQuery = new QueryDefinition(
-            query: "SELECT TOP 1 a.id, a.Tag FROM Account a WHERE a.Tag = @partitionKey")
+            query: "SELECT TOP 1 a.id, a.Tag, a.Login FROM Account a WHERE a.Tag = @partitionKey")
             .WithParameter("@partitionKey", tag);
 
             var result = await GetSingle<Account>(parameterizedQuery);

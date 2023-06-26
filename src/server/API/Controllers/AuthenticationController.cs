@@ -29,7 +29,11 @@ namespace API.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp(LoginModel request)
         {
-            Account account = new();
+            Account account = new()
+            {
+                Tag = request.Tag
+            };
+
             GeneratePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
             account.Login = new Login
