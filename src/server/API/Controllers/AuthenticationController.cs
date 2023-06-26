@@ -15,7 +15,6 @@ namespace API.Controllers
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
-        public static Account account = new();
         readonly IConfiguration _configuration;
         readonly IHttpContextAccessor _httpContextAccessor;
         readonly IAccountRepository _accountRepository;
@@ -39,7 +38,7 @@ namespace API.Controllers
                 PasswordSalt = passwordSalt
             };
 
-            await _accountRepository.Create(account);
+            await _accountRepository.AddNewAccount(account);
 
             return Ok(account);
         }
@@ -159,5 +158,28 @@ namespace API.Controllers
             }
             return Ok(result);
         }
+
+        [HttpGet("loggedin-id")]
+        public async Task<Guid> GetLoggedInAccountId()
+        {
+            if (_httpContextAccessor.HttpContext != null)
+            {
+                var accountIdClaim = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (Guid.TryParse(accountIdClaim, out Guid accountId))
+                {
+                    return accountId;
+                }
+            }
+            return Guid.Empty;
+        }
+
+
+        //[HttpGet, Route("loggedIn")]
+        //public IActionResult GetClientLoggedInAccountId()
+        //{
+        //    var id = GetLoggedInAccountId();
+
+        //    return Ok(id);  
+        //}
     }
 }

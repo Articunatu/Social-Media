@@ -11,12 +11,12 @@ namespace Models.Models
     public enum ReactionType
     {
         Star,
-        Heart,
         Fire,
         Rain,
         Flower,
         Tree,
         Lightning,
+        Cloud,
         Toxic,
         Snow,
         Stone,

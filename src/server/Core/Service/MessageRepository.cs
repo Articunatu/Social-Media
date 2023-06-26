@@ -23,6 +23,21 @@ namespace Core.Service
             await _container.CreateItemAsync(created);
         }
 
+        public async Task<IEnumerable<T>> GetAll<T>(QueryDefinition query)
+        {
+            var selected = _container.GetItemQueryIterator<T>(query);
+
+            List<T> result = new();
+            while (selected.HasMoreResults)
+            {
+                var response = await selected.ReadNextAsync();
+                result.AddRange(response);
+            }
+
+            return result.ToArray();
+        }
+
+
         public async Task<IEnumerable<Message>> ReadAll()
         {
             string query = "SELECT * FROM c";

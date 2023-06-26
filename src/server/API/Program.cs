@@ -2,6 +2,7 @@ using Microsoft.Azure.Cosmos;
 using Models.Models;
 using AutoMapper;
 using Core.Service;
+using System.Security.Policy;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,31 +15,30 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddScoped<IGenericQuery, GenericQuery>();
+
+string Url = builder.Configuration.GetSection("AzureCosmosDBSettings")
+    .GetValue<string>("URL");
+string primaryKey = builder.Configuration.GetSection("AzureCosmosDBSettings")
+    .GetValue<string>("PrimaryKey");
+
+builder.Services.AddSingleton<CosmosClient>(provider => new CosmosClient(Url, primaryKey));
+
+// Register the AccountRepository with the injected GenericQuery service
 builder.Services.AddScoped<IAccountRepository>(options =>
 {
-    string Url = builder.Configuration.GetSection("AzureCosmosDBSettings")
-    .GetValue<string>("URL");
-    string primaryKey = builder.Configuration.GetSection("AzureCosmosDBSettings")
-    .GetValue<string>("PrimaryKey");
     string databaseName = builder.Configuration.GetSection("AzureCosmosDBSettings")
-    .GetValue<string>("DatabaseName");
-    //string containerName = builder.Configuration.GetSection("AzureCosmosDBSettings")
-    //.GetValue<string>("ContainerName");
+        .GetValue<string>("DatabaseName");
 
-    var cosmosClient = new CosmosClient(
-        Url,
-        primaryKey
-        );
+    var cosmosClient = options.GetService<CosmosClient>(); // Inject the CosmosClient service
+    var genericQuery = options.GetService<GenericQuery>(); // Inject the GenericQuery service
 
-    return new AccountRepository(cosmosClient, databaseName);
+    return new AccountRepository(cosmosClient, databaseName, genericQuery);
 });
+
 
 builder.Services.AddScoped<IMessageRepository>(options =>
 {
-    string Url = builder.Configuration.GetSection("AzureCosmosDBSettings")
-    .GetValue<string>("URL");
-    string primaryKey = builder.Configuration.GetSection("AzureCosmosDBSettings")
-    .GetValue<string>("PrimaryKey");
     string databaseName = builder.Configuration.GetSection("AzureCosmosDBSettings")
     .GetValue<string>("DatabaseName");
     //string containerName = builder.Configuration.GetSection("AzureCosmosDBSettings")
@@ -54,10 +54,6 @@ builder.Services.AddScoped<IMessageRepository>(options =>
 
 builder.Services.AddScoped<IReactionRepository>(options =>
 {
-    string Url = builder.Configuration.GetSection("AzureCosmosDBSettings")
-    .GetValue<string>("URL");
-    string primaryKey = builder.Configuration.GetSection("AzureCosmosDBSettings")
-    .GetValue<string>("PrimaryKey");
     string databaseName = builder.Configuration.GetSection("AzureCosmosDBSettings")
     .GetValue<string>("DatabaseName");
     //string containerName = builder.Configuration.GetSection("AzureCosmosDBSettings")

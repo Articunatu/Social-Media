@@ -16,8 +16,8 @@ namespace Models.Models
         public string Mail { get; set; }
         public Login Login { get; set; }
         public RefreshToken Token { get; set; }
-        public Photo? ProfilePicture { get; set; }
-        public Photo? BackgroundPicture { get; set; }
+        public Photo? ProfilePhoto { get; set; }
+        public Photo? BackgroundPhoto { get; set; }
 
         public ICollection<AccountDto>? Follwing { get; set; }
         public ICollection<AccountDto>? Followers { get; set; }

@@ -1,11 +1,14 @@
-﻿using AutoMapper;
+﻿using API.ViewModels;
+using AutoMapper;
 using Core.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
 using Models.DataTransferObjects;
 using Models.Models;
 using Models.SubModels;
 using Models.SubModels.Account;
+using System.Web.Http.Description;
 
 namespace API.Controllers
 {
@@ -13,23 +16,43 @@ namespace API.Controllers
     [ApiController]
     public class PhotoController : ControllerBase
     {
-        readonly IMessageRepository _messageRepository;
         readonly IAccountRepository _accountRepository;
+        readonly IGenericQuery _query;
         readonly IMapper _mapper;
+        readonly AuthenticationController _authenticationController;
 
-        public PhotoController(IMessageRepository message, IAccountRepository account, IMapper mapper)
+        public PhotoController(IAccountRepository account, IMapper mapper, AuthenticationController authenticationController, IGenericQuery query)
         {
             _accountRepository = account;
-            _messageRepository = message;
             _mapper = mapper;
+            _authenticationController = authenticationController;
+            _query = query;
         }
 
         [HttpPost]
-        [Route("post")]
-        public async Task<IActionResult> UploadPhoto(Photo photo, Account account)
+        [Route("upload-photo")]
+        public async Task<IActionResult> UploadPhoto([FromBody] Photo photo)
         {
+            var account = await _authenticationController.GetLoggedInAccountId();
             await _accountRepository.UploadPhoto(photo, account);
             return Ok();
+        }
+
+
+        [HttpGet]
+        [Route("{id:guid}/album")]
+        [ResponseType(typeof(PhotosModel))]
+        public async Task<IActionResult> GetProfilePhotos([FromRoute] Guid id)
+        {
+            string containerName = "account";
+            var query = new QueryDefinition(
+                query: "SELECT a.Photos FROM Account a WHERE a.id @partitionKey")
+                .WithParameter("@partitionKey", id);
+            PhotosModel photos = new()
+            {
+                Photos = await _query.GetAll<Photo>(query, containerName)
+            };
+            return Ok(photos);
         }
     }
 }
