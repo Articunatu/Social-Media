@@ -172,14 +172,5 @@ namespace API.Controllers
             }
             return Guid.Empty;
         }
-
-
-        //[HttpGet, Route("loggedIn")]
-        //public IActionResult GetClientLoggedInAccountId()
-        //{
-        //    var id = GetLoggedInAccountId();
-
-        //    return Ok(id);  
-        //}
     }
 }

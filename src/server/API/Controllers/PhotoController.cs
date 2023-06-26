@@ -17,16 +17,14 @@ namespace API.Controllers
     public class PhotoController : ControllerBase
     {
         readonly IAccountRepository _accountRepository;
-        readonly IGenericQuery _query;
         readonly IMapper _mapper;
         readonly AuthenticationController _authenticationController;
 
-        public PhotoController(IAccountRepository account, IMapper mapper, AuthenticationController authenticationController, IGenericQuery query)
+        public PhotoController(IAccountRepository account, IMapper mapper, AuthenticationController authenticationController)
         {
             _accountRepository = account;
             _mapper = mapper;
             _authenticationController = authenticationController;
-            _query = query;
         }
 
         [HttpPost]
@@ -44,13 +42,9 @@ namespace API.Controllers
         [ResponseType(typeof(PhotosModel))]
         public async Task<IActionResult> GetProfilePhotos([FromRoute] Guid id)
         {
-            string containerName = "account";
-            var query = new QueryDefinition(
-                query: "SELECT a.Photos FROM Account a WHERE a.id @partitionKey")
-                .WithParameter("@partitionKey", id);
             PhotosModel photos = new()
             {
-                Photos = await _query.GetAll<Photo>(query, containerName)
+                Photos = await _accountRepository.GetTop10ProfilePhotos(id)
             };
             return Ok(photos);
         }

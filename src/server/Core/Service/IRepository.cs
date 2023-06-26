@@ -1,5 +1,4 @@
-﻿
-using API.ViewModels;
+﻿using API.ViewModels;
 using Microsoft.Azure.Cosmos;
 using Models.DataTransferObjects;
 using Models.Models;
@@ -21,6 +20,7 @@ namespace Core.Service
         Task AddReactedPostToAccount(ReactedPost reactedPost, Guid accountId);
         Task AddCommentToAccount(Guid accountId, A_Comment comment);
         Task UploadPhoto(Photo photo, Guid accountId);
+        Task<IEnumerable<Photo>> GetTop10ProfilePhotos(Guid id);
     }
     
     public interface IMessageRepository
@@ -51,11 +51,5 @@ namespace Core.Service
         Task<Guid> SignUp(LoginModel request);
         Task<string> LoginAsync(LoginModel request);
         Task<Guid> GetCurrentAccountId();
-    }
-
-    public interface IGenericQuery
-    {
-        Task<T> GetSingle<T>(QueryDefinition query, string containerName);
-        Task<IEnumerable<T>> GetAll<T>(QueryDefinition query, string containerName);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Azure.Cosmos;
+using Models.DataTransferObjects;
 using Models.Models;
 using Models.SubModels;
 using Models.SubModels.Account;
@@ -8,14 +9,12 @@ namespace Core.Service
     public class AccountRepository : IAccountRepository
     {
         readonly Container _container;
-        readonly IGenericQuery _query;
         readonly string containerName = "Account";
         string query2 = "SELECT VALUE a.lastName\r\nFROM Account a\r\nWHERE IS_DEFINED(a.lastName)\r\n";
 
-        public AccountRepository(CosmosClient client, string databaseName, IGenericQuery query)
+        public AccountRepository(CosmosClient client, string databaseName)
         {
             _container = client.GetContainer(databaseName, containerName);
-            _query = query;
         }
 
         public async Task AddNewAccount(Account created)
@@ -27,10 +26,14 @@ namespace Core.Service
         public async Task<Account> GetAccountById(Guid id)
         {
             var parameterizedQuery = new QueryDefinition(
-            query: "SELECT TOP 1 * FROM Account a WHERE a.Tag = @partitionKey")
+            query: "SELECT a.id, a.Tag, a.FirstName, a.LastName, a.ProfilePhoto FROM Account a" +
+                "JOIN (SELECT TOP 10 AccountId, MAX(PostDate) AS LatestPostDate" +
+                "FROM Post WHERE AccountId = @partitionKey" +
+                "GROUP BY AccountId) p ON a.id = p.AccountId" +
+                "ORDER BY p.LatestPostDate DESC")
             .WithParameter("@partitionKey", id);
 
-            var result = await _query.GetSingle<Account>(parameterizedQuery, containerName);
+            var result = await GetSingle<Account>(parameterizedQuery);
 
             return result;
         }
@@ -38,10 +41,10 @@ namespace Core.Service
         public async Task<Account?> GetAccountByTag(string tag)
         {
             var parameterizedQuery = new QueryDefinition(
-            query: "SELECT TOP 1 * FROM Account a WHERE a.Tag = @partitionKey")
+            query: "SELECT TOP 1 a.id, a.Tag FROM Account a WHERE a.Tag = @partitionKey")
             .WithParameter("@partitionKey", tag);
 
-            var result = await _query.GetSingle<Account>(parameterizedQuery, containerName);
+            var result = await GetSingle<Account>(parameterizedQuery);
 
             return result;
         }
@@ -60,7 +63,7 @@ namespace Core.Service
             query: "SELECT TOP 10 Followers FROM Account a WHERE a.Tag = @partitionKey")
             .WithParameter("@partitionKey", id);
 
-            var result = await _query.GetAll<Account>(parameterizedQuery, containerName);
+            var result = await GetAll<Account>(parameterizedQuery);
 
             return result;
         }
@@ -71,7 +74,7 @@ namespace Core.Service
             query: "SELECT TOP 10 Following FROM Account a WHERE a.Tag = @partitionKey")
             .WithParameter("@partitionKey", id);
 
-            var result = await _query.GetAll<Account>(parameterizedQuery, containerName);
+            var result = await GetAll<Account>(parameterizedQuery);
 
             return result;
         }
@@ -123,6 +126,46 @@ namespace Core.Service
             }
 
             await _container.UpsertItemAsync(account);
+        }
+
+        public async Task<IEnumerable<Photo>> GetTop10ProfilePhotos(Guid id)
+        {
+            var parameterizedQuery = new QueryDefinition(
+            query: "SELECT TOP 10 a.Photos FROM Account a WHERE a.Tag = @partitionKey")
+            .WithParameter("@partitionKey", id);
+
+            var result = await GetAll<Photo>(parameterizedQuery);
+
+            return result;
+        }
+
+        private async Task<IEnumerable<T>> GetAll<T>(QueryDefinition query)
+        {
+            var queryIterator = _container.GetItemQueryIterator<T>(
+                queryDefinition: query
+            );
+
+            var result = new List<T>();
+
+            while (queryIterator.HasMoreResults)
+            {
+                var response = await queryIterator.ReadNextAsync();
+                result.AddRange(response.ToList());
+            }
+
+            return result;
+        }
+
+        private async Task<T> GetSingle<T>(QueryDefinition query)
+        {
+            using FeedIterator<T> filteredFeed = _container.GetItemQueryIterator<T>(
+                queryDefinition: query
+            );
+
+            FeedResponse<T> response = await filteredFeed.ReadNextAsync();
+            T? result = response.FirstOrDefault();
+
+            return result;
         }
     }
 }

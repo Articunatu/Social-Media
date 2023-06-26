@@ -15,8 +15,6 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddScoped<IGenericQuery, GenericQuery>();
-
 string Url = builder.Configuration.GetSection("AzureCosmosDBSettings")
     .GetValue<string>("URL");
 string primaryKey = builder.Configuration.GetSection("AzureCosmosDBSettings")
@@ -31,9 +29,8 @@ builder.Services.AddScoped<IAccountRepository>(options =>
         .GetValue<string>("DatabaseName");
 
     var cosmosClient = options.GetService<CosmosClient>(); // Inject the CosmosClient service
-    var genericQuery = options.GetService<GenericQuery>(); // Inject the GenericQuery service
 
-    return new AccountRepository(cosmosClient, databaseName, genericQuery);
+    return new AccountRepository(cosmosClient, databaseName);
 });
 
 
