@@ -1,11 +1,10 @@
 import React, {useState} from 'react'
-import Constants from '../Constants'
 
-export default function AccountCreateForm(props){
+export default function SignUp(props){
     const [formData, setFormData] = useState(initialFormData);
 
     const initialFormData = Object.freeze({
-        title: "Accoutn x",
+        title: "Account x",
         content: "This is account x of the name ok"
     });
 
@@ -25,7 +24,7 @@ export default function AccountCreateForm(props){
             content: formData.content
         };
 
-        const url = Constants.API_URL_CREATE_ACCOUNT;
+        const url = URL.signup;
 
         fetch(url, {
             method: 'POST',

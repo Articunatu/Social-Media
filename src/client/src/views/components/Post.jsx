@@ -8,7 +8,6 @@ import { Icon } from '@mui/material';
 import { Card } from '@mui/material';
 import { ButtonGroup } from '@mui/material';
 import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
-import StarOutlinedIcon from '@mui/icons-material/StarOutlined';
 import Grid from '@mui/material/Grid'; // Grid version 1
 import CommentIcon from '@mui/icons-material/Comment';
 
