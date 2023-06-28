@@ -25,10 +25,6 @@ namespace Core.Service
     
     public interface IMessageRepository
     {
-        Task<IEnumerable<T>> GetAll<T>(QueryDefinition query);
-        Task<IEnumerable<Message>> ReadAll();
-        Task<IEnumerable<Message>> ReadTop5LatestMessagesFromAccountById(Guid id);
-        Task<Message> ReadSingle(Guid id);
         Task Create(Message created);
         Task Update(Message updated);
         Task AddReactionToMessage(AccountDto reactor, Message message, Reaction reaction);
@@ -44,12 +40,5 @@ namespace Core.Service
         Task Create(Reaction created);
         Task Update(Reaction updated);
         Task Delete(int id);
-    }
-
-    public interface IAuthenticationRepository
-    {
-        Task<Guid> SignUp(LoginModel request);
-        Task<string> LoginAsync(LoginModel request);
-        Task<Guid> GetCurrentAccountId();
     }
 }

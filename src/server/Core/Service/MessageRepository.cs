@@ -3,7 +3,6 @@ using Models.DataTransferObjects;
 using Models.Models;
 using Models.SubModels.Account;
 using Models.SubModels.Message;
-using System.Numerics;
 
 namespace Core.Service
 {
@@ -23,59 +22,24 @@ namespace Core.Service
             await _container.CreateItemAsync(created);
         }
 
-        public async Task<IEnumerable<T>> GetAll<T>(QueryDefinition query)
+        public async Task<IEnumerable<Message>> Get10LatestPostsByAccountId(Guid accountId)
         {
-            var selected = _container.GetItemQueryIterator<T>(query);
+            var parameterizedQuery = new QueryDefinition(
+                query: "SELECT TOP 10 m.Text, m.Date, m.Reactions, m.Comments FROM Account a WHERE a.id = @partitionKey ORDER BY m.date DESC")
+            .WithParameter("@partitionKey", accountId);
 
-            List<T> result = new();
-            while (selected.HasMoreResults)
-            {
-                var response = await selected.ReadNextAsync();
-                result.AddRange(response);
-            }
+            var result = await GetAll(parameterizedQuery);
 
             return result.ToArray();
         }
 
-
-        public async Task<IEnumerable<Message>> ReadAll()
+        public async Task<Message> GetMessageById(Guid id)
         {
-            string query = "SELECT * FROM c";
-
-            var selected = _container.GetItemQueryIterator<Message>(new QueryDefinition(query));
-
-            List<Message> result = new();
-            while (selected.HasMoreResults)
-            {
-                var response = await selected.ReadNextAsync();
-                result.AddRange(response);
-            }
-
-            return result.ToArray();
-        }
-
-        public async Task<Message> ReadSingle(Guid id)
-        {
-            // Read existing item from container
-            //var account = (await ReadAll(id)).FirstOrDefault(a => a.Id.Equals(id));
-            //return account;
             var parameterizedQuery = new QueryDefinition(
                 query: "SELECT TOP 1 FROM Message m WHERE m.id = @partitionKey")
                 .WithParameter("@partitionKey", id);
 
-            // Query multiple items from container
-            using FeedIterator<Message> filteredFeed = _container.GetItemQueryIterator<Message>(
-                queryDefinition: parameterizedQuery
-            );
-
-            Message? result = new();
-
-            // Iterate query result pages
-            while (filteredFeed.HasMoreResults)
-            {
-                FeedResponse<Message> response = await filteredFeed.ReadNextAsync();
-                result = response.FirstOrDefault() ?? result;
-            }
+            var result = await GetSingle(parameterizedQuery);
             return result;
         }
 
@@ -88,27 +52,6 @@ namespace Core.Service
         {
             var newId = id.ToString();
             await _container.DeleteItemAsync<Message>(newId, new PartitionKey(newId));
-        }
-
-        public async Task<IEnumerable<Message>> ReadTop5LatestMessagesFromAccountById(Guid id)
-        {
-            var parameterizedQuery = new QueryDefinition(
-                query: "SELECT TOP 5 m.text, m.date, m.reactionlist, m.commentlist, m.sharecount FROM Account a WHERE a.id = @partitionKey ORDER BY m.date DESC")
-            .WithParameter("@partitionKey", id);
-
-            var queryIterator = _container.GetItemQueryIterator<Message>(
-                queryDefinition: parameterizedQuery
-            );
-
-            var result = new List<Message>();
-
-            while (queryIterator.HasMoreResults)
-            {
-                var response = await queryIterator.ReadNextAsync();
-                result.AddRange(response.ToList());
-            }
-
-            return result;
         }
 
         public async Task AddReactionToMessage(AccountDto reactor, Message message, Reaction reaction)
@@ -141,13 +84,42 @@ namespace Core.Service
             await _container.UpsertItemAsync(message);
         }
 
-        public async Task AddCommentToPost(Post post, Models.SubModels.Message.M_Comment comment)
+        public async Task AddCommentToPost(Post post, M_Comment comment)
         {
             //post.Comments ??= new List<Models.SubModels.Message.Comment>();
 
             //post.Comments.Add(comment);
 
             //await _container.UpsertItemAsync(post);
+        }
+
+        private async Task<IEnumerable<Message>> GetAll(QueryDefinition query)
+        {
+            var queryIterator = _container.GetItemQueryIterator<Message>(
+                queryDefinition: query
+            );
+
+            var result = new List<Message>();
+
+            while (queryIterator.HasMoreResults)
+            {
+                var response = await queryIterator.ReadNextAsync();
+                result.AddRange(response.ToList());
+            }
+
+            return result;
+        }
+
+        private async Task<Message> GetSingle(QueryDefinition query)
+        {
+            using FeedIterator<Message> filteredFeed = _container.GetItemQueryIterator<Message>(
+                queryDefinition: query
+            );
+
+            FeedResponse<Message> response = await filteredFeed.ReadNextAsync();
+            Message? result = response.FirstOrDefault();
+
+            return result;
         }
     }
 }

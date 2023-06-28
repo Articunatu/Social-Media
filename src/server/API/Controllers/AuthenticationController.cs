@@ -76,6 +76,7 @@ namespace API.Controllers
 
             return Ok(token);
         }
+
         private static bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
         {
             using var hmac = new HMACSHA512(passwordSalt);
@@ -163,7 +164,7 @@ namespace API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("loggedin-id")]
+        [HttpGet("logged-in-id")]
         public async Task<Guid> GetLoggedInAccountId()
         {
             if (_httpContextAccessor.HttpContext != null)
