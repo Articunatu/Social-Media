@@ -14,7 +14,7 @@
 ### Client
 * Framework: ReactJS
 * Preprocessor: SCSS
-* Additional style utility: Tailwind CSS
+* Additional style utility: Tailwind CSS, MaterialUI
 
 ## Technical Details
 
@@ -26,4 +26,5 @@ This project uses a document-approach for the database - when a user posts somet
 to both the message container and as a sub model to the user posting the message.
 
 Since almost every document is extremely large in terms of the amount of objects, every get request will
-only select the necessary properties from each document, in order to not 
+only select the necessary properties from each document, in order to maximize the performance. For the sake of better performance this project
+is also using the Cosmos SDK instead of implementing Entity Framework with Cosmos DB.
