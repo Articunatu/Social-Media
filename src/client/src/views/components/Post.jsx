@@ -2,7 +2,7 @@ import React from 'react';
 import s from '../../style/post-message-box.scss';
 import Profile from './Profile';
 import Fab from '@mui/material/Fab';
-import Button from '@mui/material/Button';
+import Button from './general/Button'
 import AddIcon from '@mui/material/Fab';
 import { Icon } from '@mui/material';
 import { Card } from '@mui/material';
@@ -28,13 +28,13 @@ export default class Post extends React.Component {
                 <div className={s.button_list}>
                     <Grid container spacing={{ xs: 12, md: 0 }} columns={{ xs: 4, sm: 1, md: 12 }}>
                         <Grid xs={4} sm={8} md={4}>
-                            <Button color="primary" variant="contained">REACT</Button>
+                            <Button color="primary" variant="contained" label="REACT"></Button>
                         </Grid>
                         <Grid xs={4} sm={8} md={4}>
-                            <Button color="secondary" variant="contained">SHARE</Button>
+                            <Button color="secondary" variant="contained" label="SHARE"></Button>
                         </Grid>
                         <Grid xs={4} sm={8} md={4}>
-                            <Button color="warning" variant="contained">REPLY</Button>
+                            <Button color="warning" variant="contained" label="REPLY"></Button>
                         </Grid>
                         <CommentIcon></CommentIcon>
                     </Grid>

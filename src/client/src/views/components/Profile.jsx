@@ -19,7 +19,7 @@ export default class Profile extends React.Component {
                         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                         variant="dot"
                     ></Badge>
-                        <img className={s.profile_picture} src={profilePictureUrl} alt="<PROFILEPICTURE>" />
+                    <Avatar className={s.profile_picture} src={profilePictureUrl} alt="<PROFILEPICTURE>"></Avatar>
                     </Link>
                     <div className={s.name_container}>
                         <Link to={profileLink}>
