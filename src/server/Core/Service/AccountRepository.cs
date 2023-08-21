@@ -1,8 +1,10 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using Core.Paging;
+using Microsoft.Azure.Cosmos;
 using Models.DataTransferObjects;
 using Models.Models;
 using Models.SubModels;
 using Models.SubModels.Account;
+using System.Drawing.Printing;
 
 namespace Core.Service
 {
@@ -25,8 +27,8 @@ namespace Core.Service
 
         public async Task<Account> GetAccountById(Guid id)
         {
-            var parameterizedQuery = new QueryDefinition(
-            query: "SELECT a.id, a.Tag, a.FirstName, a.LastName, a.ProfilePhoto FROM Account a" +
+            var parameterizedQuery = new QueryDefinition(query: 
+                "SELECT a.id, a.Tag, a.FirstName, a.LastName, a.ProfilePhoto FROM Account a" +
                 "JOIN (SELECT TOP 10 AccountId, MAX(PostDate) AS LatestPostDate" +
                 "FROM Post WHERE AccountId = @partitionKey" +
                 "GROUP BY AccountId) p ON a.id = p.AccountId" +
@@ -57,27 +59,56 @@ namespace Core.Service
             return response.FirstOrDefault();
         }
 
-        public async Task<IEnumerable<Account>> GetTop10FollowersById(Guid id)
+        public async Task<PagedResult<Account>> GetTop10FollowersById(Guid id, string? continuationToken = null, int pageSize = 10)
         {
-            var parameterizedQuery = new QueryDefinition(
-            query: "SELECT TOP 10 Followers FROM Account a WHERE a.Tag = @partitionKey")
-            .WithParameter("@partitionKey", id);
+            var query = new QueryDefinition(
+                query: "SELECT TOP 10 Followers FROM Account a WHERE a.Tag = @partitionKey OFFSET @offset")
+                .WithParameter("@partitionKey", id)
+                .WithParameter("@offset", continuationToken != null ? continuationToken : "");
 
-            var result = await GetAll<Account>(parameterizedQuery);
+            var result = await ExecutePagedQuery<Account>(query, pageSize);
 
             return result;
         }
 
-        public async Task<IEnumerable<Account>> GetTop10FollowedAccountsById(Guid id)
+        public async Task<PagedResult<Account>> GetTop10FollowedAccountsById(Guid id, string? continuationToken = null, int pageSize = 10)
         {
-            var parameterizedQuery = new QueryDefinition(
-            query: "SELECT TOP 10 Following FROM Account a WHERE a.Tag = @partitionKey")
-            .WithParameter("@partitionKey", id);
+            var query = new QueryDefinition(
+                query: "SELECT TOP 10 Following FROM Account a WHERE a.Tag = @partitionKey OFFSET @offset")
+                .WithParameter("@partitionKey", id)
+                .WithParameter("@offset", continuationToken != null ? continuationToken : "");
 
-            var result = await GetAll<Account>(parameterizedQuery);
+            var result = await ExecutePagedQuery<Account>(query, pageSize);
 
             return result;
         }
+
+        private async Task<PagedResult<T>> ExecutePagedQuery<T>(QueryDefinition query, int pageSize)
+        {
+            var iterator = _container.GetItemQueryIterator<T>(query);
+            var items = new List<T>();
+            var continuationToken = string.Empty;
+
+            while (iterator.HasMoreResults && items.Count < pageSize)
+            {
+                var response = await iterator.ReadNextAsync();
+                continuationToken = response.ContinuationToken;
+
+                items.AddRange(response.ToList());
+            }
+
+            if (items.Count > pageSize)
+            {
+                items.RemoveAt(items.Count - 1); // Remove the extra item used for paging
+            }
+
+            return new PagedResult<T>
+            {
+                Results = items,
+                ContinuationToken = continuationToken
+            };
+        }
+
 
         public async Task AddReactedPostToAccount(ReactedPost reactedPost, Guid accountId)
         {
@@ -128,13 +159,14 @@ namespace Core.Service
             await _container.UpsertItemAsync(account);
         }
 
-        public async Task<IEnumerable<Photo>> GetTop10ProfilePhotos(Guid id)
+        public async Task<PagedResult<Photo>> GetTop10ProfilePhotos(Guid id, string? continuationToken = null, int pageSize = 10)
         {
-            var parameterizedQuery = new QueryDefinition(
-            query: "SELECT TOP 10 a.Photos FROM Account a WHERE a.Tag = @partitionKey")
-            .WithParameter("@partitionKey", id);
+            var parameterizedQuery = new QueryDefinition(query: 
+            "SELECT TOP 10 a.Photos FROM Account a WHERE a.Tag = @partitionKey")
+            .WithParameter("@partitionKey", id)
+            .WithParameter("@offset", continuationToken != null ? continuationToken : "");
 
-            var result = await GetAll<Photo>(parameterizedQuery);
+            var result = await ExecutePagedQuery<Photo>(parameterizedQuery, pageSize);
 
             return result;
         }

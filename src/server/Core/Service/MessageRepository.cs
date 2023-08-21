@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using Core.Paging;
+using Microsoft.Azure.Cosmos;
 using Models.DataTransferObjects;
 using Models.Models;
 using Models.SubModels.Account;
@@ -17,21 +18,51 @@ namespace Core.Service
         }
 
         public async Task Create(Message created)
+
         {
             created.Id = Guid.NewGuid();
             await _container.CreateItemAsync(created);
         }
 
-        public async Task<IEnumerable<Message>> Get10LatestPostsByAccountId(Guid accountId)
+        public async Task<PagedResult<Message>> Get10LatestPostsByAccountId(Guid accountId, string continuationToken = null, int pageSize = 10)
         {
-            var parameterizedQuery = new QueryDefinition(
-                query: "SELECT TOP 10 m.Text, m.Date, m.Reactions, m.Comments FROM Account a WHERE a.id = @partitionKey ORDER BY m.date DESC")
-            .WithParameter("@partitionKey", accountId);
+            var query = new QueryDefinition(
+                query: "SELECT m.Text, m.Date, m.Reactions, m.Comments FROM Messages m WHERE m.AccountId = @accountId ORDER BY m.Date DESC OFFSET @offset LIMIT @limit")
+                .WithParameter("@accountId", accountId)
+                .WithParameter("@offset", continuationToken != null ? continuationToken : "")
+                .WithParameter("@limit", pageSize + 1); // Fetch one more to check if there are more pages
 
-            var result = await GetAll(parameterizedQuery);
+            var result = await ExecutePagedQuery(query, pageSize);
 
-            return result.ToArray();
+            return result;
         }
+
+        private async Task<PagedResult<Message>> ExecutePagedQuery(QueryDefinition query, int pageSize)
+        {
+            var iterator = _container.GetItemQueryIterator<Message>(query);
+            var messages = new List<Message>();
+            var continuationToken = string.Empty;
+
+            while (iterator.HasMoreResults && messages.Count < pageSize)
+            {
+                var response = await iterator.ReadNextAsync();
+                continuationToken = response.ContinuationToken;
+
+                messages.AddRange(response.ToList());
+            }
+
+            if (messages.Count > pageSize)
+            {
+                messages.RemoveAt(messages.Count - 1); // Remove the extra item used for paging
+            }
+
+            return new PagedResult<Message>
+            {
+                Results = messages,
+                ContinuationToken = continuationToken
+            };
+        }
+
 
         public async Task<Message> GetMessageById(Guid id)
         {
@@ -120,6 +151,17 @@ namespace Core.Service
             Message? result = response.FirstOrDefault();
 
             return result;
+        }
+
+        public async Task<IEnumerable<Message>> GetTrendingPosts()
+        {
+            var query = new QueryDefinition(
+                query: "SELECT TOP 10 m.Text, m.Date, COUNT(m.Reactions), COUNT(m.Comments.Count) FROM Message m WHERE m.Date > Time.Now ORDER BY COUNT(m.Reactions) DESC")
+            ;
+
+            var result = await GetAll(query);
+
+            return result.ToArray();
         }
     }
 }
