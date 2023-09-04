@@ -3,6 +3,7 @@ using AutoMapper;
 using Core.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Caching.Memory;
 using Models.DataTransferObjects;
 using Models.SubModels;
 using System.Web.Http.Description;
@@ -15,11 +16,13 @@ namespace API.Controllers
     {
         readonly IAccountRepository _accountRepository;
         readonly IMapper _mapper;
+        readonly IMemoryCache _cache;
 
-        public ProfileController(IAccountRepository accountRepository, IMapper mapper)
+        public ProfileController(IAccountRepository accountRepository, IMapper mapper, IMemoryCache memoryCache)
         {
             _accountRepository = accountRepository;
             _mapper = mapper;
+            _cache = memoryCache;
         }
 
         [HttpGet]
@@ -27,19 +30,28 @@ namespace API.Controllers
         [ResponseType(typeof(ProfilePageModel))]
         public async Task<IActionResult> GetProfileInfo([FromRoute] Guid id)
         {
-            var query = new QueryDefinition(
-                query: "SELECT a.Tag, a.FirstName, a.LastName, a.ProfilePhoto FROM Account a" +
-                "JOIN (SELECT TOP 10 AccountId, MAX(PostDate) AS LatestPostDate" +
-                "FROM Post WHERE AccountId = @partitionKey" +
-                "GROUP BY AccountId) p ON a.id = p.AccountId" +
-                "ORDER BY p.LatestPostDate DESC")
-            .WithParameter("@partitionKey", id);
+            var cacheKey = $"ProfileInfo_{id}";
+
+            if (_cache.TryGetValue(cacheKey, out ProfilePageModel profilePage))
+            {
+                return Ok(profilePage);
+            }
+
             var account = await _accountRepository.GetAccountById(id);
             ProfileModel profile = _mapper.Map<ProfileModel>(account);
             var posts = account.Posts?.Select(p => _mapper.Map<PostModel>(p));
-            ProfilePageModel profilePage = new(profile, posts);
+            profilePage = new ProfilePageModel(profile, posts);
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) // Adjust the expiration time as needed
+            };
+
+            _cache.Set(cacheKey, profilePage, cacheEntryOptions);
+
             return Ok(profilePage);
         }
+
 
         [HttpGet]
         [Route("{id:guid}/followers")]
@@ -48,7 +60,7 @@ namespace API.Controllers
         {
             FollowerModel followers = new()
             {
-                Followers = (await _accountRepository.GetTop10FollowersById(id)).Select(account => _mapper.Map<AccountDto>(account))
+                Followers = (await _accountRepository.GetTop10FollowersById(id)).Results.Select(account => _mapper.Map<AccountDto>(account))
             };
             return Ok(followers);
         }
@@ -60,7 +72,7 @@ namespace API.Controllers
         {
             FollowingModel followedAccounts = new()
             {
-                Following = (await _accountRepository.GetTop10FollowedAccountsById(id)).Select(account => _mapper.Map<AccountDto>(account))
+                Following = (await _accountRepository.GetTop10FollowedAccountsById(id)).Results.Select(account => _mapper.Map<AccountDto>(account))
             };
 
             return Ok(followedAccounts);
