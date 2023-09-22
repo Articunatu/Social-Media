@@ -1,4 +1,5 @@
-﻿using Core.Paging;
+﻿using Core.Data;
+using Core.Paging;
 using Microsoft.Azure.Cosmos;
 using Models.DataTransferObjects;
 using Models.Models;
@@ -13,10 +14,12 @@ namespace Core.Service
         readonly Container _container;
         readonly string containerName = "Account";
         string query2 = "SELECT VALUE a.lastName\r\nFROM Account a\r\nWHERE IS_DEFINED(a.lastName)\r\n";
+        readonly FakeDataGenerator _fakeData;
 
-        public AccountRepository(CosmosClient client, string databaseName)
+        public AccountRepository(CosmosClient client, string databaseName, FakeDataGenerator fakeData)
         {
             _container = client.GetContainer(databaseName, containerName);
+            _fakeData = fakeData;
         }
 
         public async Task AddNewAccount(Account created)
@@ -27,7 +30,7 @@ namespace Core.Service
 
         public async Task<Account> GetAccountById(Guid id)
         {
-            var parameterizedQuery = new QueryDefinition(query: 
+            var parameterizedQuery = new QueryDefinition(query:
                 "SELECT a.id, a.Tag, a.FirstName, a.LastName, a.ProfilePhoto FROM Account a" +
                 "JOIN (SELECT TOP 10 AccountId, MAX(PostDate) AS LatestPostDate" +
                 "FROM Post WHERE AccountId = @partitionKey" +
@@ -161,7 +164,7 @@ namespace Core.Service
 
         public async Task<PagedResult<Photo>> GetTop10ProfilePhotos(Guid id, string? continuationToken = null, int pageSize = 10)
         {
-            var parameterizedQuery = new QueryDefinition(query: 
+            var parameterizedQuery = new QueryDefinition(query:
             "SELECT TOP 10 a.Photos FROM Account a WHERE a.Tag = @partitionKey")
             .WithParameter("@partitionKey", id)
             .WithParameter("@offset", continuationToken != null ? continuationToken : "");
@@ -198,6 +201,15 @@ namespace Core.Service
             T? result = response.FirstOrDefault();
 
             return result;
+        }
+
+        public async Task<IEnumerable<Account>> Generate10FakeAccounts()
+        {
+            var fakeAccounts = _fakeData.GenerateFakeAccounts();
+
+            await Task.WhenAll(fakeAccounts.Select(async fakeAccount => await _container.UpsertItemAsync(fakeAccount)));
+
+            return fakeAccounts;
         }
     }
 }

@@ -3,6 +3,8 @@ using Models.Models;
 using AutoMapper;
 using Core.Service;
 using System.Security.Policy;
+using Core.Data;
+using Microsoft.Extensions.Caching.Memory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<FakeDataGenerator>();
 
 string Url = builder.Configuration.GetSection("AzureCosmosDBSettings")
     .GetValue<string>("URL");
@@ -22,16 +25,17 @@ string primaryKey = builder.Configuration.GetSection("AzureCosmosDBSettings")
 
 builder.Services.AddSingleton<CosmosClient>(provider => new CosmosClient(Url, primaryKey));
 
-// Register the AccountRepository with the injected GenericQuery service
 builder.Services.AddScoped<IAccountRepository>(options =>
 {
     string databaseName = builder.Configuration.GetSection("AzureCosmosDBSettings")
         .GetValue<string>("DatabaseName");
 
     var cosmosClient = options.GetService<CosmosClient>(); // Inject the CosmosClient service
+    var fakeDataGenerator = options.GetService<FakeDataGenerator>(); // Inject the FakeDataGenerator service
 
-    return new AccountRepository(cosmosClient, databaseName);
+    return new AccountRepository(cosmosClient, databaseName, fakeDataGenerator);
 });
+
 
 
 builder.Services.AddScoped<IMessageRepository>(options =>

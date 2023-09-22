@@ -18,11 +18,11 @@ namespace API.Controllers
         readonly IMapper _mapper;
         readonly IMemoryCache _cache;
 
-        public ProfileController(IAccountRepository accountRepository, IMapper mapper, IMemoryCache memoryCache)
+        public ProfileController(IAccountRepository accountRepository, IMapper mapper)
         {
             _accountRepository = accountRepository;
             _mapper = mapper;
-            _cache = memoryCache;
+            //_cache = memoryCache;
         }
 
         [HttpGet]
@@ -30,24 +30,24 @@ namespace API.Controllers
         [ResponseType(typeof(ProfilePageModel))]
         public async Task<IActionResult> GetProfileInfo([FromRoute] Guid id)
         {
-            var cacheKey = $"ProfileInfo_{id}";
+            //var cacheKey = $"ProfileInfo_{id}";
 
-            if (_cache.TryGetValue(cacheKey, out ProfilePageModel profilePage))
-            {
-                return Ok(profilePage);
-            }
+            //if (_cache.TryGetValue(cacheKey, out ProfilePageModel profilePage))
+            //{
+            //    return Ok(profilePage);
+            //}
 
             var account = await _accountRepository.GetAccountById(id);
             ProfileModel profile = _mapper.Map<ProfileModel>(account);
             var posts = account.Posts?.Select(p => _mapper.Map<PostModel>(p));
-            profilePage = new ProfilePageModel(profile, posts);
+            var profilePage = new ProfilePageModel(profile, posts);
 
             var cacheEntryOptions = new MemoryCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) // Adjust the expiration time as needed
             };
 
-            _cache.Set(cacheKey, profilePage, cacheEntryOptions);
+            //_cache.Set(cacheKey, profilePage, cacheEntryOptions);
 
             return Ok(profilePage);
         }
@@ -76,6 +76,14 @@ namespace API.Controllers
             };
 
             return Ok(followedAccounts);
+        }
+
+        [HttpPost]
+        [Route("add-fake-accounts")]
+        public async Task<IActionResult> Add10FakeAccounts()
+        {
+            var accounts = await _accountRepository.Generate10FakeAccounts();
+            return Ok(accounts);
         }
     }
 }
