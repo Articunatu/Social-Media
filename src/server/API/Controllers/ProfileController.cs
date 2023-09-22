@@ -17,11 +17,14 @@ namespace API.Controllers
         readonly IAccountRepository _accountRepository;
         readonly IMapper _mapper;
         readonly IMemoryCache _cache;
+        readonly ILogger _logger;
 
-        public ProfileController(IAccountRepository accountRepository, IMapper mapper)
+
+        public ProfileController(IAccountRepository accountRepository, IMapper mapper, ILogger logger)
         {
             _accountRepository = accountRepository;
             _mapper = mapper;
+            _logger = logger;
             //_cache = memoryCache;
         }
 
@@ -82,6 +85,8 @@ namespace API.Controllers
         [Route("add-fake-accounts")]
         public async Task<IActionResult> Add10FakeAccounts()
         {
+            string dateText = DateTime.Now.ToString();
+            _logger.LogInformation("{Count} new accounts were generated {Date}.", 10, dateText);
             var accounts = await _accountRepository.Generate10FakeAccounts();
             return Ok(accounts);
         }
