@@ -55,7 +55,7 @@ namespace API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<string>> LoginAsync(LoginModel request)
+        public async Task<ActionResult<object>> LoginAsync(LoginModel request)
         {
             var account = await _accountRepository.GetAccountByTag(request.Tag);
 
@@ -74,8 +74,9 @@ namespace API.Controllers
             var refreshToken = GenerateRefreshToken();
             SetRefreshToken(refreshToken);
 
-            return Ok(token);
+            return new { accessToken = token };
         }
+
 
         private static bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
         {
