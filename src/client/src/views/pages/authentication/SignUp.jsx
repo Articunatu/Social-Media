@@ -1,12 +1,13 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react';
+import { URL } from '../../../Url';
+import Button from '../../components/general/Button';
 
-export default function SignUp(props){
-    const [formData, setFormData] = useState(initialFormData);
-
+export default function SignUp(props) {
     const initialFormData = Object.freeze({
         title: "Account x",
         content: "This is account x of the name ok"
     });
+    const [formData, setFormData] = useState(initialFormData);
 
     const handleChange = (e) => {
         setFormData({
@@ -33,14 +34,14 @@ export default function SignUp(props){
             },
             body: JSON.stringify(accountToCreate)
         })
-        .then(response => response.json())
-        .then(responseFromServer => {
-            console.log(responseFromServer);
-        })
-        .catch((error) => {
-            console.log(error);
-            alert(error);
-        });
+            .then(response => response.json())
+            .then(responseFromServer => {
+                console.log(responseFromServer);
+            })
+            .catch((error) => {
+                console.log(error);
+                alert(error);
+            });
 
         props.onAccountCreated(accountToCreate);
     };
@@ -55,11 +56,11 @@ export default function SignUp(props){
                 </div>
                 <div className='mt-5'>
                     <label className='h3 form-label'>Konto efternamn</label>
-                    <input value={formData.title} name="title" type="text" className='form-control' onChange={handleChange} />
+                    <input value={formData.content} name="content" type="text" className='form-control' onChange={handleChange} />
                 </div>
-                <button onClick={handleSubmit} className="btn btn-dark btn-lg w-100 mt-5">Skicka</button>
-                <button onClick={() => props.onAccountCreated(null)} className="btn btn-secondary btn-lg w-100 mt-3">Cancel</button>
+                <Button onClick={handleSubmit} color="primary">Skicka</Button>
+                <Button onClick={() => props.onAccountCreated(null)} color="secondary">Cancel</Button>
             </form>
         </div>
-    )
+    );
 }

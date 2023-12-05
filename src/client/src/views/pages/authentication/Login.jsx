@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
+import { URL } from '../../../Url';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../../../controllers/AuthenticationController";
 
 export default function Login() {
   const [tag, setTag] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  const { setIsLoggedIn, setUserTag } = useAuth();
 
   const handleLogin = async (event) => {
     event.preventDefault();
 
     const url = URL.login;
-    
+
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -20,12 +25,13 @@ export default function Login() {
       })
     });
 
-    console.log(response)
-
     const data = await response.json();
 
     if (response.ok) {
       localStorage.setItem('accessToken', data.accessToken);
+      setIsLoggedIn(true);
+      setUserTag(tag);
+      navigate('/feed');
     }
   };
 

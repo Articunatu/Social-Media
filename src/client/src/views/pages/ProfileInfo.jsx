@@ -1,8 +1,6 @@
 import Profile from '../components/Profile'
 import React, { useState, useEffect } from 'react';
-import { Messages } from '../../controllers/service/MessageReciever';
 import Post from '../components/Post';
-
 
 export default function ProfileInfo() {
     const [profileInfo, setProfileInfo] = useState([]);
@@ -10,17 +8,13 @@ export default function ProfileInfo() {
 
     useEffect(() => {
     const fetchProfileInfo = async () => {
-        const data = Messages.receivedData;
+        const data = URL.profileInfo(userId);
         setProfileInfo(data);
     };
 
     fetchProfileInfo();
     }, [userId]);
-
-    const profileModel = {
-        
-    }
-
+    
     return (
         <div className='profile-info-container'>
             <Post e={userId}></Post>

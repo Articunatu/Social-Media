@@ -12,8 +12,13 @@ import Grid from '@mui/material/Grid'; // Grid version 1
 import CommentIcon from '@mui/icons-material/Comment';
 
 export default class Post extends React.Component {
+
     render() {
         const { fullname, tag, profilePictureUrl, text } = this.props;
+
+        const openComment = () => {
+            
+        }
 
         return (
             <Card variant="outlined">
@@ -36,7 +41,7 @@ export default class Post extends React.Component {
                         <Grid xs={4} sm={8} md={4}>
                             <Button color="warning" variant="contained" label="REPLY"></Button>
                         </Grid>
-                        <CommentIcon></CommentIcon>
+                        <CommentIcon onclick={openComment}></CommentIcon>
                     </Grid>
                 </div>
             </Card>
