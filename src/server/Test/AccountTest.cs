@@ -29,7 +29,7 @@ namespace Test
 
             //Act
             Guid guid = Guid.Parse("f0218ae7-f567-4ea0-bd6b-5c7e9e91665b");
-            var actualProfile = _repo.ReadSingle(guid);
+            var actualProfile = _repo.GetAccountById(guid);
         }
     }
 }

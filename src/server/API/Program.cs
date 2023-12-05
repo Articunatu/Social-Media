@@ -23,14 +23,14 @@ builder.Services.AddScoped<FakeDataGenerator>();
 string instrumentationKey = builder.Configuration["ApplicationInsights:InstrumentationKey"];
 string ingestionEndpoint = builder.Configuration["ApplicationInsights:IngestionEndpoint"];
 
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-    .Enrich.FromLogContext()
-    .WriteTo.ApplicationInsights(
-        $"InstrumentationKey={instrumentationKey};IngestionEndpoint={ingestionEndpoint}",
-        TelemetryConverter.Traces)
-    .CreateLogger();
+//Log.Logger = new LoggerConfiguration()
+//    .MinimumLevel.Debug()
+//    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+//    .Enrich.FromLogContext()
+//    .WriteTo.ApplicationInsights(
+//        $"InstrumentationKey={instrumentationKey};IngestionEndpoint={ingestionEndpoint}",
+//        TelemetryConverter.Traces)
+//    .CreateLogger();
 
 
 string Url = builder.Configuration.GetSection("AzureCosmosDBSettings")

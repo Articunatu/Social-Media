@@ -22,6 +22,7 @@ namespace Core.Service
         Task AddCommentToAccount(Guid accountId, A_Comment comment);
         Task UploadPhoto(Photo photo, Guid accountId);
         Task<PagedResult<Photo>> GetTop10ProfilePhotos(Guid id, string? continuationToken = null, int pageSize = 10);
+        Task<IEnumerable<Account>> Generate10FakeAccounts();
     }
 
     public interface IMessageRepository

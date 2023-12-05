@@ -44,7 +44,7 @@ namespace API.Controllers
         {
             PhotosModel photos = new()
             {
-                Photos = await _accountRepository.GetTop10ProfilePhotos(id)
+                Photos = (IEnumerable<Photo>)await _accountRepository.GetTop10ProfilePhotos(id)
             };
             return Ok(photos);
         }
