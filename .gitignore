@@ -398,3 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 src/server/API/appsettings.json
 code/client/package-lock.json
+code/server/SocialMedia/SocialMedia.Presentation/appsettings.json
