@@ -1,6 +1,5 @@
 ﻿using Microsoft.Azure.Cosmos;
 using SocialMedia.Domain.Abstractions;
-using SocialMedia.Domain.Messages;
 
 namespace SocialMedia.Infrastructure.Repositories
 {
@@ -17,23 +16,27 @@ namespace SocialMedia.Infrastructure.Repositories
         public async Task Add(TEntity entity)
         {
             await _dbContext.Set<TEntity>().AddAsync(entity);
+            await _dbContext.SaveChangesAsync();
             await _container.CreateItemAsync(entity);
         }
 
         public async Task Delete(TEntityId id)
         {
-            var entity = await _dbContext.Set<TEntity>().FindAsync(id);
+            var entityEFCore = await _dbContext.Set<TEntity>().FindAsync(id);
+            var entity = entityEFCore;
             if (entity != null)
             {
                 _dbContext.Set<TEntity>().Remove(entity);
-                //_container.DeleteItemAsync<User>(id, new PartitionKey(id));
+                await _dbContext.SaveChangesAsync();
+                await _container.DeleteItemAsync<User>(id.ToString(), new PartitionKey(id.ToString()));
             }
         }
 
-        public void Update(TEntity entity)
+        public async void Update(TEntity entity)
         {
             _dbContext.Set<TEntity>().Update(entity);
-            _container.UpsertItemAsync(entity);
+            await _dbContext.SaveChangesAsync();
+            await _container.UpsertItemAsync(entity);
         }
     }
 }

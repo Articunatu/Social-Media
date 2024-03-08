@@ -4,6 +4,6 @@ using User = SocialMedia.Domain.Users.User;
 
 namespace SocialMedia.Infrastructure.Repositories
 {
-    internal sealed class UserWriteRepository(ApplicationDbContext context, Container container) : 
-        WriteRepository<User, Guid>(context, container), IUserWriteRepository { }
+    internal sealed class UserWriteRepository(ApplicationDbContext context, CosmosClient cosmosClient) : 
+        WriteRepository<User, Guid>(context, cosmosClient.GetContainer("social-media", "Account")), IUserWriteRepository { }
 }

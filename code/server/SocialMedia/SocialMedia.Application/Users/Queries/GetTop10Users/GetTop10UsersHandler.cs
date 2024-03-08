@@ -12,8 +12,14 @@ namespace SocialMedia.Application.Users.Queries.GetTop10Users
 
         public async Task<Result<IEnumerable<UserResponse>>> Handle(GetTop10UsersQuery request, CancellationToken cancellationToken)
         {
-            var query = "SELECT TOP 10 * FROM c";
-            var users = await _userRepository.GetMultiple<User>(request.UserId, query);
+            int pageNumber = request.PageNumber;
+            int pageSize = 10;
+
+            int skip = (pageNumber - 1) * pageSize;
+
+            var query = $"SELECT * FROM c OFFSET {skip} LIMIT {pageSize}";
+
+            var users = await _userRepository.GetMultiple<User>(1, query);
 
             if (users == null)
             {

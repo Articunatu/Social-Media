@@ -34,15 +34,14 @@ namespace SocialMedia.Presentation.Endpoints.Profile
                 return TypedResults.NotFound(e.Message);
             }
         }
-        
+
         public static async Task<IResult> GetTop10Profiles(
-            Guid id,
+            int pageNumber,
             ISender sender)
         {
             try
             {
-                var usersResponse = await sender.Send(new GetTop10UsersQuery(id));
-
+                var usersResponse = await sender.Send(new GetTop10UsersQuery(pageNumber));
                 return TypedResults.Ok(usersResponse);
             }
             catch (Exception e)
