@@ -53,10 +53,13 @@ namespace SocialMedia.Domain.Users
             get { return _email; }
             set
             {
-                if (Regex.IsMatch(value, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")) // Validates email format
-                    _email = value;
+                if(value is not null)
+                {
+                    if (Regex.IsMatch(value, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")) // Validates email format
+                        _email = value;
+                }
                 else
-                    throw new ArgumentException("Invalid email address format.");
+                    _email = "felformat@hotmail.com";
             }
         }
 

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Azure.Cosmos;
 using SocialMedia.Application.Users.Commands.AddUser;
+using SocialMedia.Application.Users.Queries.GetTop10Users;
 using SocialMedia.Application.Users.Queries.GetUserById;
 using SocialMedia.Domain.Shared;
 
@@ -14,7 +15,7 @@ namespace SocialMedia.Presentation.Endpoints.Profile
             var group = app.MapGroup("api/profiles");
 
             app.MapGet("{id}", GetProfileInfo);
-
+            app.MapGet("", GetTop10Profiles);
             app.MapPost("", AddNewUser);
         }
 
@@ -27,6 +28,22 @@ namespace SocialMedia.Presentation.Endpoints.Profile
                 var userResponse = await sender.Send(new GetUserByIdQuery(id));
 
                 return TypedResults.Ok(userResponse);
+            }
+            catch (Exception e)
+            {
+                return TypedResults.NotFound(e.Message);
+            }
+        }
+        
+        public static async Task<IResult> GetTop10Profiles(
+            Guid id,
+            ISender sender)
+        {
+            try
+            {
+                var usersResponse = await sender.Send(new GetTop10UsersQuery(id));
+
+                return TypedResults.Ok(usersResponse);
             }
             catch (Exception e)
             {
