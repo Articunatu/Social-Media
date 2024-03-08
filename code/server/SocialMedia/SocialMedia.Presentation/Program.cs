@@ -1,5 +1,3 @@
-using Carter;
-using SocialMedia.Infrastructure;
 using SocialMedia.Application;
 using SocialMedia.Presentation.Endpoints.Profile;
 
@@ -11,10 +9,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services
-    .AddApplication()
-    .AddInfrastructure(builder.Configuration);
-
-
+    .AddApplication(builder.Configuration);
 
 var app = builder.Build();
 

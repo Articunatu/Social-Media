@@ -21,10 +21,8 @@ namespace SocialMedia.Infrastructure
 
         private static void AddPersistence(IServiceCollection services, IConfiguration configuration)
         {
-            // MS SQL Server setup
             AddSQLServerConnection(services, configuration);
 
-            // Cosmos DB setup
             AddCosmosDBConnection(services, configuration);
         }
 
@@ -34,13 +32,11 @@ namespace SocialMedia.Infrastructure
                             throw new ArgumentNullException(nameof(configuration));
 
 
-            // SQL Server DbContext setup
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(sqlServerConnectionString);
             });
 
-            // Register SQL Server repositories
             services.AddScoped<IUserWriteRepository, UserWriteRepository>();
 
             services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
@@ -52,8 +48,6 @@ namespace SocialMedia.Infrastructure
             if (string.IsNullOrEmpty(cosmosDbPrimaryKey))
             {
                 throw new InvalidOperationException("Cosmos DB primary key is null or empty.");
-                // Example: Log.Warning("Cosmos DB primary key is null or empty. Defaulting to a fallback value.");
-                // Or: cosmosDbPrimaryKey = "your_default_value_here";
             }
 
             services.AddTransient<CosmosClient>(sp =>

@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Azure.Cosmos;
 using SocialMedia.Application.Users.Commands.AddUser;
 using SocialMedia.Application.Users.Queries.GetTop10Users;
 using SocialMedia.Application.Users.Queries.GetUserById;
