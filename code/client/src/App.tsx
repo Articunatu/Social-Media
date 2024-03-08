@@ -1,18 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { Outlet } from "react-router";
-import Navbar from "./Components/Shared/Navbar";
 import Navmenu from "./Components/Shared/Navmenu";
-import NavbarLeft from "./Components/Shared/NavbarLeft";
-import NavbarRight from "./Components/Shared/NavbarRight";
+import AuthPage from "./Components/Authentification";
 
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   return (
     <>
-      <Navbar/>
+      {!isLoggedIn && <AuthPage />}
+      {isLoggedIn && <Navmenu />}
       <Outlet/>
-      <Navmenu/>
-      <NavbarLeft/>
-      <NavbarRight/>
     </>
-  )
+  );
 }
