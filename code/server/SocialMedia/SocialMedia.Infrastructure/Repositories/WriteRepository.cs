@@ -16,26 +16,34 @@ namespace SocialMedia.Infrastructure.Repositories
         public async Task Add(TEntity entity)
         {
             await _dbContext.Set<TEntity>().AddAsync(entity);
-            await _dbContext.SaveChangesAsync();
             await _container.CreateItemAsync(entity);
         }
 
         public async Task Delete(TEntityId id)
         {
-            var entityEFCore = await _dbContext.Set<TEntity>().FindAsync(id);
-            var entity = entityEFCore;
+            var entity = await _dbContext.Set<TEntity>().FindAsync(id);
             if (entity != null)
             {
                 _dbContext.Set<TEntity>().Remove(entity);
-                await _dbContext.SaveChangesAsync();
-                await _container.DeleteItemAsync<User>(id.ToString(), new PartitionKey(id.ToString()));
+                await DeleteCosmos(id, entity);
             }
+        }
+
+        private async Task DeleteCosmos(TEntityId id, TEntity? entity)
+        {
+            if (entity is ISoftDeletable softDeletableEntity)
+            {
+                softDeletableEntity.IsDeleted = true;
+                softDeletableEntity.TimeOfDelete = DateTime.UtcNow;
+                await _container.UpsertItemAsync(softDeletableEntity);
+            }
+            else
+                await _container.DeleteItemAsync<TEntity>(id, new PartitionKey(id.ToString()));
         }
 
         public async void Update(TEntity entity)
         {
             _dbContext.Set<TEntity>().Update(entity);
-            await _dbContext.SaveChangesAsync();
             await _container.UpsertItemAsync(entity);
         }
     }

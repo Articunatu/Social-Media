@@ -40,6 +40,14 @@ namespace SocialMedia.Infrastructure
             services.AddScoped<IUserWriteRepository, UserWriteRepository>();
 
             services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
+
+            services.AddSingleton<SoftDeleteInterceptor>();
+
+            services.AddDbContext<ApplicationDbContext>(
+                (sp, options) => options
+                    .UseSqlServer(sqlServerConnectionString)
+                    .AddInterceptors(
+                        sp.GetRequiredService<SoftDeleteInterceptor>()));
         }
 
         private static void AddCosmosDBConnection(IServiceCollection services, IConfiguration configuration)
