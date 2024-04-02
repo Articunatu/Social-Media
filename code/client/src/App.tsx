@@ -4,13 +4,15 @@ import Navmenu from "./Components/Shared/Navmenu";
 import AuthPage from "./Components/Authentification";
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       {!isLoggedIn && <AuthPage />}
       {isLoggedIn && <Navmenu />}
-      <Outlet/>
-    </>
+      <div className="flex-grow">
+        <Outlet />
+      </div>
+    </div>
   );
 }

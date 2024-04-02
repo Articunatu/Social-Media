@@ -14,16 +14,21 @@ const Navbar = (props: Props) => {
                 <div className="flex flex-col h-full justify-between">
                     <div>
                         <Link to="/">
-                            <img src={logo} alt="Logo" className="h-10 w-auto mb-4" />
+                            <img src={logo} alt="Logo" className="h-20 w-auto mb-8 rounded-xl" />
                         </Link>
                         <Link to="/search" className="text-gray-300 hover:text-white mb-4">
                             Search
                         </Link>
+                        <p></p>
+                        <Link to="/explore" className="text-gray-300 hover:text-white mb-4">
+                            Explore
+                        </Link>
                         {/* Add more links here as needed */}
                     </div>
-                    <div className="text-center mb-4">
-                        {/* Left Nav Menu Bottom Links */}
-                        {/* Add bottom links here if needed */}
+                    <div className="mb-4">
+                    <Link to="/settings" className="text-gray-300 hover:text-white mb-4">
+                            Settings
+                        </Link>
                     </div>
                 </div>
             </nav>
@@ -33,19 +38,14 @@ const Navbar = (props: Props) => {
                 {/* Top Nav Menu */}
                 <nav className="fixed top-0 left-64 right-0 w-full bg-white border-t border-gray-200 p-4 flex justify-center items-center">
                     <div className="flex items-center space-x-6 text-black">
-                        <div className="hover:text-darkBlue">Login</div>
-                        <a
-                            href=""
-                            className="px-8 py-3 font-bold rounded text-white bg-lightGreen hover:opacity-70"
-                        >
-                            Signup
-                        </a>
+                        <h1>Följer</h1>
+                        <h1>|</h1>
+                        <h1>Utforskar</h1>
                     </div>
                 </nav>
                 {/* Page content */}
                 {/* Add page content here */}
             </div>
-            <Auth></Auth>
         </div>
     );
 };
