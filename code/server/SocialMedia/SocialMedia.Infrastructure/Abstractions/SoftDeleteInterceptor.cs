@@ -52,7 +52,7 @@ public class CosmosDbContainerWrapper<TEntity> where TEntity : class
         {
             if (entity is ISoftDeletable softDeletableEntity)
             {
-                softDeletableEntity. = true;
+                softDeletableEntity.IsDeleted = true;
                 softDeletableEntity.TimeOfDelete = DateTime.UtcNow;
                 await _container.UpsertItemAsync(entity);
             }

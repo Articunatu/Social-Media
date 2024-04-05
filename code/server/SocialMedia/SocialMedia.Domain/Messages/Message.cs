@@ -2,7 +2,7 @@
 
 namespace SocialMedia.Domain.Messages
 {
-    public class Message : Entity<Guid>
+    public class Message : Entity<Guid>, ISoftDeletable
     {
         public Message() { }
 
@@ -15,5 +15,7 @@ namespace SocialMedia.Domain.Messages
         public string Content { get; set; }
         public DateTime TimeStamp { get; set; }
         public Guid UserId { get; set; }
+        public bool IsDeleted { get; set; }
+        public DateTime? TimeOfDelete { get; set; }
     }
 }

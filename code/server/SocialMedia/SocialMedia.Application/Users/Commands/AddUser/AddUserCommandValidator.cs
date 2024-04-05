@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using SocialMedia.Domain.Users.ValueObjects;
 
 namespace SocialMedia.Application.Users.Commands.AddUser
 {
@@ -6,10 +7,20 @@ namespace SocialMedia.Application.Users.Commands.AddUser
     {
         public AddUserCommandValidator()
         {
-            RuleFor(x => x.Tag).NotEmpty();
-            RuleFor(x => x.Email).NotEmpty();
-            RuleFor(x => x.FirstName).NotEmpty().MinimumLength(20);
-            RuleFor(x => x.LastName).NotEmpty().MinimumLength(20);
+            RuleFor(x => x.Tag).NotEmpty()
+                .MinimumLength(Tag.MinLength)
+                .MaximumLength(Tag.MinLength)
+                .Matches(Tag.Pattern);
+            RuleFor(x => x.Email).NotEmpty()
+                .Matches(Email.Pattern);
+            RuleFor(x => x.FirstName).NotEmpty()
+                .MinimumLength(Name.MinLength)
+                .MaximumLength(Name.MaxLength)
+                .Matches(Name.Pattern);
+            RuleFor(x => x.LastName).NotEmpty()
+                .MinimumLength(Name.MinLength)
+                .MaximumLength(Name.MaxLength)
+                .Matches(Name.Pattern);
         }
     }
 }

@@ -11,9 +11,9 @@ namespace SocialMedia.Domain.Shared
         protected internal Result(bool isSuccess, Error error)
             : base(isSuccess, error) { }
 
-        public TValue Value => IsSuccess
-            ? _value!
-            : throw new InvalidOperationException("The value of a failure result can not be accessed");
+        //public TValue Value => IsSuccess
+        //    ? _value!
+        //    : throw new InvalidOperationException("The value of a failure result can not be accessed");
 
         public static implicit operator Result<TValue>(TValue value) => Create(value);
 

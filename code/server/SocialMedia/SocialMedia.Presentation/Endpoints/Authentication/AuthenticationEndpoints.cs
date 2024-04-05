@@ -1,85 +1,83 @@
-﻿//using Microsoft.IdentityModel.Tokens;
+﻿//using MediatR;
+//using Microsoft.IdentityModel.Tokens;
+//using SocialMedia.Application.Authentication;
+//using SocialMedia.Application.Users.Commands.AddUser;
+//using SocialMedia.Application.Users.Queries.GetUserById;
+//using SocialMedia.Domain.Users.ValueObjects;
 //using System.IdentityModel.Tokens.Jwt;
+//using System.Reflection;
 //using System.Security.Claims;
 //using System.Security.Cryptography;
 
 //namespace SocialMedia.Presentation.Endpoints.Authentication
 //{
+//    public class RefreshToken
+//    {
+//        public string Text { get; set; } = string.Empty;
+//        public DateTime Created { get; set; } = DateTime.Now;
+//        public DateTime Expires { get; set; }
+//    }
+
 //    public static class AuthenticationEndpoints
 //    {
-//        private static IConfiguration _configuration;
-//        private static IHttpContextAccessor _httpContextAccessor;
-//        private static IAccountRepository _accountRepository;
+//        private static IConfiguration configuration;
+//        private static IHttpContextAccessor httpContextAccessor;
 
-//        public static void MapAuthenticationEndpoints(this IEndpointRouteBuilder app, IConfiguration configuration, IHttpContextAccessor httpContextAccessor, IAccountRepository accountRepository)
+//        public static void MapAuthenticationEndpoints(this IEndpointRouteBuilder app)
 //        {
-//            _configuration = configuration;
-//            _httpContextAccessor = httpContextAccessor;
-//            _accountRepository = accountRepository;
+//            var group = app.MapGroup("api/profiles");
 
-//            var group = app.MapGroup("api/authentication");
-
-//            group.MapPost("signup", SignUp);
-//            group.MapPost("login", LoginAsync);
-//            group.MapPost("refresh-token", RefreshToken);
-//            group.MapGet("", GetLoginTag);
-//            group.MapGet("logged-in-id", GetLoggedInAccountId);
+//            app.MapPost("{request}", SignUp);
+//            app.MapGet("{request}", LoginAsync);
 //        }
 
-//        private static async Task<IResult> SignUp(LoginModel request)
+//        public static async Task<IResult> SignUp(LoginModel request, ISender sender)
 //        {
-//            Account account = new()
+//            var command = new AddUserCommand(
+//                request.Tag,
+//                request.Email,
+//                request.FirstName,
+//                request.LastName
+//                );
+//            try
 //            {
-//                Tag = request.Tag
-//            };
-
-//            GeneratePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
-
-//            account.Login = new Login
+//                await sender.Send(command);
+//                GeneratePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+//                account.Login = new Login
+//                {
+//                    PasswordHash = passwordHash,
+//                    PasswordSalt = passwordSalt
+//                };
+//                return TypedResults.Ok();
+//            }
+//            catch (Exception e)
 //            {
-//                PasswordHash = passwordHash,
-//                PasswordSalt = passwordSalt
-//            };
+//                return TypedResults.BadRequest(e.Message);
+//            }
 
-//            await _accountRepository.AddNewAccount(account);
-
-//            return TypedResults.Ok(account);
+//            //await _accountRepository.AddNewAccount(account);
 //        }
 
-//        private static async Task<IResult> LoginAsync(LoginModel request)
+//        public static async Task<IResult> LoginAsync(ISender sender)
 //        {
-//            var account = await _accountRepository.GetAccountByTag(request.Tag);
-
-//            if (account == null)
-//            {
-//                return TypedResults.BadRequest($"Could not find an account with tag \"{request.Tag}\".");
-//            }
-
-//            if (!VerifyPasswordHash(request.Password, account.Login.PasswordHash, account.Login.PasswordSalt))
-//            {
-//                return TypedResults.BadRequest("Incorrect password.");
-//            }
-
-//            string token = CreateToken(account);
-
+//            //var user = await sender.Send(new GetUserByIdQuery(tag));
 //            var refreshToken = GenerateRefreshToken();
-//            SetRefreshToken(refreshToken);
-
+//            SetRefreshToken(refreshToken, IHttpContextAccessor httpContextAccessor);
 //            return TypedResults.Ok(new { accessToken = token });
 //        }
-
-//        private static async Task<IResult> RefreshToken()
+//        //API
+//        private static async Task<IResult> RefreshToken(IHttpContextAccessor httpContextAccessor, ISender sender)
 //        {
-//            var refreshToken = _httpContextAccessor.HttpContext.Request.Cookies["refreshToken"];
+//            var refreshToken = httpContextAccessor.HttpContext.Request.Cookies["refreshToken"];
 
 //            if (string.IsNullOrEmpty(refreshToken))
 //            {
 //                return TypedResults.Unauthorized("Invalid Refresh Token.");
 //            }
 
-//            var account = await _accountRepository.GetAccountByToken(refreshToken);
+//            var account = await sender.Send(new GetUserByIdQuery(refreshToken, Domain.Abstractions.KeyTypes.Token));
 
-//            if (account == null || account.Token.Expires < DateTime.Now)
+//            if (account == null || account.Expires < DateTime.Now)
 //            {
 //                return TypedResults.Unauthorized("Token expired or invalid.");
 //            }
@@ -91,21 +89,21 @@
 //            return TypedResults.Ok(token);
 //        }
 
-//        private static IResult GetLoginTag()
+//        private static IResult GetLoginTag(IHttpContextAccessor httpContextAccessor)
 //        {
 //            var result = string.Empty;
-//            if (_httpContextAccessor.HttpContext != null)
+//            if (httpContextAccessor.HttpContext != null)
 //            {
-//                result = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
+//                result = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
 //            }
 //            return TypedResults.Ok(result);
 //        }
 
-//        private static async Task<IResult> GetLoggedInAccountId()
+//        private static async Task<IResult> GetLoggedInAccountId(IHttpContextAccessor httpContextAccessor)
 //        {
-//            if (_httpContextAccessor.HttpContext != null)
+//            if (httpContextAccessor.HttpContext != null)
 //            {
-//                var accountIdClaim = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+//                var accountIdClaim = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 //                if (Guid.TryParse(accountIdClaim, out Guid accountId))
 //                {
 //                    return TypedResults.Ok(accountId);
@@ -114,43 +112,17 @@
 //            return TypedResults.Ok(Guid.Empty);
 //        }
 
-//        private static void GeneratePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+//        private static void SetRefreshToken(RefreshToken newRefreshToken, IHttpContextAccessor httpContextAccessor)
 //        {
-//            using var secutiry = new HMACSHA512();
-//            passwordSalt = secutiry.Key;
-//            passwordHash = secutiry.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+//            var cookieOptions = new CookieOptions
+//            {
+//                HttpOnly = true,
+//                Expires = newRefreshToken.Expires
+//            };
+//            httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", newRefreshToken.Text, cookieOptions);
 //        }
 
-//        private static bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
-//        {
-//            using var hmac = new HMACSHA512(passwordSalt);
-//            var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-//            return computedHash.SequenceEqual(passwordHash);
-//        }
-
-//        private static string CreateToken(Account account)
-//        {
-//            List<Claim> claims = new List<Claim>
-//        {
-//            new Claim(ClaimTypes.Name, account.Tag),
-//            new Claim(ClaimTypes.Role, "Admin")
-//        };
-
-//            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
-//                _configuration.GetSection("AppSettings:Token").Value));
-
-//            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-
-//            var token = new JwtSecurityToken(
-//                claims: claims,
-//                expires: DateTime.Now.AddDays(1),
-//                signingCredentials: creds);
-
-//            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-
-//            return jwt;
-//        }
-
+//        //Infra
 //        private static RefreshToken GenerateRefreshToken()
 //        {
 //            var refreshToken = new RefreshToken
@@ -161,16 +133,6 @@
 //            };
 
 //            return refreshToken;
-//        }
-
-//        private static void SetRefreshToken(RefreshToken newRefreshToken)
-//        {
-//            var cookieOptions = new CookieOptions
-//            {
-//                HttpOnly = true,
-//                Expires = newRefreshToken.Expires
-//            };
-//            _httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", newRefreshToken.Text, cookieOptions);
 //        }
 //    }
 //}

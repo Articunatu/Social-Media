@@ -2,7 +2,6 @@
 using SocialMedia.Domain.Shared;
 using SocialMedia.Domain.Users;
 
-
 namespace SocialMedia.Application.Users.Queries.GetTop10Users
 {
     internal sealed class GetTop10UsersQueryHandler(IUserReadRepository userRepository)
@@ -17,7 +16,7 @@ namespace SocialMedia.Application.Users.Queries.GetTop10Users
 
             int skip = (pageNumber - 1) * pageSize;
 
-            var query = $"SELECT * FROM c OFFSET {skip} LIMIT {pageSize}";
+            var query = $"SELECT id, Tag, FirstName, LastName FROM c OFFSET {skip} LIMIT {pageSize}";
 
             var users = await _userRepository.GetMultiple<User>(1, query);
 
@@ -29,7 +28,7 @@ namespace SocialMedia.Application.Users.Queries.GetTop10Users
             var userResponses = users.Select(user =>
             {
                 string userFullname = user.FirstName + " " + user.LastName;
-                return new UserResponse(user.Id, user.Tag, userFullname);
+                return new UserResponse(user.Id, user.Tag.ToString(), userFullname);
             }).ToList();
 
             return Result.Success((IEnumerable<UserResponse>)userResponses);

@@ -1,9 +1,8 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
 using SocialMedia.Application.Users.Commands.AddUser;
 using SocialMedia.Application.Users.Queries.GetTop10Users;
 using SocialMedia.Application.Users.Queries.GetUserById;
-using SocialMedia.Domain.Shared;
+using SocialMedia.Domain.Abstractions;
 
 namespace SocialMedia.Presentation.Endpoints.Profile
 {
@@ -25,7 +24,6 @@ namespace SocialMedia.Presentation.Endpoints.Profile
             try
             {
                 var userResponse = await sender.Send(new GetUserByIdQuery(id));
-
                 return TypedResults.Ok(userResponse);
             }
             catch (Exception e)
@@ -53,16 +51,15 @@ namespace SocialMedia.Presentation.Endpoints.Profile
             AddUserCommand request,
             ISender sender)
         {
-            var command = new AddUserCommand(
-                request.Tag,
-                request.Email,
-                request.FirstName,
-                request.LastName
-                );
-
-            await sender.Send(command);
-
-            return Results.Ok();
+            try
+            {
+                await sender.Send(request);
+                return TypedResults.Ok();
+            }
+            catch (Exception e)
+            {
+                return TypedResults.BadRequest(e.Message);
+            }
         }
     }
 }

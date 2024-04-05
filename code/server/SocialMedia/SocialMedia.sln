@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialMedia.Infrastructure"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialMedia.Domain", "SocialMedia.Domain\SocialMedia.Domain.csproj", "{228C8872-A95B-4AD7-8AE9-FDFD619068EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialMedia.Application", "SocialMedia.Application\SocialMedia.Application.csproj", "{20B7DB9E-8BE1-4277-9E83-093DDE64A4E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialMedia.Application", "SocialMedia.Application\SocialMedia.Application.csproj", "{20B7DB9E-8BE1-4277-9E83-093DDE64A4E8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
