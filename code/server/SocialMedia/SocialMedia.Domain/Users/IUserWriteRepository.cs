@@ -5,6 +5,6 @@ namespace SocialMedia.Domain.Users
     {
         Task Add(User user);
         Task Delete(Guid id);
-        void Update(User user);
+        Task Follow(Guid followerId, Guid followingdId);
     }
 }

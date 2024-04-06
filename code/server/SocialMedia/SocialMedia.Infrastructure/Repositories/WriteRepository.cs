@@ -4,7 +4,6 @@ using SocialMedia.Domain.Abstractions;
 
 namespace SocialMedia.Infrastructure.Repositories
 {
-
     internal abstract class WriteRepository<TEntity, TEntityId>(
         ApplicationDbContext dbContext, 
         Container container)
@@ -71,7 +70,7 @@ namespace SocialMedia.Infrastructure.Repositories
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
-        public async void Update(TEntity entity)
+        public async Task Update(TEntity entity)
         {
             _dbContext.Set<TEntity>().Update(entity);
             await _container.UpsertItemAsync(entity);
