@@ -17,9 +17,9 @@ namespace SocialMedia.Application.Users.Queries.GetTop10Users
 
             int skip = (pageNumber - 1) * pageSize;
 
-            var query = $"SELECT * FROM c OFFSET {skip} LIMIT {pageSize}";
+            var query = $"SELECT c.id, c.tag, c.firstName, c.lastName FROM c OFFSET {skip} LIMIT {pageSize}";
 
-            var users = await _userRepository.GetMultiple<User>(1, query);
+            var users = await _userRepository.GetMultiple<User>(0, query);
 
             if (users == null)
             {

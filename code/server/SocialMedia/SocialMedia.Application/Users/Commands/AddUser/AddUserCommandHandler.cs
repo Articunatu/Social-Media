@@ -1,38 +1,55 @@
 ﻿using SocialMedia.Application.Abstractions;
+using SocialMedia.Application.Abstractions.Authentication;
 using SocialMedia.Domain.Abstractions;
 using SocialMedia.Domain.Shared;
 using SocialMedia.Domain.Users;
 
 
-namespace SocialMedia.Application.Users.Commands.AddUser
+namespace SocialMedia.Application.Users.Commands.AddUserCommand
 {
-    public sealed class AddUserCommandHandler : ICommandHandler<AddUserCommand>
+    internal sealed class AddUserCommandHandler : ICommandHandler<AddUserCommand, Guid>
     {
         readonly IUserWriteRepository _userRepository;
         readonly IUnitOfWork _unitOfWork;
+        readonly IAuthenticationService _authentication;
 
-        public AddUserCommandHandler(IUserWriteRepository userRepository, IUnitOfWork unitOfWork)
+        public AddUserCommandHandler(IUserWriteRepository userRepository, IUnitOfWork unitOfWork, IAuthenticationService authentication)
         {
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
+            _authentication = authentication;
         }
 
-        public async Task<Result> Handle(AddUserCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(AddUserCommand request, CancellationToken cancellationToken)
         {
 
-            var user = new User(
-                Guid.NewGuid(),
+            var user = User.Create(
                 request.Tag,
                 request.FirstName,
                 request.LastName,
                 request.Email
                 );
 
-            await _userRepository.Add(user);
+            try
+            {
+                //var loginId = await _authentication.RegisterAsync(
+                //user,
+                //request.Password,
+                //cancellationToken);
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+                //user.SetLogin(loginId);
 
-            return Result.Success();
+                await _userRepository.Add(user);
+
+                await _unitOfWork.SaveChangesAsync();
+
+                return user.Id;
+            }
+            catch (Exception ex)
+            {
+                throw;
+                //return Result.Failure(new Error(ex.Message));
+            }
         }
     }
 }

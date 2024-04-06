@@ -54,6 +54,8 @@ namespace SocialMedia.Infrastructure
                 .HasForeignKey(f => f.FollowingId)
                 .OnDelete(DeleteBehavior.Restrict); // Adjust the delete behavior as needed
 
+            modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
+
             base.OnModelCreating(modelBuilder);
         }
     }

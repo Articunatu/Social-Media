@@ -5,7 +5,11 @@ using SocialMedia.Domain.Abstractions;
 using SocialMedia.Domain.Users;
 using SocialMedia.Infrastructure.Repositories;
 using Microsoft.Azure.Cosmos;
-using SocialMedia.Domain.Users.Events;
+using SocialMedia.Application.Abstractions.Authentication;
+using SocialMedia.Infrastructure.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Logging;
 
 namespace SocialMedia.Infrastructure
 {
@@ -15,8 +19,38 @@ namespace SocialMedia.Infrastructure
             this IServiceCollection services,
             IConfiguration configuration)
         {
+            AddAuthentication(services, configuration);
+
             AddPersistence(services, configuration);
             return services;
+        }
+
+        private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer();
+
+            services.Configure<AuthenticationOptions>(configuration.GetSection("Authentication"));
+            services.ConfigureOptions<JwtBearerOptionsSetup>();
+
+            services.Configure<KeycloakOptions>(configuration.GetSection("Keycloak"));
+            services.AddTransient<AdminAuthorizationDelegatingHandler>();
+            services.AddHttpClient<IAuthenticationService, AuthenticationService>((sp, client) => {
+
+                var opt = sp.GetRequiredService<IOptions<KeycloakOptions>>().Value;
+                client.BaseAddress = new Uri(opt.AdminUrl);
+
+
+            }).AddHttpMessageHandler<AdminAuthorizationDelegatingHandler>();
+
+            services.AddHttpClient<IJwtService, JwtService>((sp, client) => {
+
+                var opt = sp.GetRequiredService<IOptions<KeycloakOptions>>().Value;
+                client.BaseAddress = new Uri(opt.TokenUrl);
+
+            });
+
+            IdentityModelEventSource.ShowPII = true;
         }
 
         private static void AddPersistence(IServiceCollection services, IConfiguration configuration)

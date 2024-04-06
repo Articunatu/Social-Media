@@ -399,3 +399,4 @@ FodyWeavers.xsd
 src/server/API/appsettings.json
 code/client/package-lock.json
 code/server/SocialMedia/SocialMedia.Presentation/appsettings.json
+code/server/SocialMedia/SocialMedia.Infrastructure/appsettings.json

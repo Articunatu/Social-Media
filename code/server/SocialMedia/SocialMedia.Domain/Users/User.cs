@@ -2,7 +2,7 @@
 using SocialMedia.Domain.Messages;
 using SocialMedia.Domain.Reactions;
 using SocialMedia.Domain.Users.Events;
-using System.Text.RegularExpressions;
+using SocialMedia.Domain.Users.ValueObjects;
 
 namespace SocialMedia.Domain.Users
 {
@@ -18,50 +18,16 @@ namespace SocialMedia.Domain.Users
             Email = email;
         }
 
-        private string _firstName;
-        private string _lastName;
-        private string _email;
-
         public string Tag { get; set; }
 
-        public string FirstName
-        {
-            get { return _firstName; }
-            set
-            {
-                if (Regex.IsMatch(value, @"^[a-zA-Z]+$")) // Allows only letters
-                    _firstName = value;
-                else
-                    throw new ArgumentException("First name must contain only letters.");
-            }
-        }
+        public string FirstName { get; set; }
 
-        public string LastName
-        {
-            get { return _lastName; }
-            set
-            {
-                if (Regex.IsMatch(value, @"^[a-zA-Z]+$")) // Allows only letters
-                    _lastName = value;
-                else
-                    throw new ArgumentException("Last name must contain only letters.");
-            }
-        }
+        public string LastName { get; set; }
 
-        public string Email
-        {
-            get { return _email; }
-            set
-            {
-                if(value is not null)
-                {
-                    if (Regex.IsMatch(value, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")) // Validates email format
-                        _email = value;
-                }
-                else
-                    _email = "felformat@hotmail.com";
-            }
-        }
+        public string Email { get; set; }
+        public bool IsDeleted { get; set; }
+        public DateTime? TimeOfDelete { get; set; }
+        public string LoginId { get; private set; } = string.Empty;
 
         public ICollection<FollowUser>? Followers { get; set; }
         public ICollection<FollowUser>? Following { get; set; }
@@ -74,6 +40,10 @@ namespace SocialMedia.Domain.Users
             var user = new User(Guid.NewGuid(), tag, firstname, lastName, email);
             user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
             return user;
+        }
+        public void SetLogin(string loginId)
+        {
+            LoginId = loginId;
         }
     }
 }

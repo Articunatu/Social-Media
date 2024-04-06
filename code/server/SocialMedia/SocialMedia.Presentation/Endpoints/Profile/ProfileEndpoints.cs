@@ -1,10 +1,8 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Azure.Cosmos;
-using SocialMedia.Application.Users.Commands.AddUser;
+using SocialMedia.Application.Users.Commands.AddUserCommand;
+using SocialMedia.Application.Users.Commands.LogInUser;
 using SocialMedia.Application.Users.Queries.GetTop10Users;
 using SocialMedia.Application.Users.Queries.GetUserById;
-using SocialMedia.Domain.Shared;
 
 namespace SocialMedia.Presentation.Endpoints.Profile
 {
@@ -16,7 +14,8 @@ namespace SocialMedia.Presentation.Endpoints.Profile
 
             app.MapGet("{id}", GetProfileInfo);
             app.MapGet("", GetTop10Profiles);
-            app.MapPost("", AddNewUser);
+            app.MapPost("register", Register);
+            app.MapPost("", LogIn);
         }
 
         public static async Task<IResult> GetProfileInfo(
@@ -50,20 +49,44 @@ namespace SocialMedia.Presentation.Endpoints.Profile
             }
         }
 
-        public static async Task<IResult> AddNewUser(
+        public static async Task<IResult> Register(
             AddUserCommand request,
+            CancellationToken cancellationToken,
             ISender sender)
         {
             var command = new AddUserCommand(
                 request.Tag,
                 request.Email,
                 request.FirstName,
-                request.LastName
+                request.LastName,
+                request.Password
                 );
 
-            await sender.Send(command);
+            var result = await sender.Send(command, cancellationToken);
 
-            return Results.Ok();
+            if (result.IsFailure)
+            {
+                return TypedResults.BadRequest(result.Error);
+            }
+
+            return TypedResults.Ok(result.Value);
+        }
+
+        public static async Task<IResult> LogIn(
+            LogInUserRequest request,
+            CancellationToken cancellationToken,
+            ISender sender)
+        {
+            var command = new LogInUserCommand(request.Email, request.Password);
+
+            var result = await sender.Send(command, cancellationToken);
+
+            if (result.IsFailure)
+            {
+                return TypedResults.BadRequest(result.Error);
+            }
+
+            return TypedResults.Ok(result.Value);
         }
     }
 }
