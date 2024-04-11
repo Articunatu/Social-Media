@@ -6,6 +6,7 @@ namespace SocialMedia.Presentation.Endpoints.Profile
         string Tag,
         string Email,
         string FirstName,
-        string LastName)
+        string LastName,
+        string Password)
     { }
 }

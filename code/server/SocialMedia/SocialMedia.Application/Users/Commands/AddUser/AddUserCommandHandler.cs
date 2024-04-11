@@ -1,8 +1,11 @@
-﻿using SocialMedia.Application.Abstractions;
+﻿using MediatR;
+using SocialMedia.Application.Abstractions;
 using SocialMedia.Application.Abstractions.Authentication;
 using SocialMedia.Domain.Abstractions;
 using SocialMedia.Domain.Shared;
 using SocialMedia.Domain.Users;
+using System.Security.Cryptography;
+using System.Text;
 
 
 namespace SocialMedia.Application.Users.Commands.AddUserCommand
@@ -39,6 +42,16 @@ namespace SocialMedia.Application.Users.Commands.AddUserCommand
 
                 //user.SetLogin(loginId);
 
+                GeneratePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+
+                var authentication = new LoginInformation
+                {
+                    PasswordHash = passwordHash,
+                    PasswordSalt = passwordSalt
+                };
+
+                user.SetLogin(authentication);
+
                 await _userRepository.Add(user);
 
                 await _unitOfWork.SaveChangesAsync();
@@ -50,6 +63,13 @@ namespace SocialMedia.Application.Users.Commands.AddUserCommand
                 throw;
                 //return Result.Failure(new Error(ex.Message));
             }
+        }
+
+        private static void GeneratePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        {
+            using var secutiry = new HMACSHA512();
+            passwordSalt = secutiry.Key;
+            passwordHash = secutiry.ComputeHash(Encoding.UTF8.GetBytes(password));
         }
     }
 }

@@ -27,7 +27,7 @@ namespace SocialMedia.Domain.Users
         public string Email { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime? TimeOfDelete { get; set; }
-        public string LoginId { get; private set; } = string.Empty;
+        public LoginInformation LoginInformation { get; set; }
 
         public ICollection<FollowUser>? Followers { get; set; }
         public ICollection<FollowUser>? Following { get; set; }
@@ -41,9 +41,10 @@ namespace SocialMedia.Domain.Users
             user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
             return user;
         }
-        public void SetLogin(string loginId)
+
+        public void SetLogin(LoginInformation loginInformation)
         {
-            LoginId = loginId;
+            LoginInformation = loginInformation;
         }
     }
 }

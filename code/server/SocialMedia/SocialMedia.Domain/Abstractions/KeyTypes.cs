@@ -5,6 +5,7 @@ namespace SocialMedia.Domain.Abstractions
     {
         Id = 0,
         Tag = 1,
-        Token = 2
+        Email = 2,
+        Token = 3
     }
 }
