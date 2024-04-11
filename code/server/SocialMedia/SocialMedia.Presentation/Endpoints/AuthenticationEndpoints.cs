@@ -1,11 +1,8 @@
-﻿using Azure.Core;
-using MediatR;
-using Microsoft.AspNetCore.Identity;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using SocialMedia.Application.Users.Commands.AddUserCommand;
 using SocialMedia.Application.Users.Commands.LogInUser;
-using SocialMedia.Application.Users.Queries.GetUserById;
 using SocialMedia.Domain.Abstractions;
 using SocialMedia.Domain.Users;
 using SocialMedia.Presentation.Endpoints.Profile;
@@ -13,16 +10,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using SocialMedia.Domain.Shared;
 
 namespace SocialMedia.Presentation.Endpoints.Authentication
 {
-    public class RefreshToken
-    {
-        public string Text { get; set; } = string.Empty;
-        public DateTime Created { get; set; } = DateTime.Now;
-        public DateTime Expires { get; set; }
-    }
-
     public static class AuthenticationEndpoints
     {
         private static IConfiguration _configuration;
@@ -34,7 +25,7 @@ namespace SocialMedia.Presentation.Endpoints.Authentication
 
             app.MapPost("{request}", SignUp);
             app.MapGet("{request}", LoginAsync);
-            app.MapGet("", GetLoggedInAccountId);
+            app.MapGet("", GetLoggedInUserId);
         }
 
         public static async Task<IResult> SignUp(
@@ -71,9 +62,7 @@ namespace SocialMedia.Presentation.Endpoints.Authentication
                 return TypedResults.BadRequest($"Could not find an account with tag \"{request.Tag}\".");
             }
 
-
-
-            string token = CreateToken(userResponse);
+            string token = CreateToken(request.Tag);
 
             var refreshToken = GenerateRefreshToken();
             SetRefreshToken(refreshToken);
@@ -82,11 +71,11 @@ namespace SocialMedia.Presentation.Endpoints.Authentication
         }
 
 
-        private static string CreateToken(AddUserRequest user)
+        private static string CreateToken(string tag)
         {
             List<Claim> claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Tag),
+                new Claim(ClaimTypes.Name, tag),
                 new Claim(ClaimTypes.Role, "Admin")
             };
 
@@ -113,7 +102,6 @@ namespace SocialMedia.Presentation.Endpoints.Authentication
                 Expires = DateTime.Now.AddDays(7),
                 Created = DateTime.Now
             };
-
             return refreshToken;
         }
 
@@ -124,40 +112,28 @@ namespace SocialMedia.Presentation.Endpoints.Authentication
                 HttpOnly = true,
                 Expires = newRefreshToken.Expires
             };
-            Response.Cookies.Append("refreshToken", newRefreshToken.Text, cookieOptions);
+            _httpContextAccessor.HttpContext.Response.Cookies.Append("refreshToken", newRefreshToken.Text, cookieOptions);
         }
 
-        public async Task<ActionResult<string>> RefreshToken()
+        public static async Task<Result<string>> RefreshToken(ISender sender)
         {
-            var refreshToken = Request.Cookies["refreshToken"];
-
+            var refreshToken = _httpContextAccessor.HttpContext.Request.Cookies["refreshToken"];
             if (string.IsNullOrEmpty(refreshToken))
-            {
-                return Unauthorized("Invalid Refresh Token.");
-            }
-
-            var account = await _accountRepository.GetAccountByToken(refreshToken);
-
-            if (account == null || account.Token.Expires < DateTime.Now)
-            {
-                return Unauthorized("Token expired or invalid.");
-            }
-
+                return Result.Failure<string>(new Error("Invalid Refresh Token."));
             string token = CreateToken(account);
             var newRefreshToken = GenerateRefreshToken();
             SetRefreshToken(newRefreshToken);
-
-            return Ok(token);
+            return Result.Success(token);
         }
 
-        public ActionResult<string> GetLoginTag()
+        public static Result<string> GetLoginTag()
         {
             var result = string.Empty;
             if (_httpContextAccessor.HttpContext != null)
             {
                 result = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
             }
-            return Ok(result);
+            return Result.Success(result);
         }
 
         public static async Task<Guid> GetLoggedInUserId()

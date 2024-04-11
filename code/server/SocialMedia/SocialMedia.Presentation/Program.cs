@@ -1,4 +1,3 @@
-using Carter;
 using SocialMedia.Infrastructure;
 using SocialMedia.Application;
 using SocialMedia.Presentation.Endpoints.Profile;

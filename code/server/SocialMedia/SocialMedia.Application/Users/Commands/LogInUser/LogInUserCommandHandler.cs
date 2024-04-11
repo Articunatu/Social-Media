@@ -5,6 +5,7 @@ using SocialMedia.Domain.Users;
 using System.Security.Principal;
 using System.Security.Cryptography;
 using System.Text;
+using SocialMedia.Domain.Abstractions;
 
 namespace SocialMedia.Application.Users.Commands.LogInUser
 {
@@ -21,13 +22,13 @@ namespace SocialMedia.Application.Users.Commands.LogInUser
             LogInUserCommand request,
             CancellationToken cancellationToken)
         {
-            string query = $"SELECT c.id, c.tag c.email FROM c WHERE {request.Email} = @partitionKey";
+            string query = $"SELECT c.id, c.tag c.email FROM c WHERE {KeyTypes.Email} = @partitionKey";
             var user = await _readRepository.GetSingle<User>(request.Email, query);
             if (!VerifyPasswordHash(request.Password, user.LoginInformation.PasswordHash, user.LoginInformation.PasswordSalt))
             {
                 return Result.Failure<AccessTokenResponse>(new Error("Incorrect password."));
             }
-            return Result.Success(user);
+            return Result.Success(new AccessTokenResponse(user.Token.Text));
         }
         private static bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
         {

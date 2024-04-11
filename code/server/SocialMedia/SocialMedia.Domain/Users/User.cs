@@ -28,6 +28,7 @@ namespace SocialMedia.Domain.Users
         public bool IsDeleted { get; set; }
         public DateTime? TimeOfDelete { get; set; }
         public LoginInformation LoginInformation { get; set; }
+        public RefreshToken Token { get; set; }
 
         public ICollection<FollowUser>? Followers { get; set; }
         public ICollection<FollowUser>? Following { get; set; }
