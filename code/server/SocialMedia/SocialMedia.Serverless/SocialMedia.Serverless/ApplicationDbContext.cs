@@ -10,10 +10,18 @@ namespace SocialMedia.Infrastructure
         DbContextOptions options
         ) : DbContext(options), IUnitOfWork
     {
+
+        //private static readonly JsonSerializerSettings JsonSerializerSettings = new()
+        //{
+        //    TypeNameHandling = TypeNameHandling.All
+        //};
+
+        //private readonly IPublisher _publisher = publisher;
+
         public DbSet<User> Users { get; set; }
-        public DbSet<Message> Messages { get; set; }
-        public DbSet<Reaction> Reactions { get; set; }
-        //public DbSet<FollowUser> Follows { get; set; }
+        public DbSet<Message> Messages { get; init; }
+        public DbSet<Reaction> Reactions { get; init; }
+        public DbSet<FollowUser> Follows { get; init; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -31,20 +39,20 @@ namespace SocialMedia.Infrastructure
             modelBuilder.Entity<ReactionType>()
                 .HasKey(r => r.Value);
             
-            //modelBuilder.Entity<FollowUser>()
-            //    .HasKey(f => f.Id);
+            modelBuilder.Entity<FollowUser>()
+                .HasKey(f => f.Id);
 
-            //modelBuilder.Entity<FollowUser>()
-            //    .HasOne(f => f.Follower)
-            //    .WithMany(u => u.Following)
-            //    .HasForeignKey(f => f.FollowerId)
-            //    .OnDelete(DeleteBehavior.Restrict); // Adjust the delete behavior as needed
+            modelBuilder.Entity<FollowUser>()
+                .HasOne(f => f.Follower)
+                .WithMany(u => u.Following)
+                .HasForeignKey(f => f.FollowerId)
+                .OnDelete(DeleteBehavior.Restrict); // Adjust the delete behavior as needed
 
-            //modelBuilder.Entity<FollowUser>()
-            //    .HasOne(f => f.Following)
-            //    .WithMany(u => u.Followers)
-            //    .HasForeignKey(f => f.FollowingId)
-            //    .OnDelete(DeleteBehavior.Restrict); // Adjust the delete behavior as needed
+            modelBuilder.Entity<FollowUser>()
+                .HasOne(f => f.Following)
+                .WithMany(u => u.Followers)
+                .HasForeignKey(f => f.FollowingId)
+                .OnDelete(DeleteBehavior.Restrict); // Adjust the delete behavior as needed
 
             modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
 

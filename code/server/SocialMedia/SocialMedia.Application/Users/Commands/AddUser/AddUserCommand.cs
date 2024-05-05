@@ -1,5 +1,4 @@
 ﻿using SocialMedia.Application.Abstractions;
-using SocialMedia.Domain.Users;
 
 namespace SocialMedia.Application.Users.Commands.AddUserCommand
 {

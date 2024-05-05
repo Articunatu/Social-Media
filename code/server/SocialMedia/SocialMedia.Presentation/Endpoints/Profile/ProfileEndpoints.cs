@@ -13,10 +13,10 @@ namespace SocialMedia.Presentation.Endpoints.Profile
         {
             var group = app.MapGroup("api/profiles");
 
-            app.MapGet("{id}", GetProfileInfo);
-            app.MapGet("", GetTop10Profiles);
+            app.MapGet("getprofile{id}", GetProfileInfo);
+            app.MapGet("get10profiles", GetTop10Profiles);
             app.MapPost("register", Register);
-            app.MapPost("", LogIn);
+            app.MapPost("login", LogIn);
         }
 
         public static async Task<IResult> GetProfileInfo(
@@ -51,8 +51,8 @@ namespace SocialMedia.Presentation.Endpoints.Profile
 
         public static async Task<IResult> Register(
             AddUserCommand request,
-            CancellationToken cancellationToken,
-            ISender sender)
+            ISender sender,
+            CancellationToken cancellationToken)
         {
             var command = new AddUserCommand(
                 request.Tag,
@@ -65,26 +65,22 @@ namespace SocialMedia.Presentation.Endpoints.Profile
             var result = await sender.Send(command, cancellationToken);
 
             if (result.IsFailure)
-            {
                 return TypedResults.BadRequest(result.Error);
-            }
 
             return TypedResults.Ok(result.Value);
         }
 
         public static async Task<IResult> LogIn(
             LogInUserRequest request,
-            CancellationToken cancellationToken,
-            ISender sender)
+            ISender sender,
+            CancellationToken cancellationToken)
         {
             var command = new LogInUserCommand(request.Email, request.Password);
 
             var result = await sender.Send(command, cancellationToken);
 
             if (result.IsFailure)
-            {
                 return TypedResults.BadRequest(result.Error);
-            }
 
             return TypedResults.Ok(result.Value);
         }

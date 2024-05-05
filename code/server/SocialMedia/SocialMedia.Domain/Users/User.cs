@@ -2,7 +2,6 @@
 using SocialMedia.Domain.Messages;
 using SocialMedia.Domain.Reactions;
 using SocialMedia.Domain.Users.Events;
-using SocialMedia.Domain.Users.ValueObjects;
 
 namespace SocialMedia.Domain.Users
 {
@@ -27,11 +26,12 @@ namespace SocialMedia.Domain.Users
         public string Email { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime? TimeOfDelete { get; set; }
-        public LoginInformation LoginInformation { get; set; }
-        public RefreshToken Token { get; set; }
+        public byte[] PasswordHash { get; set; }
+        public byte[] PasswordSalt { get; set; }
+        //public RefreshToken Token { get; set; }
 
-        public ICollection<FollowUser>? Followers { get; set; }
-        public ICollection<FollowUser>? Following { get; set; }
+        //public ICollection<FollowUser>? Followers { get; set; }
+        //public ICollection<FollowUser>? Following { get; set; }
         public ICollection<Post>? Posts { get; set; }
         public ICollection<Reply>? Replies { get; set; }
         public ICollection<Reaction>? Reactions { get; set; }
@@ -43,9 +43,10 @@ namespace SocialMedia.Domain.Users
             return user;
         }
 
-        public void SetLogin(LoginInformation loginInformation)
+        public void SetLogin(byte[] passwordHash, byte[] passwordSalt)
         {
-            LoginInformation = loginInformation;
+            PasswordHash = passwordHash;
+            PasswordSalt = passwordSalt;
         }
     }
 }

@@ -4,12 +4,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using SocialMedia.Application.Users.Queries.GetUserById;
 using Xunit;
 using MediatR;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.TestHost;
-using SocialMedia.Application.Users.Queries.Application.Users.Queries.GetUserById;
 
 public class ProfileEndpointTests
 {

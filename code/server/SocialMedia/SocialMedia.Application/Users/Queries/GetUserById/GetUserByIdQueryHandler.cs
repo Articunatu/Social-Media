@@ -15,7 +15,7 @@ namespace SocialMedia.Application.Users.Queries.GetUserById
             var user = await _userRepository.GetSingle<User>(request.Key, query);
             if (user is null)
                 return Result.Failure<UserResponse>(new Error("User.NotFound"));
-            string userFullname = user.FirstName + " " + user.LastName;
+            var userFullname = user.FirstName + " " + user.LastName;
             var response = new UserResponse(user.Id, user.Tag, userFullname);
             return Result.Success(response);
         }

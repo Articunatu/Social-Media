@@ -7,13 +7,13 @@ function getBaseApiUrl(version: number): string {
 
 export const API = {
     quickQuestions: {
-        getQuestions() {
-            // return `${getBaseApiUrl(1)}quickquestion/questions`;
+        getProfileInfo() {
+            // return `${getBaseApiUrl(1)}`;
         },
-        getQuestionById(id : string) {
+        getFollowersPaged(id : string) {
             return `${getBaseApiUrl(1)}quickquestion/question/${id}`;
         },
-        postQuestion() {
+        getFeed() {
             return `${getBaseApiUrl(1)}quickquestion/answer`;
         },
         reportAnswer(answerId : string) {
