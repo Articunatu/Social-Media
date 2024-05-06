@@ -43,11 +43,11 @@ namespace SocialMedia.Infrastructure.Authentication
 
         public string CreateToken(string tag)
         {
-            List<Claim> claims = new List<Claim>
-            {
+            List<Claim> claims =
+            [
                 new Claim(ClaimTypes.Name, tag),
                 new Claim(ClaimTypes.Role, "Admin")
-            };
+            ];
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
                 _configuration.GetSection("AppSettings:Token").Value));

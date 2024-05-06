@@ -54,8 +54,10 @@ namespace SocialMedia.Presentation.Endpoints.Authentication
         public static async Task<IResult> GetLoggedInUserId(ISender sender)
         {
             var userIdResponse = await sender.Send(new GetLoggedInIdQuery());
+
             if(userIdResponse.IsFailure)
                 return TypedResults.BadRequest(userIdResponse.Error);
+
             return TypedResults.Ok(userIdResponse);
         }
 

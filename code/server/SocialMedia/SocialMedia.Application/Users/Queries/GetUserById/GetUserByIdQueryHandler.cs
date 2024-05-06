@@ -11,7 +11,7 @@ namespace SocialMedia.Application.Users.Queries.GetUserById
 
         public async Task<Result<UserResponse>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
         {
-            var query = $"SELECT c.id, c.tag, c.firstName, c.lastName FROM c WHERE {request.Key} = @partitionKey";
+            var query = $"SELECT c.id, c.tag, c.firstName, c.lastName FROM c WHERE c.id = @partitionKey";
             var user = await _userRepository.GetSingle<User>(request.Key, query);
             if (user is null)
                 return Result.Failure<UserResponse>(new Error("User.NotFound"));

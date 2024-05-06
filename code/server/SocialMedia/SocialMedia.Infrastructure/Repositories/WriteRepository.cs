@@ -9,18 +9,18 @@ namespace SocialMedia.Infrastructure.Repositories
         Container container)
         where TEntity : Entity<TEntityId>
     {
-        protected readonly ApplicationDbContext _dbContext = dbContext;
-        protected readonly Container _container = container;
+        protected readonly ApplicationDbContext table = dbContext;
+        protected readonly Container doc = container;
 
         public async Task Add(TEntity entity)
         {
-            await _dbContext.Set<TEntity>().AddAsync(entity);
-            await _container.CreateItemAsync(entity);
+            await table.Set<TEntity>().AddAsync(entity);
+            await doc.CreateItemAsync(entity);
         }
 
         public async Task AddMultiple(List<TEntity> entities)
         {
-            await _dbContext.BulkInsertAsync(entities);
+            await table.BulkInsertAsync(entities);
             await BulkInsertCosmos(entities);
         }
 
@@ -29,7 +29,7 @@ namespace SocialMedia.Infrastructure.Repositories
             List<Task> tasks = new List<Task>(entities.Count());
             foreach (var item in entities)
             {
-                tasks.Add(_container.CreateItemAsync(item, new PartitionKey(item.Id.ToString()))
+                tasks.Add(doc.CreateItemAsync(item, new PartitionKey(item.Id.ToString()))
                     .ContinueWith(itemResponse =>
                     {
                         if (!itemResponse.IsCompletedSuccessfully)
@@ -48,10 +48,10 @@ namespace SocialMedia.Infrastructure.Repositories
 
         public async Task Delete(TEntityId id)
         {
-            var entity = await _dbContext.Set<TEntity>().FindAsync(id);
+            var entity = await table.Set<TEntity>().FindAsync(id);
             if (entity != null)
             {
-                _dbContext.Set<TEntity>().Remove(entity);
+                table.Set<TEntity>().Remove(entity);
                 await RemoveCosmos(id, entity);
             }
         }
@@ -62,18 +62,18 @@ namespace SocialMedia.Infrastructure.Repositories
             {
                 softDeletableEntity.IsDeleted = true;
                 softDeletableEntity.TimeOfDelete = DateTime.UtcNow;
-                await _container.UpsertItemAsync(softDeletableEntity);
+                await doc.UpsertItemAsync(softDeletableEntity);
             }
             else
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-                await _container.DeleteItemAsync<TEntity>(id.ToString(), new PartitionKey(id.ToString()));
+                await doc.DeleteItemAsync<TEntity>(id.ToString(), new PartitionKey(id.ToString()));
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
         public async Task Update(TEntity entity)
         {
-            _dbContext.Set<TEntity>().Update(entity);
-            await _container.UpsertItemAsync(entity);
+            table.Set<TEntity>().Update(entity);
+            await doc.UpsertItemAsync(entity);
         }
     }
 }

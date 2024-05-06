@@ -20,16 +20,23 @@ namespace SocialMedia.Application.Users.Commands.LogInUser
             LogInUserCommand request,
             CancellationToken cancellationToken)
         {
-            string query = $"SELECT c.id, c.tag c.email FROM c WHERE c.email = @partitionKey";
+            string query = $"SELECT c.id, c.tag, c.email, c.passwordHash, c.passwordSalt FROM c WHERE c.email = @partitionKey";
             var user = await db.GetSingle<User>(request.Email, query);
 
             if (user is null)
-                return Result.Failure<object>(new Error("Could not find an account with tag"));
+                return Result.Failure<object>(new Error($"Could not find an account with email {request.Email}"));
+            
+            if (user.PasswordHash is null)
+                return Result.Failure<object>(new Error($"Yes coke"));
+            
+            if (request.Password is null)
+                return Result.Failure<object>(new Error($"Password empty"));
 
             if (!auth.VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
                 return Result.Failure<object>(new Error("Incorrect password."));
 
             string token = auth.CreateToken(user.Tag);
+
             var newRefreshToken = auth.GenerateRefreshToken();
             auth.SetRefreshToken(newRefreshToken);
 
