@@ -1,23 +1,12 @@
-import React from "react";
-import Button from "../Shared/Button";
-import Text from "../Shared/Text";
-type Props = {};
+import React from 'react';
+import Carousel from '../Shared/Carousel'; 
 
-const handleClickButton = () => {
-    // Handle button click logic
-};
+interface Props {}
 
-const FeedPage = (props: Props) => {
+const FeedPage: React.FC<Props> = () => {
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-4xl font-bold mb-4">Feed Page</h1>
-            <div className="flex justify-between items-center bg-gray-200 p-4 rounded">
-                <div className="flex-grow">
-                    <Text text="Welcome to the Feed Page"></Text>
-                </div>
-                <Button onClick={handleClickButton}>Click me</Button>
-                <Button onClick={handleClickButton}>Load more</Button>
-            </div>
+        <Carousel items={[]} />
         </div>
     );
 };

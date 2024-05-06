@@ -1,5 +1,4 @@
 ﻿using Microsoft.Azure.Cosmos;
-using Microsoft.EntityFrameworkCore;
 using SocialMedia.Domain.Users;
 using User = SocialMedia.Domain.Users.User;
 

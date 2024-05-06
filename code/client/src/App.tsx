@@ -8,11 +8,11 @@ import NavbarRight from "./Components/Shared/NavbarRight";
 export default function App() {
   return (
     <>
-      <Navbar/>
+      {/* <Navbar/> */}
       <Outlet/>
-      <Navmenu/>
+      {/* <Navmenu/>
       <NavbarLeft/>
-      <NavbarRight/>
+      <NavbarRight/> */}
     </>
   )
 }
