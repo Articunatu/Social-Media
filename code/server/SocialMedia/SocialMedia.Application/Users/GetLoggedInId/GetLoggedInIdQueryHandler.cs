@@ -2,7 +2,7 @@
 using SocialMedia.Domain.Shared;
 using SocialMedia.Domain.Users;
 
-namespace SocialMedia.Application.Users.Queries.GetLoggedInId
+namespace SocialMedia.Application.Users.GetLoggedInId
 {
     internal sealed class GetLoggedInIdQueryHandler(IAuthenticationService authenticationService)
         : IQueryHandler<GetLoggedInIdQuery, Guid>

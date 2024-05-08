@@ -15,7 +15,6 @@
   <ItemGroup>
     <Folder Include="Messages\" />
     <Folder Include="Reactions\" />
-    <Folder Include="Users\Commands\RefreshToken\" />
   </ItemGroup>
 
   <ItemGroup>

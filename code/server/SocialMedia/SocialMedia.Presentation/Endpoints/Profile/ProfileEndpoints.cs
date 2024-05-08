@@ -15,8 +15,6 @@ namespace SocialMedia.Presentation.Endpoints.Profile
 
             app.MapGet("getprofile{id}", GetProfileInfo);
             app.MapGet("get10profiles", GetTop10Profiles);
-            app.MapPost("register", Register);
-            app.MapPost("login", LogIn);
         }
 
         public static async Task<IResult> GetProfileInfo(
@@ -47,42 +45,6 @@ namespace SocialMedia.Presentation.Endpoints.Profile
             {
                 return TypedResults.NotFound(e.Message);
             }
-        }
-
-        public static async Task<IResult> Register(
-            AddUserCommand request,
-            ISender sender,
-            CancellationToken cancellationToken)
-        {
-            var command = new AddUserCommand(
-                request.Tag,
-                request.Email,
-                request.FirstName,
-                request.LastName,
-                request.Password
-                );
-
-            var result = await sender.Send(command, cancellationToken);
-
-            if (result.IsFailure)
-                return TypedResults.BadRequest(result.Error);
-
-            return TypedResults.Ok(result.Value);
-        }
-
-        public static async Task<IResult> LogIn(
-            LogInUserRequest request,
-            ISender sender,
-            CancellationToken cancellationToken)
-        {
-            var command = new LogInUserCommand(request.Email, request.Password);
-
-            var result = await sender.Send(command, cancellationToken);
-
-            if (result.IsFailure)
-                return TypedResults.BadRequest(result.Error);
-
-            return TypedResults.Ok(result.Value);
-        }
+        }     
     }
 }

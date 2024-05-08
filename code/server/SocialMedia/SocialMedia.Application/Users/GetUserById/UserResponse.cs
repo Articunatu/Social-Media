@@ -1,4 +1,4 @@
-﻿namespace SocialMedia.Application.Users.Queries.GetTop10Users
+﻿namespace SocialMedia.Application.Users.GetUserById
 {
     public sealed record UserResponse(Guid Id, string Tag, string FullName);
 }

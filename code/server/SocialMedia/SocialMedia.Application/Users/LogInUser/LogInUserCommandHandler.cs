@@ -2,7 +2,7 @@
 using SocialMedia.Domain.Shared;
 using SocialMedia.Domain.Users;
 
-namespace SocialMedia.Application.Users.Commands.LogInUser
+namespace SocialMedia.Application.Users.LogInUser
 {
     internal sealed class LogInUserCommandHandler : ICommandHandler<LogInUserCommand, object>
     {
@@ -25,10 +25,10 @@ namespace SocialMedia.Application.Users.Commands.LogInUser
 
             if (user is null)
                 return Result.Failure<object>(new Error($"Could not find an account with email {request.Email}"));
-            
+
             if (user.PasswordHash is null)
-                return Result.Failure<object>(new Error($"Yes coke"));
-            
+                return Result.Failure<object>(new Error($"No password ash"));
+
             if (request.Password is null)
                 return Result.Failure<object>(new Error($"Password empty"));
 

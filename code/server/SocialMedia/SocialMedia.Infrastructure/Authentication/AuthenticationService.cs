@@ -64,9 +64,9 @@ namespace SocialMedia.Infrastructure.Authentication
             return jwt;
         }
 
-        public RefreshToken GenerateRefreshToken()
+        public Token GenerateRefreshToken()
         {
-            var refreshToken = new RefreshToken
+            var refreshToken = new Token
             {
                 Text = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
                 Expires = DateTime.Now.AddDays(7),
@@ -75,7 +75,7 @@ namespace SocialMedia.Infrastructure.Authentication
             return refreshToken;
         }
 
-        public void SetRefreshToken(RefreshToken newRefreshToken)
+        public void SetRefreshToken(Token newRefreshToken)
         {
             var cookieOptions = new CookieOptions
             {
@@ -87,7 +87,11 @@ namespace SocialMedia.Infrastructure.Authentication
 
         public string? RefreshToken(string tag)
         {
-            var refreshToken = _httpContextAccessor.HttpContext.Request.Cookies["refreshToken"];
+            return _httpContextAccessor.HttpContext.Request.Cookies["refreshToken"];
+        }
+
+        public string? NewRefreshToken(string tag)
+        {
             string token = CreateToken(tag);
             var newRefreshToken = GenerateRefreshToken();
             SetRefreshToken(newRefreshToken);

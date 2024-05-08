@@ -13,7 +13,7 @@ namespace SocialMedia.Infrastructure
         public DbSet<User> Users { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Reaction> Reactions { get; set; }
-        //public DbSet<FollowUser> Follows { get; set; }
+        public DbSet<FollowUser> Follows { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,28 +27,39 @@ namespace SocialMedia.Infrastructure
 
             modelBuilder.Entity<Reaction>()
                 .HasKey(r => r.Id);
-            
+
             modelBuilder.Entity<ReactionType>()
                 .HasKey(r => r.Value);
-            
-            //modelBuilder.Entity<FollowUser>()
-            //    .HasKey(f => f.Id);
 
-            //modelBuilder.Entity<FollowUser>()
-            //    .HasOne(f => f.Follower)
-            //    .WithMany(u => u.Following)
-            //    .HasForeignKey(f => f.FollowerId)
-            //    .OnDelete(DeleteBehavior.Restrict); // Adjust the delete behavior as needed
+            modelBuilder.Entity<FollowUser>()
+                .HasKey(f => new { f.FollowerId, f.FollowingId }); // Composite key
 
-            //modelBuilder.Entity<FollowUser>()
-            //    .HasOne(f => f.Following)
-            //    .WithMany(u => u.Followers)
-            //    .HasForeignKey(f => f.FollowingId)
-            //    .OnDelete(DeleteBehavior.Restrict); // Adjust the delete behavior as needed
+            modelBuilder.Entity<FollowUser>()
+                .HasOne(f => f.Follower)
+                .WithMany(u => u.Followers)
+                .HasForeignKey(f => f.FollowerId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
+            modelBuilder.Entity<FollowUser>()
+                .HasOne(f => f.Following)
+                .WithMany(u => u.Following)
+                .HasForeignKey(f => f.FollowingId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<User>()
+        .       OwnsOne(u => u.Token);
+
+            // Optional: if you want to specify additional configuration for Token properties
+            modelBuilder.Entity<User>()
+                .OwnsOne(u => u.Token)
+                .Property(t => t.Text)
+                .IsRequired(); // Example: make Text property required
+
+            //// Optional: if you have a navigation property from Token to User
+            //modelBuilder.Entity<Token>()
+            //    .HasOne(t => t.User)
+            //    .WithOne(u => u.Token)
+            //    .HasForeignKey<User>(u => u.Id); // Foreign key in User table
         }
     }
 }

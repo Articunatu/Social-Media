@@ -2,7 +2,7 @@
 using SocialMedia.Domain.Shared;
 using SocialMedia.Domain.Users;
 
-namespace SocialMedia.Application.Users.Queries.GetLoginTag
+namespace SocialMedia.Application.Users.GetLoginTag
 {
     internal sealed class GetLoginTagQueryHandler(IAuthenticationService authenticationService)
         : IQueryHandler<GetLoginTagQuery, string>

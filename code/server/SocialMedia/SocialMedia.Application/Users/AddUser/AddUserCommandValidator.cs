@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using SocialMedia.Domain.Users.ValueObjects;
 
-namespace SocialMedia.Application.Users.Commands.AddUserCommand
+namespace SocialMedia.Application.Users.AddUser
 {
     internal class AddUserCommandValidator : AbstractValidator<AddUserCommand>
     {

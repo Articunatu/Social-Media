@@ -2,7 +2,7 @@
 using SocialMedia.Domain.Shared;
 using SocialMedia.Domain.Users;
 
-namespace SocialMedia.Application.Users.Queries.GetUserById
+namespace SocialMedia.Application.Users.GetUserById
 {
     internal sealed class GetUserByIdQueryHandler(IUserReadRepository userRepository)
                 : IQueryHandler<GetUserByIdQuery, UserResponse>

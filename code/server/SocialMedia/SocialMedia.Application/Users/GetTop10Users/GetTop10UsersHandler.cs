@@ -3,7 +3,7 @@ using SocialMedia.Domain.Shared;
 using SocialMedia.Domain.Users;
 
 
-namespace SocialMedia.Application.Users.Queries.GetTop10Users
+namespace SocialMedia.Application.Users.GetTop10Users
 {
     internal sealed class GetTop10UsersQueryHandler(IUserReadRepository userRepository)
                 : IQueryHandler<GetTop10UsersQuery, IEnumerable<UserResponse>>

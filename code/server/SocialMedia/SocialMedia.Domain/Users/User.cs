@@ -28,10 +28,10 @@ namespace SocialMedia.Domain.Users
         public DateTime? TimeOfDelete { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
-        //public RefreshToken Token { get; set; }
+        public Token Token { get; set; }
 
-        //public ICollection<FollowUser>? Followers { get; set; }
-        //public ICollection<FollowUser>? Following { get; set; }
+        public ICollection<FollowUser>? Followers { get; set; }
+        public ICollection<FollowUser>? Following { get; set; }
         public ICollection<Post>? Posts { get; set; }
         public ICollection<Reply>? Replies { get; set; }
         public ICollection<Reaction>? Reactions { get; set; }
@@ -41,6 +41,14 @@ namespace SocialMedia.Domain.Users
             var user = new User(Guid.NewGuid(), tag, firstname, lastName, email);
             user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
             return user;
+        }
+        
+        public static FollowUser Follow(User follower, User following, Guid followerId, Guid followingId)
+        {
+            var followRef = new FollowUser(Guid.NewGuid(), followerId, followingId);
+            follower.RaiseDomainEvent(new UserFollowedDomainEvent(follower.Id));
+            following.RaiseDomainEvent(new UserFollowedDomainEvent(following.Id));
+            return followRef;
         }
 
         public void SetLogin(byte[] passwordHash, byte[] passwordSalt)

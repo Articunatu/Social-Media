@@ -1,6 +1,6 @@
 ﻿using SocialMedia.Application.Abstractions;
 
-namespace SocialMedia.Application.Users.Commands.AddUserCommand
+namespace SocialMedia.Application.Users.AddUser
 {
     public sealed record AddUserCommand(
         string Tag,

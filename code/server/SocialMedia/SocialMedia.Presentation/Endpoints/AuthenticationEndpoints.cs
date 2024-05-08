@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using SocialMedia.Application.Users.Commands.AddUserCommand;
+using SocialMedia.Application.Users.AddUser;
 using SocialMedia.Application.Users.Commands.LogInUser;
 using SocialMedia.Application.Users.Queries.GetLoggedInId;
 using SocialMedia.Presentation.Endpoints.Profile;
@@ -12,16 +12,15 @@ namespace SocialMedia.Presentation.Endpoints.Authentication
         {
             var group = app.MapGroup("api/profiles");
 
-            app.MapPost("{request}", SignUp);
-            app.MapGet("{request}", LoginAsync);
+            app.MapPost("register", Register);
+            app.MapGet("login", LogIn);
             app.MapGet("id", GetLoggedInUserId);
-            app.MapPost("", RefreshToken);
+            //app.MapPost("", RefreshToken);
         }
-
-        public static async Task<IResult> SignUp(
-            AddUserRequest request,
-            CancellationToken cancellationToken,
-            ISender sender)
+        public static async Task<IResult> Register(
+            AddUserCommand request,
+            ISender sender,
+            CancellationToken cancellationToken)
         {
             var command = new AddUserCommand(
                 request.Tag,
@@ -29,7 +28,7 @@ namespace SocialMedia.Presentation.Endpoints.Authentication
                 request.FirstName,
                 request.LastName,
                 request.Password
-            );
+                );
 
             var result = await sender.Send(command, cancellationToken);
 
@@ -39,16 +38,19 @@ namespace SocialMedia.Presentation.Endpoints.Authentication
             return TypedResults.Ok(result.Value);
         }
 
-        public static async Task<IResult> LoginAsync(
+        public static async Task<IResult> LogIn(
             LogInUserRequest request,
-            ISender sender)
+            ISender sender,
+            CancellationToken cancellationToken)
         {
-            var loginResponse = await sender.Send(new LogInUserCommand(request.Email, request.Password));
+            var command = new LogInUserCommand(request.Email, request.Password);
 
-            if (loginResponse.IsFailure)
-                return TypedResults.BadRequest(loginResponse.Error); 
+            var result = await sender.Send(command, cancellationToken);
 
-            return TypedResults.Ok(loginResponse);
+            if (result.IsFailure)
+                return TypedResults.BadRequest(result.Error);
+
+            return TypedResults.Ok(result.Value);
         }
 
         public static async Task<IResult> GetLoggedInUserId(ISender sender)
@@ -61,9 +63,9 @@ namespace SocialMedia.Presentation.Endpoints.Authentication
             return TypedResults.Ok(userIdResponse);
         }
 
-        public static async Task<IResult> RefreshToken()
-        {
-            return TypedResults.BadRequest();
-        }
+        //public static async Task<IResult> RefreshToken(ISender sender)
+        //{
+        //    return sender.Send(RefreshTokenCommand);
+        //}
     }
 }

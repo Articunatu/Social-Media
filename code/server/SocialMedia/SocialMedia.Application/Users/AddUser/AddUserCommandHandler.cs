@@ -3,7 +3,7 @@ using SocialMedia.Domain.Abstractions;
 using SocialMedia.Domain.Shared;
 using SocialMedia.Domain.Users;
 
-namespace SocialMedia.Application.Users.Commands.AddUserCommand
+namespace SocialMedia.Application.Users.AddUser
 {
     internal sealed class AddUserCommandHandler : ICommandHandler<AddUserCommand, Guid>
     {
@@ -20,7 +20,6 @@ namespace SocialMedia.Application.Users.Commands.AddUserCommand
 
         public async Task<Result<Guid>> Handle(AddUserCommand request, CancellationToken cancellationToken)
         {
-
             var user = User.Create(
                 request.Tag,
                 request.FirstName,
@@ -38,7 +37,7 @@ namespace SocialMedia.Application.Users.Commands.AddUserCommand
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                return user.Id;
+                return Result.Success(user.Id);
             }
             catch (Exception ex)
             {

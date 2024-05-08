@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SocialMedia.Infrastructure;
 
@@ -11,9 +12,11 @@ using SocialMedia.Infrastructure;
 namespace SocialMedia.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240507080211_follow")]
+    partial class follow
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,20 +110,51 @@ namespace SocialMedia.Infrastructure.Migrations
 
             modelBuilder.Entity("SocialMedia.Domain.Users.FollowUser", b =>
                 {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("FollowerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("FollowingId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("Id")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("FollowerId", "FollowingId");
+                    b.Property<Guid?>("UserId1")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.HasIndex("FollowingId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId1");
 
                     b.ToTable("Follows");
+                });
+
+            modelBuilder.Entity("SocialMedia.Domain.Users.Token", b =>
+                {
+                    b.Property<string>("Text")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Text");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Token");
                 });
 
             modelBuilder.Entity("SocialMedia.Domain.Users.User", b =>
@@ -217,52 +251,24 @@ namespace SocialMedia.Infrastructure.Migrations
 
             modelBuilder.Entity("SocialMedia.Domain.Users.FollowUser", b =>
                 {
-                    b.HasOne("SocialMedia.Domain.Users.User", "Follower")
+                    b.HasOne("SocialMedia.Domain.Users.User", null)
                         .WithMany("Followers")
-                        .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
-                    b.HasOne("SocialMedia.Domain.Users.User", "Following")
+                    b.HasOne("SocialMedia.Domain.Users.User", null)
                         .WithMany("Following")
-                        .HasForeignKey("FollowingId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Follower");
-
-                    b.Navigation("Following");
+                        .HasForeignKey("UserId1");
                 });
 
-            modelBuilder.Entity("SocialMedia.Domain.Users.User", b =>
+            modelBuilder.Entity("SocialMedia.Domain.Users.Token", b =>
                 {
-                    b.OwnsOne("SocialMedia.Domain.Users.Token", "Token", b1 =>
-                        {
-                            b1.Property<Guid>("UserId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<DateTime>("Created")
-                                .HasColumnType("datetime2");
-
-                            b1.Property<DateTime>("Expires")
-                                .HasColumnType("datetime2");
-
-                            b1.Property<string>("Text")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.HasKey("UserId");
-
-                            b1.ToTable("Users");
-
-                            b1.WithOwner("User")
-                                .HasForeignKey("UserId");
-
-                            b1.Navigation("User");
-                        });
-
-                    b.Navigation("Token")
+                    b.HasOne("SocialMedia.Domain.Users.User", "User")
+                        .WithOne("Token")
+                        .HasForeignKey("SocialMedia.Domain.Users.Token", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SocialMedia.Domain.Messages.Post", b =>
@@ -298,6 +304,9 @@ namespace SocialMedia.Infrastructure.Migrations
                     b.Navigation("Reactions");
 
                     b.Navigation("Replies");
+
+                    b.Navigation("Token")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("SocialMedia.Domain.Messages.Post", b =>
