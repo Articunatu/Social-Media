@@ -1,11 +1,20 @@
+import axios from "axios";
+
 function getBaseApiUrl(version: number): string {
     // Provide the actual implementation
     // For example: return `https://api.example.com/v${version}/`;
     return '';
 }
 
-
 export const API = {
+    profiles: {
+        login(email: string, password: string) {
+            return axios.post(`${getBaseApiUrl(1)}api/profiles/login`, {
+                email: email,
+                password: password
+            });
+        }
+    },
     quickQuestions: {
         getProfileInfo() {
             // return `${getBaseApiUrl(1)}`;
