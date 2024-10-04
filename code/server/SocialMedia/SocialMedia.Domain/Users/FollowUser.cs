@@ -6,7 +6,7 @@ namespace SocialMedia.Domain.Users
         public Guid Id { get; set; } = id;
         public Guid FollowerId { get; set; } = followerId;
         public Guid FollowingId { get; set; } = followingId;
-        public User Follower { get; set; }
-        public User Following { get; set; }
+        public UserRelational Follower { get; set; }
+        public UserRelational Following { get; set; }
     }
 }

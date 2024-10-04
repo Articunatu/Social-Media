@@ -3,9 +3,9 @@ namespace SocialMedia.Domain.Users
 {
     public interface IUserWriteRepository
     {
-        Task Add(User user);
+        Task Add(UserRelational userRelational, UserNoSql userNoSql);
         Task Delete(Guid id);
-        Task Update(User user);
-        //Task Follow(Guid followerId, Guid followingdId);
+        Task Update(UserRelational userRelational, UserNoSql userNoSql);
+        Task Follow(Guid followerId, Guid followingdId, UserDTO item);
     }
 }

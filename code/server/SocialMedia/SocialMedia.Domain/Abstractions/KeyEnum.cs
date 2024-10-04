@@ -1,7 +1,7 @@
 ﻿
 namespace SocialMedia.Domain.Abstractions
 {
-    public enum KeyTypes
+    public enum KeyEnum
     {
         Id = 0,
         Tag = 1,

@@ -18,7 +18,7 @@
         public static ReactionType Fire => new ReactionType("Fire", 1, Icons.FireId);
         public static ReactionType Water => new ReactionType("Water", 2, Icons.WaterId);
         public static ReactionType Lightning => new ReactionType("Lightning", 3, Icons.LightningId);
-        public static ReactionType Cloud => new ReactionType("Cloud", 4, Icons.CloudPId);
+        public static ReactionType Cloud => new ReactionType("Cloud", 4, Icons.CloudId);
         public static ReactionType Stone => new ReactionType("Stone", 5, Icons.StoneId);
         public static ReactionType Chemical => new ReactionType("Chemical", 6, Icons.ChemicalId);
         public static ReactionType Void => new ReactionType("Void", 7, Icons.VoidId);

@@ -6,11 +6,11 @@ using SocialMedia.Domain.Users;
 namespace SocialMedia.Application.Users.GetTop10Users
 {
     internal sealed class GetTop10UsersQueryHandler(IUserReadRepository userRepository)
-                : IQueryHandler<GetTop10UsersQuery, IEnumerable<UserResponse>>
+                : IQueryHandler<GetTop10UsersQuery, IEnumerable<UsersResponse>>
     {
         readonly IUserReadRepository _userRepository = userRepository;
 
-        public async Task<Result<IEnumerable<UserResponse>>> Handle(GetTop10UsersQuery request, CancellationToken cancellationToken)
+        public async Task<Result<IEnumerable<UsersResponse>>> Handle(GetTop10UsersQuery request, CancellationToken cancellationToken)
         {
             int pageNumber = request.PageNumber;
             int pageSize = 10;
@@ -23,16 +23,16 @@ namespace SocialMedia.Application.Users.GetTop10Users
 
             if (users == null)
             {
-                return Result.Failure<IEnumerable<UserResponse>>(new Error("10_Users.NotFound"));
+                return Result.Failure<IEnumerable<UsersResponse>>(new Error("10_Users.NotFound"));
             }
 
             var userResponses = users.Select(user =>
             {
                 string userFullname = user.FirstName + " " + user.LastName;
-                return new UserResponse(user.Id, user.Tag, userFullname);
+                return new UsersResponse(user.Id, user.Tag, userFullname);
             }).ToList();
 
-            return Result.Success((IEnumerable<UserResponse>)userResponses);
+            return Result.Success((IEnumerable<UsersResponse>)userResponses);
         }
     }
 }

@@ -1,31 +1,33 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SocialMedia.Domain.Abstractions;
+﻿using SocialMedia.Domain.Abstractions;
+using SocialMedia.Domain.Users;
 using SocialMedia.Domain.Messages;
 using SocialMedia.Domain.Reactions;
-using SocialMedia.Domain.Users;
+using Microsoft.EntityFrameworkCore;
 
 namespace SocialMedia.Infrastructure
 {
-    public sealed class ApplicationDbContext(
+    public sealed class ApplicationDbContext 
+        
+        (
         DbContextOptions options
         ) : DbContext(options), IUnitOfWork
     {
-        public DbSet<User> Users { get; set; }
-        public DbSet<Message> Messages { get; set; }
-        public DbSet<Reaction> Reactions { get; set; }
+        public DbSet<UserRelational> Users { get; set; }
+        public DbSet<PostRelational> Posts { get; set; }
+        public DbSet<ReactionRelational> Reactions { get; set; }
         public DbSet<FollowUser> Follows { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
 
-            modelBuilder.Entity<User>()
+            modelBuilder.Entity<UserRelational>()
                 .HasKey(u => u.Id);
 
-            modelBuilder.Entity<Message>()
+            modelBuilder.Entity<PostRelational>()
                 .HasKey(p => p.Id);
 
-            modelBuilder.Entity<Reaction>()
+            modelBuilder.Entity<ReactionRelational>()
                 .HasKey(r => r.Id);
 
             modelBuilder.Entity<ReactionType>()
@@ -46,11 +48,11 @@ namespace SocialMedia.Infrastructure
                 .HasForeignKey(f => f.FollowingId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<User>()
+            modelBuilder.Entity<UserRelational>()
         .       OwnsOne(u => u.Token);
 
             // Optional: if you want to specify additional configuration for Token properties
-            modelBuilder.Entity<User>()
+            modelBuilder.Entity<UserRelational>()
                 .OwnsOne(u => u.Token)
                 .Property(t => t.Text)
                 .IsRequired(); // Example: make Text property required

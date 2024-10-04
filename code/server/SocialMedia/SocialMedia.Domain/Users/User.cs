@@ -1,13 +1,15 @@
 ﻿using SocialMedia.Domain.Abstractions;
 using SocialMedia.Domain.Messages;
+using SocialMedia.Domain.Messages.DirectMessages;
+using SocialMedia.Domain.Photos;
 using SocialMedia.Domain.Reactions;
 using SocialMedia.Domain.Users.Events;
 
 namespace SocialMedia.Domain.Users
 {
-    public sealed class User : Entity<Guid>
+    public class User: Entity<Guid>
     {
-        private User() { }
+        public User() { }
 
         public User(Guid id, string tag, string firstName, string lastName, string email) : base(id)
         {
@@ -18,32 +20,32 @@ namespace SocialMedia.Domain.Users
         }
 
         public string Tag { get; set; }
-
         public string FirstName { get; set; }
-
         public string LastName { get; set; }
-
         public string Email { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime? TimeOfDelete { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
         public Token Token { get; set; }
-
-        public ICollection<FollowUser>? Followers { get; set; }
-        public ICollection<FollowUser>? Following { get; set; }
         public ICollection<Post>? Posts { get; set; }
-        public ICollection<Reply>? Replies { get; set; }
-        public ICollection<Reaction>? Reactions { get; set; }
+        public ICollection<DirectMessage>? DirectMessages { get; set; }
+        public ICollection<Photo>? Photos { get; set; }
 
-        public static User Create(string tag, string firstname, string lastName, string email)
+        public static (UserRelational, UserNoSql) Create(string tag, string firstName, string lastName, string email)
         {
-            var user = new User(Guid.NewGuid(), tag, firstname, lastName, email);
-            user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
-            return user;
+            var userId = Guid.NewGuid();
+
+            var userRelational = new UserRelational(userId, tag, firstName, lastName, email);
+            userRelational.RaiseDomainEvent(new UserCreatedDomainEvent(userRelational.Id));
+
+            var userNoSql = new UserNoSql(userId, tag, firstName, lastName, email);
+
+            return (userRelational, userNoSql);
         }
-        
-        public static FollowUser Follow(User follower, User following, Guid followerId, Guid followingId)
+
+
+        public static FollowUser Follow(Guid followerId, Guid followingId)
         {
             var followRef = new FollowUser(Guid.NewGuid(), followerId, followingId);
             follower.RaiseDomainEvent(new UserFollowedDomainEvent(follower.Id));
@@ -55,6 +57,47 @@ namespace SocialMedia.Domain.Users
         {
             PasswordHash = passwordHash;
             PasswordSalt = passwordSalt;
+        }
+
+        public static void SetLoginForUsers(IEnumerable<User> users, byte[] passwordHash, byte[] passwordSalt)
+        {
+            foreach (var user in users)
+                user.SetLogin(passwordHash, passwordSalt);
+        }
+
+    }
+
+    public class UserDTO
+    {
+        public Guid Id { get; set; }
+        public string Tag { get; set; }
+        public string Fullname { get; set; }
+        public Photo ProfilePhoto { get; set; }
+        //public string Description { get; set; }
+    }
+
+    public sealed class UserRelational : User
+    {
+        public UserRelational(Guid id, string tag, string firstName, string lastName, string email)
+        : base(id, tag, firstName, lastName, email) { }
+        public ICollection<Reply>? Replies { get; set; }
+        public ICollection<ReactionRelational>? Reactions { get; set; }
+        public ICollection<FollowUser> Followers { get; set; }
+        public ICollection<FollowUser> Following { get; set; }
+    }
+
+    public sealed class UserNoSql : User
+    {
+        public UserNoSql(Guid id, string tag, string firstName, string lastName, string email)
+        : base(id, tag, firstName, lastName, email) { }
+        public ICollection<Guid>? Replies { get; set; }
+        public ICollection<UserDTO>? Followers { get; set; }
+        public ICollection<UserDTO>? Following { get; set; }
+        public ICollection<ReactionNoSQL> Reactions { get; set; }
+
+        public UserDTO Follow(User follower, User following, Guid followerId, Guid followingId)
+        {
+            return base.Follow(follower, following, followerId, followingId);
         }
     }
 }

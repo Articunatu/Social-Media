@@ -1,8 +1,7 @@
 ﻿using MediatR;
 using SocialMedia.Application.Users.AddUser;
-using SocialMedia.Application.Users.Commands.LogInUser;
-using SocialMedia.Application.Users.Queries.GetLoggedInId;
-using SocialMedia.Presentation.Endpoints.Profile;
+using SocialMedia.Application.Users.LogInUser;
+using SocialMedia.Application.Users.GetLoggedInId;
 
 namespace SocialMedia.Presentation.Endpoints.Authentication
 {
@@ -18,18 +17,10 @@ namespace SocialMedia.Presentation.Endpoints.Authentication
             //app.MapPost("", RefreshToken);
         }
         public static async Task<IResult> Register(
-            AddUserCommand request,
+            AddUserCommand command,
             ISender sender,
             CancellationToken cancellationToken)
         {
-            var command = new AddUserCommand(
-                request.Tag,
-                request.Email,
-                request.FirstName,
-                request.LastName,
-                request.Password
-                );
-
             var result = await sender.Send(command, cancellationToken);
 
             if (result.IsFailure)
@@ -39,12 +30,10 @@ namespace SocialMedia.Presentation.Endpoints.Authentication
         }
 
         public static async Task<IResult> LogIn(
-            LogInUserRequest request,
+            LogInUserCommand command,
             ISender sender,
             CancellationToken cancellationToken)
         {
-            var command = new LogInUserCommand(request.Email, request.Password);
-
             var result = await sender.Send(command, cancellationToken);
 
             if (result.IsFailure)

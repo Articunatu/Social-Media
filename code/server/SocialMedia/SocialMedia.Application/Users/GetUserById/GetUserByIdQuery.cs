@@ -3,5 +3,5 @@ using SocialMedia.Domain.Abstractions;
 
 namespace SocialMedia.Application.Users.GetUserById
 {
-    public sealed record GetUserByIdQuery(object Key, KeyTypes KType) : IQuery<UserResponse> { }
+    public sealed record GetUserByIdQuery(object Key, KeyEnum KType) : IQuery<UserResponse> { }
 }

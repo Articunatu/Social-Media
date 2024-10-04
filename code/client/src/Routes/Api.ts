@@ -1,4 +1,6 @@
 import axios from "axios";
+import { PagedPosts } from "./Models";
+import { UUID } from "crypto";
 
 function getBaseApiUrl(version: number): string {
     // Provide the actual implementation
@@ -6,10 +8,10 @@ function getBaseApiUrl(version: number): string {
     return '';
 }
 
-export const API = {
+const API = {
     profiles: {
-        login(email: string, password: string) {
-            return axios.post(`${getBaseApiUrl(1)}api/profiles/login`, {
+        async login(email: string, password: string) {
+            return await axios.post<string, string>(`${getBaseApiUrl(1)}api/profiles/login`, {
                 email: email,
                 password: password
             });
@@ -30,7 +32,10 @@ export const API = {
         }
         },
         
-        feed: {
+    feed: {
+        async get10posts(userId : UUID) : Promise<PagedPosts> {
+            return await axios.get<PagedPosts, PagedPosts>(`${getBaseApiUrl(1)}api/profiles/feed/${userId}`);
+        },
         react() {
             return `${getBaseApiUrl(1)}reaction/save`;
         },
@@ -39,3 +44,5 @@ export const API = {
         }
     },
 }
+
+export default API;

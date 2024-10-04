@@ -1,10 +1,9 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import logo from "./logo.png";
 
 interface Props {}
 
-const Navbar = (props: Props) => {
+const SmNavbar = (props: Props) => {
     return (
         <nav className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-4">
             <div className="container mx-auto flex items-center justify-between">
@@ -32,4 +31,4 @@ const Navbar = (props: Props) => {
     );
 };
 
-export default Navbar;
+export default SmNavbar;

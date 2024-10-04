@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "./logo.png";
-import { API } from '../../Routes/Api'; // Import the API object
-import Button from './Button';
+import API from '../../Routes/Api'; // Import the API object
+import SmButton from './SmButton';
 
 interface Props {}
 
@@ -15,7 +15,7 @@ const NavbarLeft = (props: Props) => {
             e.preventDefault();
         try {
             const response = await API.profiles.login(email, password);
-            console.log("Login successful", response.data);
+            console.log("Login successful", response);
         } catch (error: any) { // Asserting the type of error to 'any'
             // Handle login failure
             console.error("Login failed", error.response.data);

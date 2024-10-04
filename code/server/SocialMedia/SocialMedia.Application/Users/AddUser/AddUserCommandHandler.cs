@@ -2,6 +2,7 @@
 using SocialMedia.Domain.Abstractions;
 using SocialMedia.Domain.Shared;
 using SocialMedia.Domain.Users;
+using SocialMedia.Domain.Users.ValueObjects;
 
 namespace SocialMedia.Application.Users.AddUser
 {
@@ -20,29 +21,31 @@ namespace SocialMedia.Application.Users.AddUser
 
         public async Task<Result<Guid>> Handle(AddUserCommand request, CancellationToken cancellationToken)
         {
-            var user = User.Create(
+            var users = User.Create(
                 request.Tag,
                 request.FirstName,
                 request.LastName,
                 request.Email
                 );
 
+            UserRelational userRelational = users.Item1;
+            UserNoSql userNoSql = users.Item2;
+
             try
             {
                 _authentication.GeneratePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
-                user.SetLogin(passwordHash, passwordSalt);
+                User.SetLoginForUsers([userRelational, userNoSql], passwordHash, passwordSalt);
 
-                await _userRepository.Add(user);
+                await _userRepository.Add(userRelational,userNoSql);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                return Result.Success(user.Id);
+                return Result.Success(userRelational.Id);
             }
             catch (Exception ex)
             {
-                throw;
-                //return Result.Failure(new Error(ex.Message));
+                return Result.Failure<Guid>(new Error(ex.Message));
             }
         }
     }

@@ -1,8 +1,6 @@
 ﻿using MediatR;
-using SocialMedia.Application.Users.Commands.AddUserCommand;
-using SocialMedia.Application.Users.Commands.LogInUser;
-using SocialMedia.Application.Users.Queries.GetTop10Users;
-using SocialMedia.Application.Users.Queries.GetUserById;
+using SocialMedia.Application.Users.GetTop10Users;
+using SocialMedia.Application.Users.GetUserById;
 using SocialMedia.Domain.Abstractions;
 
 namespace SocialMedia.Presentation.Endpoints.Profile
@@ -23,7 +21,7 @@ namespace SocialMedia.Presentation.Endpoints.Profile
         {
             try
             {
-                var userResponse = await sender.Send(new GetUserByIdQuery(id, KeyTypes.Id));
+                var userResponse = await sender.Send(new GetUserByIdQuery(id, KeyEnum.Id));
                 return TypedResults.Ok(userResponse);
             }
             catch (Exception e)

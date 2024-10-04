@@ -27,7 +27,7 @@ namespace SocialMedia.Application.Users.LogInUser
                 return Result.Failure<object>(new Error($"Could not find an account with email {request.Email}"));
 
             if (user.PasswordHash is null)
-                return Result.Failure<object>(new Error($"No password ash"));
+                return Result.Failure<object>(new Error($"No password hash"));
 
             if (request.Password is null)
                 return Result.Failure<object>(new Error($"Password empty"));

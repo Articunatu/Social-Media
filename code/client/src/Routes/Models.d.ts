@@ -1,15 +1,16 @@
+import { UUID } from "crypto";
 
 export interface ProfileInfo {
-    id: string;
+    id: UUID;
     tag: string;
     displayName: string;
     profilePhoto: string;
 }
 
 export interface Post {
-    id: string;
+    id: UUID;
     text: string;
-    datePosted: Date;
+    timestamp: Date;
     profileInfo : ProfileInfo,
     replyAmount: number,
     reactionAmount: number
@@ -30,6 +31,6 @@ export interface Reply extends Omit<Post, 'replyAmount'> {
 }
 
 export interface Reaction {
-    id: string,
+    id: UUID,
     icon: string
 }

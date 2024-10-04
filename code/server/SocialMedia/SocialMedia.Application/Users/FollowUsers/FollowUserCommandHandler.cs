@@ -5,7 +5,7 @@ using SocialMedia.Domain.Users;
 
 namespace SocialMedia.Application.Users.FollowUsers
 {
-    internal sealed class FollowUserCommandHandler : ICommandHandler<FollowUserCommand, Guid>
+    internal sealed class FollowUserCommandHandler : ICommandHandler<FollowUserCommand>
     {
         readonly IUserWriteRepository _writeRepo;
         readonly IUserReadRepository _readRepo;
@@ -18,23 +18,24 @@ namespace SocialMedia.Application.Users.FollowUsers
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<Guid>> Handle(FollowUserCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(FollowUserCommand request, CancellationToken cancellationToken)
         {
-            Guid followerId = request.FollowerId;
-            Guid followingId = request.FollowingId;
             try
             {
-                var follower = await _readRepo.GetSingle<User>(followerId, "SELECT ");
-                var following = await _readRepo.GetSingle<User>(followingId, "SELECT ");
-                if(request.isUnfollow)
+                _readRepo.
+                Guid followerId = request.FollowerId;
+                Guid followingId = request.FollowingId;
+                User following = await _readRepo.GetSingle(followingId, "SELECT ");
+                User follower = await _readRepo.GetSingle(followerId, "SELECT ");
+                if(request.IsUnfollow)
                 {
-                    var followRef = await _readRepo.GetSingle<FollowUser>(followerId, "Select");
+                    var followRef = await _readRepo.GetSingle(followerId, "Select");
                     follower.Following.Remove(followRef);
                     following.Followers.Remove(followRef);
                 }
                 else
                 {
-                    var followRef = User.Follow(follower, following, followerId, followingId);
+                    var followRef = User.Follow(followerId, followingId);
                     follower.Following.Add(followRef);
                     following.Followers.Add(followRef);
                 }
@@ -45,7 +46,7 @@ namespace SocialMedia.Application.Users.FollowUsers
             }
             catch (Exception e)
             {
-                return Result.Failure<Guid>(new Error(e.Message));
+                return Result.Failure(new Error(e.Message));
             }
         }
     }

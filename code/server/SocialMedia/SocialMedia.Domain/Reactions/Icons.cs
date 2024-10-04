@@ -6,7 +6,7 @@
         public static Guid FireId = Guid.NewGuid();
         public static Guid WaterId = Guid.NewGuid();
         public static Guid LightningId = Guid.NewGuid();
-        public static Guid CloudPId = Guid.NewGuid();
+        public static Guid CloudId = Guid.NewGuid();
         public static Guid StoneId = Guid.NewGuid();
         public static Guid ChemicalId = Guid.NewGuid();
         public static Guid VoidId = Guid.NewGuid();

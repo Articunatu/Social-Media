@@ -13,8 +13,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Messages\" />
-    <Folder Include="Reactions\" />
+    <Folder Include="Messages\DeleteMessage\" />
+    <Folder Include="Messages\AddMessage\" />
+    <Folder Include="Messages\GetMessageById\" />
+    <Folder Include="Messages\Get10RepliesByPost\" />
+    <Folder Include="Messages\Get10PostByUser\" />
+    <Folder Include="Messages\Get10RepliesByUser\" />
+    <Folder Include="Photos\GetPhotoById\" />
+    <Folder Include="Photos\Get10PhotosByUser\" />
+    <Folder Include="Photos\DeletePhoto\" />
+    <Folder Include="Photos\UploadPhoto\" />
+    <Folder Include="Reactions\EditReactionToMessage\" />
+    <Folder Include="Reactions\GetReactionsByUser\" />
+    <Folder Include="Reactions\GetReactionsByMessage\" />
   </ItemGroup>
 
   <ItemGroup>
