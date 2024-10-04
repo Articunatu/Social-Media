@@ -49,7 +49,7 @@ namespace SocialMedia.Infrastructure
             });
 
             // Register SQL Server repositories
-            services.AddScoped<IUserWriteRepository, UserWriteRepository>();
+            services.AddScoped<IUserRelationalRepository, UserRelationalRepository>();
 
             services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
         }
@@ -83,7 +83,7 @@ namespace SocialMedia.Infrastructure
                 return cosmosContainer;
             });
 
-            services.AddTransient<IUserReadRepository, UserReadRepository>();
+            services.AddTransient<IUserRepository, UserReadRepository>();
         }
 
     }

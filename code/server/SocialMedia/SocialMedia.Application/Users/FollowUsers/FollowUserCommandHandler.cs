@@ -7,11 +7,11 @@ namespace SocialMedia.Application.Users.FollowUsers
 {
     internal sealed class FollowUserCommandHandler : ICommandHandler<FollowUserCommand>
     {
-        readonly IUserWriteRepository _writeRepo;
-        readonly IUserReadRepository _readRepo;
+        readonly IUserRelationalRepository _writeRepo;
+        readonly IUserRepository _readRepo;
         readonly IUnitOfWork _unitOfWork;
 
-        public FollowUserCommandHandler(IUserWriteRepository userWrite, IUserReadRepository userRead, IUnitOfWork unitOfWork)
+        public FollowUserCommandHandler(IUserRelationalRepository userWrite, IUserRepository userRead, IUnitOfWork unitOfWork)
         {
             _writeRepo = userWrite;
             _readRepo = userRead;

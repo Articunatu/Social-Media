@@ -5,6 +5,6 @@ using User = SocialMedia.Domain.Users.User;
 namespace SocialMedia.Infrastructure.Repositories
 {
     internal sealed class UserReadRepository(CosmosClient cosmosClient) :
-    ReadRepository<User, Guid>(cosmosClient.GetContainer("social-media", "Account")), IUserReadRepository
+    ReadRepository<User, Guid>(cosmosClient.GetContainer("social-media", "Account")), IUserRepository
     { }
 }

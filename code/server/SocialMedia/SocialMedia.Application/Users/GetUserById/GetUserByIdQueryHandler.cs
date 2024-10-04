@@ -4,10 +4,10 @@ using SocialMedia.Domain.Users;
 
 namespace SocialMedia.Application.Users.GetUserById
 {
-    internal sealed class GetUserByIdQueryHandler(IUserReadRepository userRepository)
+    internal sealed class GetUserByIdQueryHandler(IUserRepository userRepository)
                 : IQueryHandler<GetUserByIdQuery, UserResponse>
     {
-        readonly IUserReadRepository _userRepository = userRepository;
+        readonly IUserRepository _userRepository = userRepository;
 
         public async Task<Result<UserResponse>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
         {

@@ -8,11 +8,11 @@ namespace SocialMedia.Application.Users.AddUser
 {
     internal sealed class AddUserCommandHandler : ICommandHandler<AddUserCommand, Guid>
     {
-        readonly IUserWriteRepository _userRepository;
+        readonly IUserRelationalRepository _userRepository;
         readonly IUnitOfWork _unitOfWork;
         readonly IAuthenticationService _authentication;
 
-        public AddUserCommandHandler(IUserWriteRepository userRepository, IUnitOfWork unitOfWork, IAuthenticationService authentication)
+        public AddUserCommandHandler(IUserRelationalRepository userRepository, IUnitOfWork unitOfWork, IAuthenticationService authentication)
         {
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;

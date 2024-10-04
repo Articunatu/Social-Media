@@ -5,10 +5,10 @@ using SocialMedia.Domain.Users;
 
 namespace SocialMedia.Application.Users.GetTop10Users
 {
-    internal sealed class GetTop10UsersQueryHandler(IUserReadRepository userRepository)
+    internal sealed class GetTop10UsersQueryHandler(IUserRepository userRepository)
                 : IQueryHandler<GetTop10UsersQuery, IEnumerable<UsersResponse>>
     {
-        readonly IUserReadRepository _userRepository = userRepository;
+        readonly IUserRepository _userRepository = userRepository;
 
         public async Task<Result<IEnumerable<UsersResponse>>> Handle(GetTop10UsersQuery request, CancellationToken cancellationToken)
         {

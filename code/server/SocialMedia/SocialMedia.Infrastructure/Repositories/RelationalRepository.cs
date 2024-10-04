@@ -4,10 +4,9 @@ using EFCore.BulkExtensions;
 
 namespace SocialMedia.Infrastructure.Repositories
 {
-    internal abstract class WriteRepository<TEntity, TEntityId, TItem>(
+    internal abstract class RelationalRepository<TEntity, TEntityId>(
         ApplicationDbContext dbContext)
         where TEntity : Entity<TEntityId>
-        where TItem : Entity<TEntityId>
     {
         public ApplicationDbContext table = dbContext;
 

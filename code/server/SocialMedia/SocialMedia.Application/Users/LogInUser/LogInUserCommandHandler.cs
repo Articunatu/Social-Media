@@ -6,10 +6,10 @@ namespace SocialMedia.Application.Users.LogInUser
 {
     internal sealed class LogInUserCommandHandler : ICommandHandler<LogInUserCommand, object>
     {
-        private readonly IUserReadRepository db;
+        private readonly IUserRepository db;
         readonly IAuthenticationService auth;
 
-        public LogInUserCommandHandler(IUserReadRepository readRepository, IAuthenticationService authenticationService)
+        public LogInUserCommandHandler(IUserRepository readRepository, IAuthenticationService authenticationService)
         {
             db = readRepository;
             auth = authenticationService;

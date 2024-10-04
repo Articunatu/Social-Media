@@ -5,10 +5,10 @@ namespace SocialMedia.Application.Users.RefreshToken
 {
     internal sealed class RefreshTokenCommandHandler
     {
-        private readonly IUserReadRepository db;
+        private readonly IUserRepository db;
         readonly IAuthenticationService auth;
 
-        public RefreshTokenCommandHandler(IUserReadRepository readRepository, IAuthenticationService authenticationService)
+        public RefreshTokenCommandHandler(IUserRepository readRepository, IAuthenticationService authenticationService)
         {
             db = readRepository;
             auth = authenticationService;
