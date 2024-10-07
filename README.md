@@ -4,22 +4,22 @@
 
 ### Server
 * Framework & language: .NET 6 / C#
-* Database: Azure Cosmos DB (NoSQL Cloud)
-* Database driver: Cosmos SDK
-* Structure: Repository Pattern - Will shift to CQRS when first deployment is done
+* Database: Azure Cosmos DB (NoSQL Cloud) + MS SQL
+* Database driver: Cosmos SDK + EntityFramework
+* Structure: Domain-driven design with CQRS
+* Api: Endpoints without controllers
 * Authentication: JSON Web Token
 * Object mapping: Automapper
 * Unit tests: xUnit
 
 ### Client
-* Framework: ReactJS
-* Preprocessor: SCSS
-* Additional style utility: Tailwind CSS, MaterialUI
+* Framework: React with TypeScript
+* Style utility: Tailwind CSS
 
 ## Technical Details
 
-The backend project is divided into 1 web API and 3 class libaries: Core, Business Logic and Tests. <br/>
-No TypeScript is used in the client project, in order to get more used to not relying on type checkers.
+The backend project is divided into 1 web API (Presenration) and 3 class libaries: Domain, Infrastructure and Application. Also  <br/>
+There also a separate test folder which contain both unit and architechture tests.
 
 ### Database
 This project uses a document-approach for the database - when a user posts something a message object will be added
