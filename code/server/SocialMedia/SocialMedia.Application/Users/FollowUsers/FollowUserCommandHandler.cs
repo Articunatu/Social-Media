@@ -5,33 +5,27 @@ using SocialMedia.Domain.Users;
 
 namespace SocialMedia.Application.Users.FollowUsers
 {
-    internal sealed class FollowUserCommandHandler : ICommandHandler<FollowUserCommand>
+    internal sealed class FollowUserCommandHandler(IUserRelationalRepository userRelational, IUserNoSqlRepository userNoSql, IUnitOfWork unitOfWork) : ICommandHandler<FollowUserCommand>
     {
-        readonly IUserRelationalRepository _writeRepo;
-        readonly IUserRepository _readRepo;
-        readonly IUnitOfWork _unitOfWork;
-
-        public FollowUserCommandHandler(IUserRelationalRepository userWrite, IUserRepository userRead, IUnitOfWork unitOfWork)
-        {
-            _writeRepo = userWrite;
-            _readRepo = userRead;
-            _unitOfWork = unitOfWork;
-        }
+        readonly IUserRelationalRepository _userRelational = userRelational;
+        readonly IUserNoSqlRepository _userNoSql = userNoSql;
+        readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Result> Handle(FollowUserCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                _readRepo.
                 Guid followerId = request.FollowerId;
-                Guid followingId = request.FollowingId;
-                User following = await _readRepo.GetSingle(followingId, "SELECT ");
-                User follower = await _readRepo.GetSingle(followerId, "SELECT ");
-                if(request.IsUnfollow)
+                Guid followedId = request.FollowingId;
+                var followerUser = await _userRelational.GetSingle(u => u.Id.Equals(followerId));
+                var followedUser = await _userRelational.GetSingle(u => u.Id.Equals(followedId));
+                var follow = User.Follow(followerId, followedId, followerUser, followedUser);
+                _userRelational.Follow();
+                if (request.IsUnfollow)
                 {
-                    var followRef = await _readRepo.GetSingle(followerId, "Select");
-                    follower.Following.Remove(followRef);
-                    following.Followers.Remove(followRef);
+                    var followRef = await _userNoSql.GetSingle(followerId, "Select");
+                    followerUser.Following.Remove(followRef);
+                    followedUser.Followers.Remove(followRef);
                 }
                 else
                 {
@@ -39,8 +33,8 @@ namespace SocialMedia.Application.Users.FollowUsers
                     follower.Following.Add(followRef);
                     following.Followers.Add(followRef);
                 }
-                await _writeRepo.Update(follower);
-                await _writeRepo.Update(following);
+                await _userRelational.Update(follower);
+                await _userRelational.Update(following);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 return Result.Success();
             }

@@ -8,6 +8,6 @@ namespace SocialMedia.Domain.Users
 
     public interface IUserRelationalRepository : IRepository<UserRelational, Guid>
     {
-        Task Follow(Guid followerId, Guid followingId, FollowUser follower, FollowUser following);
+        Task Follow(FollowUser follow, bool isUnfollowg);
     }
 }

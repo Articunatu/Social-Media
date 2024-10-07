@@ -83,7 +83,7 @@ namespace SocialMedia.Infrastructure
                 return cosmosContainer;
             });
 
-            services.AddTransient<IUserRepository, UserReadRepository>();
+            services.AddTransient<IUserNoSqlRepository, UserNoSqlRepository>();
         }
 
     }

@@ -7,7 +7,7 @@ using SocialMedia.Domain.Users.Events;
 
 namespace SocialMedia.Domain.Users
 {
-    public class User: Entity<Guid>
+    public class User: Entity<Guid>, ISoftDeletable
     {
         public User() { }
 
@@ -45,9 +45,9 @@ namespace SocialMedia.Domain.Users
         }
 
 
-        public static FollowUser Follow(Guid followerId, Guid followingId)
+        public static FollowUser Follow(Guid followerId, Guid followingId, UserRelational follower, UserRelational following)
         {
-            var followRef = new FollowUser(Guid.NewGuid(), followerId, followingId);
+            var followRef = new FollowUser(Guid.NewGuid(), followerId, followingId, follower, follower);
             follower.RaiseDomainEvent(new UserFollowedDomainEvent(follower.Id));
             following.RaiseDomainEvent(new UserFollowedDomainEvent(following.Id));
             return followRef;
@@ -82,8 +82,8 @@ namespace SocialMedia.Domain.Users
         : base(id, tag, firstName, lastName, email) { }
         public ICollection<Reply>? Replies { get; set; }
         public ICollection<ReactionRelational>? Reactions { get; set; }
-        public ICollection<FollowUser> Followers { get; set; }
-        public ICollection<FollowUser> Following { get; set; }
+        public ICollection<UserRelational> Followers { get; set; }
+        public ICollection<UserRelational> Following { get; set; }
     }
 
     public sealed class UserNoSql : User
@@ -97,7 +97,7 @@ namespace SocialMedia.Domain.Users
 
         public UserDTO Follow(User follower, User following, Guid followerId, Guid followingId)
         {
-            return base.Follow(follower, following, followerId, followingId);
+            return UserDTO(follower, following, followerId, followingId);
         }
     }
 }

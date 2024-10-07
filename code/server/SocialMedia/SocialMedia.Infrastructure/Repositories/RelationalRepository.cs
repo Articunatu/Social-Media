@@ -1,50 +1,79 @@
 ﻿using SocialMedia.Domain.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using EFCore.BulkExtensions;
+using System.Linq.Expressions;
+using System.Linq;
 
 namespace SocialMedia.Infrastructure.Repositories
 {
     internal abstract class RelationalRepository<TEntity, TEntityId>(
-        ApplicationDbContext dbContext)
+        ApplicationDbContext context)
         where TEntity : Entity<TEntityId>
     {
-        public ApplicationDbContext table = dbContext;
+        public ApplicationDbContext _context = context;
 
-        public async Task<TEntity?> GetSingle(TEntityId id)
+        public async Task<TEntity?> GetSingle(Expression<Func<TEntity, bool>>? filter = null,
+             Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
         {
-            return await table.Set<TEntity>().FirstOrDefaultAsync(e => e.Equals(id));
+            var query = _context.Set<TEntity>().AsQueryable();
+
+            if (filter != null)
+                query = query.Where(filter);
+
+            if (queryModifier != null)
+                query = queryModifier(query);
+
+            return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<TEntity?>> GetMultiple(TEntityId id, string query)
+        public async Task<IEnumerable<TEntity>> GetMultiple(
+             Expression<Func<TEntity, bool>>? filter = null,
+             Func<IQueryable<TEntity>, IQueryable<TEntity>>? queryModifier = null)
         {
-            return await table.Set<TEntity>().FromSqlRaw(query, id).ToArrayAsync();
+            // Get the base queryable set of entities
+            var query = _context.Set<TEntity>().AsQueryable();
+
+            // Apply filtering if provided
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            // Allow caller to modify the query (e.g., selecting fields, paging, etc.)
+            if (queryModifier != null)
+            {
+                query = queryModifier(query);
+            }
+
+            // Execute the query and return the results
+            return await query.ToArrayAsync();
         }
 
         public async Task Add(TEntity entity)
         {
-            await table.Set<TEntity>().AddAsync(entity);
+            await _context.Set<TEntity>().AddAsync(entity);
         }
 
         public async Task AddMultiple(List<TEntity> entities)
         {
-            await table.BulkInsertAsync(entities);
+            await _context.BulkInsertAsync(entities);
         }
 
         public async Task Delete(TEntityId id)
         {
-            var entity = await GetSingle(id);
+            var entity = await GetSingle(e => e.Id.Equals(id));
             if (entity is not null) 
-                table.Set<TEntity>().Remove(entity);
+                _context.Set<TEntity>().Remove(entity);
         }
 
         public void Update(TEntity entity)
         {
-            table.Set<TEntity>().Update(entity);
+            _context.Set<TEntity>().Update(entity);
         }
         
         public async Task UpdateMultiple(List<TEntity> entities)
         {
-            await table.BulkUpdateAsync(entities);
+            await _context.BulkUpdateAsync(entities);
         }
     }
 }
