@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SocialMedia.Domain.Users;
+﻿using SocialMedia.Domain.Users;
 
 namespace SocialMedia.Infrastructure.Repositories
 {
@@ -8,7 +7,7 @@ namespace SocialMedia.Infrastructure.Repositories
     {
         public void Follow(FollowUser follow, bool isUnfollow)
         {
-            if(isUnfollow)
+            if (isUnfollow)
             {
                 _context.Follows.Remove(follow);
             }
@@ -19,3 +18,4 @@ namespace SocialMedia.Infrastructure.Repositories
         }
     }
 }
+

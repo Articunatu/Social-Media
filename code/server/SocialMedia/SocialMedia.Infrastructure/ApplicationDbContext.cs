@@ -36,17 +36,17 @@ namespace SocialMedia.Infrastructure
             modelBuilder.Entity<FollowUser>()
                 .HasKey(f => new { f.FollowerId, f.FollowingId }); // Composite key
 
-            modelBuilder.Entity<FollowUser>()
-                .HasOne(f => f.Follower)
-                .WithMany(u => u.Followers)
-                .HasForeignKey(f => f.FollowerId)
-                .OnDelete(DeleteBehavior.Restrict);
+            //modelBuilder.Entity<FollowUser>()
+            //    .HasOne(f => f.Follower)
+            //    .WithMany(u => u.Followers)
+            //    .HasForeignKey(f => f.FollowerId)
+            //    .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<FollowUser>()
-                .HasOne(f => f.Following)
-                .WithMany(u => u.Following)
-                .HasForeignKey(f => f.FollowingId)
-                .OnDelete(DeleteBehavior.Restrict);
+            //modelBuilder.Entity<FollowUser>()
+            //    .HasOne(f => f.Following)
+            //    .WithMany(u => u.Following)
+            //    .HasForeignKey(f => f.FollowingId)
+            //    .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<UserRelational>()
         .       OwnsOne(u => u.Token);

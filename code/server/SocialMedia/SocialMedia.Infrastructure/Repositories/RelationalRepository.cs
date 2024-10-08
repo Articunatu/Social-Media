@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using EFCore.BulkExtensions;
 using System.Linq.Expressions;
-using System.Linq;
 
 namespace SocialMedia.Infrastructure.Repositories
 {
@@ -25,6 +24,9 @@ namespace SocialMedia.Infrastructure.Repositories
 
             return await query.FirstOrDefaultAsync();
         }
+
+        //GetSingleById
+
 
         public async Task<IEnumerable<TEntity>> GetMultiple(
              Expression<Func<TEntity, bool>>? filter = null,
@@ -66,7 +68,7 @@ namespace SocialMedia.Infrastructure.Repositories
                 _context.Set<TEntity>().Remove(entity);
         }
 
-        public void Update(TEntity entity)
+        public async Task Update(TEntity entity)
         {
             _context.Set<TEntity>().Update(entity);
         }

@@ -1,16 +1,27 @@
 ﻿using SocialMedia.Domain.Abstractions;
 using SocialMedia.Domain.Messages;
 using SocialMedia.Domain.Messages.DirectMessages;
-using SocialMedia.Domain.Photos;
 using SocialMedia.Domain.Reactions;
 using SocialMedia.Domain.Users.Events;
 
 namespace SocialMedia.Domain.Users
 {
-    public class User: Entity<Guid>, ISoftDeletable
+    public class UserBase : Entity<Guid>
     {
-        public User() { }
+        public UserBase(Guid id) : base(id) { }
 
+        public string Tag { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+
+        public static UserBase Create(Guid id, string tag, string firstName, string lastName)
+        {
+            return new UserBase(id) { Tag = tag, FirstName = firstName, LastName = lastName }; 
+        }
+    }
+
+    public class User : UserBase, ISoftDeletable
+    {
         public User(Guid id, string tag, string firstName, string lastName, string email) : base(id)
         {
             Tag = tag;
@@ -19,9 +30,6 @@ namespace SocialMedia.Domain.Users
             Email = email;
         }
 
-        public string Tag { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
         public string Email { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime? TimeOfDelete { get; set; }
@@ -30,7 +38,7 @@ namespace SocialMedia.Domain.Users
         public Token Token { get; set; }
         public ICollection<Post>? Posts { get; set; }
         public ICollection<DirectMessage>? DirectMessages { get; set; }
-        public ICollection<Photo>? Photos { get; set; }
+        public ICollection<string>? PhotoUrls { get; set; }
 
         public static (UserRelational, UserNoSql) Create(string tag, string firstName, string lastName, string email)
         {
@@ -64,16 +72,6 @@ namespace SocialMedia.Domain.Users
             foreach (var user in users)
                 user.SetLogin(passwordHash, passwordSalt);
         }
-
-    }
-
-    public class UserDTO
-    {
-        public Guid Id { get; set; }
-        public string Tag { get; set; }
-        public string Fullname { get; set; }
-        public Photo ProfilePhoto { get; set; }
-        //public string Description { get; set; }
     }
 
     public sealed class UserRelational : User
@@ -91,13 +89,19 @@ namespace SocialMedia.Domain.Users
         public UserNoSql(Guid id, string tag, string firstName, string lastName, string email)
         : base(id, tag, firstName, lastName, email) { }
         public ICollection<Guid>? Replies { get; set; }
-        public ICollection<UserDTO>? Followers { get; set; }
-        public ICollection<UserDTO>? Following { get; set; }
+        public ICollection<Guid>? Followers { get; set; }
+        public ICollection<Guid>? Following { get; set; }
         public ICollection<ReactionNoSQL> Reactions { get; set; }
+    }
 
-        public UserDTO Follow(User follower, User following, Guid followerId, Guid followingId)
+    public class UserSubModel
+    {
+        public UserBase UserBase { get; set; }
+        public string? ProfilePhoto { get; set; }
+
+        public static UserSubModel Map(User user, string profilePhoto)
         {
-            return UserDTO(follower, following, followerId, followingId);
+            return new UserSubModel { UserBase = user, ProfilePhoto = profilePhoto};
         }
     }
 }

@@ -3,7 +3,6 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Azure.Cosmos.Linq;
 using System.Linq.Expressions;
-using NetTopologySuite.Index.HPRtree;
 
 namespace SocialMedia.Infrastructure.Repositories
 {
@@ -12,47 +11,27 @@ namespace SocialMedia.Infrastructure.Repositories
     {
         protected readonly Container _container = container;
 
-        public async Task<TItem?> GetSingle(
+        public async Task<TProperty?> GetSingle<TProperty>(
             Expression<Func<TItem, bool>>? filter = null,
-            Func<IQueryable<TItem>, IQueryable<TItem>>? queryModifier = null)
+            Func<IQueryable<TItem>, IQueryable<TProperty>>? queryModifier = null)
         {
-            // Create the base query using the LINQ provider for Cosmos DB
-            IQueryable<TItem> query = _container.GetItemLinqQueryable<TItem>();
+            // Retrieve multiple items, allowing for the filter and query modifier
+            var items = await GetMultiple<TProperty>(filter, queryModifier);
 
-            // Apply filtering if provided
-            if (filter != null)
-            {
-                query = query.Where(filter);
-            }
-
-            // Apply any additional query modifications (e.g., Select, Take, etc.)
-            if (queryModifier != null)
-            {
-                query = queryModifier(query);
-            }
-            else
-            {
-                // Ensure we only retrieve one item
-                query = query.Take(1);
-            }
-
-            var iterator = query.ToFeedIterator();
-
-            // Retrieve the first result from the query iterator
-            if (iterator.HasMoreResults)
-            {
-                var response = await iterator.ReadNextAsync();
-                return response.FirstOrDefault();
-            }
-
-            return default; // Return null or default if no items are found
+            // Return the first item if available
+            return items.FirstOrDefault();
         }
 
-
-        public async Task<IEnumerable<TItem?>> GetMultiple(
+        public async Task<IEnumerable<TProperty?>> GetMultiple<TProperty>(
             Expression<Func<TItem, bool>>? filter = null,
-            Func<IQueryable<TItem>, IQueryable<TItem>>? queryModifier = null)
+            Func<IQueryable<TItem>, IQueryable<TProperty>>? queryModifier = null)
         {
+            // Ensure TProperty is a class type (optional, but good for safety)
+            //if (!typeof(TProperty).IsClass)
+            //{
+            //    throw new ArgumentException("TProperty must be a class type.");
+            //}
+
             // Create the base query using the LINQ provider for Cosmos DB
             IQueryable<TItem> query = _container.GetItemLinqQueryable<TItem>();
 
@@ -62,25 +41,36 @@ namespace SocialMedia.Infrastructure.Repositories
                 query = query.Where(filter);
             }
 
-            // Apply any additional query modifications (like Select, Take, etc.)
-            if (queryModifier != null)
+            // If queryModifier is provided, apply it
+            IQueryable<TProperty>? modifiedQuery = queryModifier?.Invoke(query);
+            if (modifiedQuery != null)
             {
-                query = queryModifier(query);
+                query = modifiedQuery.Cast<TItem>(); // Keep the base query as TItem for iteration
             }
 
             var iterator = query.ToFeedIterator();
-            var results = new List<TItem?>();
+            var results = new List<TProperty?>();
 
-            // Fetch all results from the iterator
+            // Fetch results from the iterator
             while (iterator.HasMoreResults)
             {
                 var response = await iterator.ReadNextAsync();
-                results.AddRange(response);
+
+                // Check if TProperty exists in TItem and project accordingly
+                foreach (var item in response)
+                {
+                    // Create a new instance of TProperty
+                    var propertyInfo = typeof(TItem).GetProperty(typeof(TProperty).Name) ?? 
+                        throw new InvalidOperationException($"Property '{typeof(TProperty).Name}' does not exist on type '{typeof(TItem).Name}'.");
+
+                    // Get the value of the property and cast it to TProperty
+                    var propertyValue = propertyInfo.GetValue(item);
+                    results.Add((TProperty?)propertyValue);
+                }
             }
 
             return results;
         }
-
 
         public async Task Add(TItem item)
         {

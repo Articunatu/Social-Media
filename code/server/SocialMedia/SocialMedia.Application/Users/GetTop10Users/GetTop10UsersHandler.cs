@@ -5,32 +5,33 @@ using SocialMedia.Domain.Users;
 
 namespace SocialMedia.Application.Users.GetTop10Users
 {
-    internal sealed class GetTop10UsersQueryHandler(IUserRepository userRepository)
+    internal sealed class GetTop10UsersQueryHandler(IUserNoSqlRepository userRepository)
                 : IQueryHandler<GetTop10UsersQuery, IEnumerable<UsersResponse>>
     {
-        readonly IUserRepository _userRepository = userRepository;
+        readonly IUserNoSqlRepository _userRepository = userRepository;
 
         public async Task<Result<IEnumerable<UsersResponse>>> Handle(GetTop10UsersQuery request, CancellationToken cancellationToken)
         {
             int pageNumber = request.PageNumber;
-            int pageSize = 10;
-
+            int pageSize = 10; // You can also make this configurable
             int skip = (pageNumber - 1) * pageSize;
 
-            var query = $"SELECT c.id, c.tag, c.firstName, c.lastName FROM c OFFSET {skip} LIMIT {pageSize}";
+            var users = await _userRepository.GetMultiple<(Guid Id, string FirstName, string LastName, string Tag)>(
+                queryModifier: query => (IQueryable<UserNoSql>)query
+                    .Skip(skip) // Apply the skip for paging
+                    .Take(pageSize) // Limit the number of items returned
+                    .Select(u => new { u.Id, u.FirstName, u.LastName, u.Email }) // Select specific fields
+            );
 
-            var users = await _userRepository.GetMultiple<User>(0, query);
 
-            if (users == null)
-            {
+            if (users is null)
                 return Result.Failure<IEnumerable<UsersResponse>>(new Error("10_Users.NotFound"));
-            }
 
             var userResponses = users.Select(user =>
             {
                 string userFullname = user.FirstName + " " + user.LastName;
                 return new UsersResponse(user.Id, user.Tag, userFullname);
-            }).ToList();
+            }).ToArray();
 
             return Result.Success((IEnumerable<UsersResponse>)userResponses);
         }
