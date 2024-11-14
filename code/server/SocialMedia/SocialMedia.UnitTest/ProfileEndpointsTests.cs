@@ -54,7 +54,7 @@ public class ProfileEndpointTests
     //}
 
     [Fact]
-    public async Task Can_Add_New_User()
+    public async Task AddUser_TestRequest_ReturnsStatusOk()
     {
         // Arrange
         var mockMediator = new Mock<IMediator>();
