@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
 using MediatR;
+using FluentAssertions;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.TestHost;
 
@@ -89,7 +90,7 @@ public class ProfileEndpointTests
             });
 
             // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             // Additional assertions if needed
         }
