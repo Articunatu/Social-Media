@@ -18,7 +18,7 @@
 
 ## Technical Details
 
-The backend project is divided into 1 web API (Presenration) and 3 class libaries: Domain, Infrastructure and Application. Also  <br/>
+The backend project is divided into 1 web API (Presentation) and 3 class libaries: Domain, Infrastructure and Application. Also  <br/>
 There also a separate test folder which contain both unit and architechture tests.
 
 ### Database
