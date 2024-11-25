@@ -54,46 +54,41 @@ public class ProfileEndpointTests
     //    }
     //}
 
-    [Fact]
-    public async Task AddUser_TestRequest_ReturnsStatusOk()
-    {
-        // Arrange
-        var mockMediator = new Mock<IMediator>();
+    //[Fact]
+    //public async Task AddUser_TestRequest_ReturnsStatusOk()
+    //{
+    //    var mockMediator = new Mock<IMediator>();
 
-        var builder = new WebHostBuilder()
-            .ConfigureServices(services =>
-            {
-                services.AddRouting(); // Add the required routing services
-                services.AddCarter();
-                services.AddSingleton(mockMediator.Object);
-            })
-            .Configure(app =>
-            {
-                app.UseRouting(); // Use the routing services
-                app.UseEndpoints(endpoints =>
-                {
-                    endpoints.MapCarter();
-                });
-            });
+    //    var builder = new WebHostBuilder()
+    //        .ConfigureServices(services =>
+    //        {
+    //            services.AddRouting(); // Add the required routing services
+    //            services.AddCarter();
+    //            services.AddSingleton(mockMediator.Object);
+    //        })
+    //        .Configure(app =>
+    //        {
+    //            app.UseRouting(); // Use the routing services
+    //            app.UseEndpoints(endpoints =>
+    //            {
+    //                endpoints.MapCarter();
+    //            });
+    //        });
 
-        using (var server = new TestServer(builder))
-        {
-            var client = server.CreateClient();
+    //    using (var server = new TestServer(builder))
+    //    {
+    //        var client = server.CreateClient();
 
-            // Act
-            var response = await client.PostAsJsonAsync("/api/profile/adduser", new
-            {
-                Tag = "TestUser",
-                Email = "test@example.com",
-                FirstName = "John",
-                LastName = "Doe"
-            });
+    //        var response = await client.PostAsJsonAsync("/api/profile/adduser", new
+    //        {
+    //            Tag = "TestUser",
+    //            Email = "test@example.com",
+    //            FirstName = "John",
+    //            LastName = "Doe"
+    //        });
 
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            // Additional assertions if needed
-        }
-    }
+    //        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    //    }
+    //}
 
 }

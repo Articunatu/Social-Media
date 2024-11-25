@@ -19,6 +19,7 @@
     <Folder Include="Messages\Get10RepliesByPost\" />
     <Folder Include="Messages\Get10PostByUser\" />
     <Folder Include="Messages\Get10RepliesByUser\" />
+    <Folder Include="Pagination\" />
     <Folder Include="Photos\GetPhotoById\" />
     <Folder Include="Photos\Get10PhotosByUser\" />
     <Folder Include="Photos\DeletePhoto\" />

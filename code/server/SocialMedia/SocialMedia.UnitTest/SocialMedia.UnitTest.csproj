@@ -23,4 +23,9 @@
     <ProjectReference Include="..\SocialMedia.Presentation\SocialMedia.Presentation.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Application.UnitTests\" />
+    <Folder Include="Domain.UnitTests\" />
+  </ItemGroup>
+
 </Project>
