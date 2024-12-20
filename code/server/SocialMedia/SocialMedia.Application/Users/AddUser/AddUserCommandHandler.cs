@@ -2,6 +2,7 @@
 using SocialMedia.Domain.Abstractions;
 using SocialMedia.Domain.Shared;
 using SocialMedia.Domain.Users;
+using SocialMedia.Domain.Users.Authentication;
 using SocialMedia.Domain.Users.ValueObjects;
 
 namespace SocialMedia.Application.Users.AddUser

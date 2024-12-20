@@ -1,4 +1,4 @@
-﻿namespace SocialMedia.Domain.Users
+﻿namespace SocialMedia.Domain.Users.Authentication
 {
     public class Token
     {

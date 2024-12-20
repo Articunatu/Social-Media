@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using SocialMedia.Domain.Users;
+using SocialMedia.Domain.Users.Authentication;
+
 //using SocialMedia.Domain.Shared;
 //using SocialMedia.Domain.Users;
 using System.IdentityModel.Tokens.Jwt;

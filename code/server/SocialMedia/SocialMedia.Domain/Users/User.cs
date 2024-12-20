@@ -2,6 +2,7 @@
 using SocialMedia.Domain.Messages;
 using SocialMedia.Domain.Messages.DirectMessages;
 using SocialMedia.Domain.Reactions;
+using SocialMedia.Domain.Users.Authentication;
 using SocialMedia.Domain.Users.Events;
 
 namespace SocialMedia.Domain.Users
@@ -71,6 +72,11 @@ namespace SocialMedia.Domain.Users
         {
             foreach (var user in users)
                 user.SetLogin(passwordHash, passwordSalt);
+        }
+
+        public string GetFullName()
+        {
+            return FirstName + " " + LastName;
         }
     }
 

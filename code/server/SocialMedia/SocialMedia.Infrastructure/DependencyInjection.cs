@@ -7,6 +7,7 @@ using SocialMedia.Domain.Users;
 using SocialMedia.Infrastructure.Repositories;
 using SocialMedia.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Http;
+using SocialMedia.Domain.Users.Authentication;
 
 namespace SocialMedia.Infrastructure
 {

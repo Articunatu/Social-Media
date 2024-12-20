@@ -36,7 +36,7 @@ namespace SocialMedia.Presentation.Endpoints.Profile
         {
             try
             {
-                var usersResponse = await sender.Send(new GetTop10UsersQuery(pageNumber));
+                var usersResponse = await sender.Send(new GetPagedUsersQuery(pageNumber));
                 return TypedResults.Ok(usersResponse);
             }
             catch (Exception e)

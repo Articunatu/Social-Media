@@ -4,21 +4,20 @@ using SocialMedia.Domain.Users;
 
 namespace SocialMedia.Application.Users.GetUserById
 {
-    internal sealed class GetUserByIdQueryHandler(IUserRepository userRepository)
+    internal sealed class GetUserByIdQueryHandler(IUserNoSqlRepository userRepository)
                 : IQueryHandler<GetUserByIdQuery, UserResponse>
     {
-        readonly IUserRepository _userRepository = userRepository;
+        readonly IUserNoSqlRepository _userRepository = userRepository;
 
         public async Task<Result<UserResponse>> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
         {
-            var query = $"SELECT c.id, c.tag, c.firstName, c.lastName FROM c WHERE c.id = @partitionKey";
-            var user = await _userRepository.GetSingle<User>(request.Key, query);
+            var user = await _userRepository.GetSingle(x => x.Id == request.Id);
+
             if (user is null)
                 return Result.Failure<UserResponse>(new Error("User.NotFound"));
-            var userFullname = user.FirstName + " " + user.LastName;
-            var response = new UserResponse(user.Id, user.Tag, userFullname);
+
+            var response = new UserResponse(user.Id, user.Tag, user.GetFullName());
             return Result.Success(response);
         }
-
     }
 }

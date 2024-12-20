@@ -1,6 +1,6 @@
 ﻿using SocialMedia.Application.Abstractions;
 using SocialMedia.Domain.Shared;
-using SocialMedia.Domain.Users;
+using SocialMedia.Domain.Users.Authentication;
 
 namespace SocialMedia.Application.Users.GetLoginTag
 {

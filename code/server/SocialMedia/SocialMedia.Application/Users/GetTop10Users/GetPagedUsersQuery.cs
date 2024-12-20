@@ -2,6 +2,6 @@
 
 namespace SocialMedia.Application.Users.GetTop10Users
 {
-    public sealed record GetTop10UsersQuery(int PageNumber) : IQuery<IEnumerable<UsersResponse>>
+    public sealed record GetPagedUsersQuery(int PageNumber) : IQuery<IEnumerable<PagedUsersResponse>>
     { }
 }
