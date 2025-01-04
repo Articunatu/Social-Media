@@ -3,7 +3,7 @@ namespace SM.Domain.Abstractions
 {
     public abstract class Entity<TEntityId>
     {
-        private readonly List<IDomainEvent> _domainEvents = new();
+        private readonly List<IDomainEvent> _domainEvents = [];
 
         protected Entity(TEntityId id) => Id = id;
 

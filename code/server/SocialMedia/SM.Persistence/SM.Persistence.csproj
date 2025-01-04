@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Relational\" />
+    <Compile Remove="Relational\**" />
+    <EmbeddedResource Remove="Relational\**" />
+    <None Remove="Relational\**" />
   </ItemGroup>
 
 </Project>
