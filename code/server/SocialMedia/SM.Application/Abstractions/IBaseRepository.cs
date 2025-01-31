@@ -3,7 +3,7 @@ namespace SM.Application.Abstractions
 {
     public interface IBaseRepository<TEntity, TEntityId>
     {
-        TEntity GetSingle();
+        TEntity GetOne();
         IEnumerable<TEntity> GetMany();
         Task Create(TEntity entity); 
         Task Delete(TEntityId id); 

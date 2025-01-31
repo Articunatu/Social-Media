@@ -10,7 +10,6 @@ interface PostCardProps {
 const PostCard: React.FC<PostCardProps> = ({ profileImage, displayName, username, content }) => {
   return (
     <div className="card card-bordered bg-base-100 w-96 shadow-xl">
-      {/* Profile Image */}
       <figure className="flex items-center px-4 pt-4">
         <div className="avatar">
           <div className="w-16 rounded-full">
@@ -23,7 +22,6 @@ const PostCard: React.FC<PostCardProps> = ({ profileImage, displayName, username
         </div>
       </figure>
       
-      {/* Post Content */}
       <div className="card-body">
         <p>{content}</p>
         <div className="card-actions justify-end">
