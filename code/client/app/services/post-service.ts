@@ -15,3 +15,5 @@ export const fetchPostsByUser = async (userId: number): Promise<Post[]> => {
     throw error;
   }
 };
+
+export { Post };
