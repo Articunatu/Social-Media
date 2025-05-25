@@ -1,48 +1,28 @@
 ﻿using MediatR;
-using SocialMedia.Application.Users.GetTop10Users;
-using SocialMedia.Application.Users.GetUserById;
-using SocialMedia.Domain.Abstractions;
+using Microsoft.AspNetCore.Mvc;
+using SocialMedia.Application.Profiles.GetProfilePosts;
 
-namespace SocialMedia.Presentation.Endpoints.Profile
+namespace SocialMedia.Presentation.Endpoints.Profile;
+
+public static class ProfileEndpoints
 {
-    public static class ProfileEndpoints
+    public static void MapProfileEndpoints(this IEndpointRouteBuilder app)
     {
-        public static void MapProfileEndpoints(this IEndpointRouteBuilder app)
-        {
-            var group = app.MapGroup("api/profiles");
+        var group = app.MapGroup("api/profiles");
 
-            app.MapGet("getprofile{id}", GetProfileInfo);
-            app.MapGet("get10profiles", GetTop10Profiles);
+        app.MapPost("getprofilefeed", GetProfileFeed);
+    }
+
+    public static async Task<IResult> GetProfileFeed([FromBody] GetProfilePostsQuery request, ISender sender)
+    {
+        try
+        {
+            var usersResponse = await sender.Send(new GetProfilePostsQuery(request.UserId, request.Filter));
+            return TypedResults.Ok(usersResponse);
         }
-
-        public static async Task<IResult> GetProfileInfo(
-            Guid id,
-            ISender sender)
+        catch (Exception e)
         {
-            try
-            {
-                var userResponse = await sender.Send(new GetUserByIdQuery(id, KeyEnum.Id));
-                return TypedResults.Ok(userResponse);
-            }
-            catch (Exception e)
-            {
-                return TypedResults.NotFound(e.Message);
-            }
+            return TypedResults.NotFound(e.Message);
         }
-
-        public static async Task<IResult> GetTop10Profiles(
-            int pageNumber,
-            ISender sender)
-        {
-            try
-            {
-                var usersResponse = await sender.Send(new GetPagedUsersQuery(pageNumber));
-                return TypedResults.Ok(usersResponse);
-            }
-            catch (Exception e)
-            {
-                return TypedResults.NotFound(e.Message);
-            }
-        }     
     }
 }

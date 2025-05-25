@@ -1,28 +1,27 @@
-﻿namespace SocialMedia.Domain.Abstractions
+﻿namespace SocialMedia.Domain.Abstractions;
+
+public abstract class Entity<TEntityId> 
 {
-    public abstract class Entity<TEntityId> 
+    private readonly List<IDomainEvent> _domainEvents = [];
+
+    protected Entity(TEntityId id) => Id = id;
+
+    protected Entity() { }
+
+    public TEntityId Id { get; init; }
+
+    public IReadOnlyList<IDomainEvent> GetDomainEvents()
     {
-        private readonly List<IDomainEvent> _domainEvents = new();
+        return _domainEvents.ToList();
+    }
 
-        protected Entity(TEntityId id) => Id = id;
+    public void ClearDomainEvents()
+    {
+        _domainEvents.Clear();
+    }
 
-        protected Entity() { }
-
-        public TEntityId Id { get; init; }
-
-        public IReadOnlyList<IDomainEvent> GetDomainEvents()
-        {
-            return _domainEvents.ToList();
-        }
-
-        public void ClearDomainEvents()
-        {
-            _domainEvents.Clear();
-        }
-
-        protected void RaiseDomainEvent(IDomainEvent ev)
-        {
-            _domainEvents.Add(ev);
-        }
+    protected void RaiseDomainEvent(IDomainEvent ev)
+    {
+        _domainEvents.Add(ev);
     }
 }

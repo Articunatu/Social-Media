@@ -1,0 +1,15 @@
+{
+	"Containers": {
+		"BannedUsers",
+		"Conversations",
+		"DeletedPosts",
+		"DeletedUsers",
+		"Posts" "->",
+		"Replies",
+		"(ReactedPosts" "<-",
+		"UserId",
+		"PostId)",
+		"ReactionTypes",
+		"Users"
+	},
+}

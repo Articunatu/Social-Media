@@ -1,60 +1,59 @@
-﻿using MediatR;
-using SocialMedia.Application.Users.AddUser;
-using SocialMedia.Application.Users.LogInUser;
-using SocialMedia.Application.Users.GetLoggedInId;
+﻿//using MediatR;
+//using SocialMedia.Application.Users.AddUser;
+//using SocialMedia.Application.Users.LogInUser;
+//using SocialMedia.Application.Users.GetLoggedInId;
 
-namespace SocialMedia.Presentation.Endpoints.Authentication
-{
-    public static class AuthenticationEndpoints
-    {
-        public static void MapAuthenticationEndpoints(this IEndpointRouteBuilder app)
-        {
-            var group = app.MapGroup("api/profiles");
+//namespace SocialMedia.Presentation.Endpoints;
 
-            app.MapPost("register", Register);
-            app.MapGet("login", LogIn);
-            app.MapGet("id", GetLoggedInUserId);
-            //app.MapPost("", RefreshToken);
-        }
-        public static async Task<IResult> Register(
-            AddUserCommand command,
-            ISender sender,
-            CancellationToken cancellationToken)
-        {
-            var result = await sender.Send(command, cancellationToken);
+//public static class AuthenticationEndpoints
+//{
+//    public static void MapAuthenticationEndpoints(this IEndpointRouteBuilder app)
+//    {
+//        var group = app.MapGroup("api/profiles");
 
-            if (result.IsFailure)
-                return TypedResults.BadRequest(result.Error);
+//        app.MapPost("register", Register);
+//        app.MapGet("login", LogIn);
+//        app.MapGet("id", GetLoggedInUserId);
+//        //app.MapPost("", RefreshToken);
+//    }
+//    public static async Task<IResult> Register(
+//        AddUserCommand command,
+//        ISender sender,
+//        CancellationToken cancellationToken)
+//    {
+//        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResults.Ok(result.Value);
-        }
+//        if (result.IsFailure)
+//            return TypedResults.BadRequest(result.Error);
 
-        public static async Task<IResult> LogIn(
-            LogInUserCommand command,
-            ISender sender,
-            CancellationToken cancellationToken)
-        {
-            var result = await sender.Send(command, cancellationToken);
+//        return TypedResults.Ok(result.Value);
+//    }
 
-            if (result.IsFailure)
-                return TypedResults.BadRequest(result.Error);
+//    public static async Task<IResult> LogIn(
+//        LogInUserCommand command,
+//        ISender sender,
+//        CancellationToken cancellationToken)
+//    {
+//        var result = await sender.Send(command, cancellationToken);
 
-            return TypedResults.Ok(result.Value);
-        }
+//        if (result.IsFailure)
+//            return TypedResults.BadRequest(result.Error);
 
-        public static async Task<IResult> GetLoggedInUserId(ISender sender)
-        {
-            var userIdResponse = await sender.Send(new GetLoggedInIdQuery());
+//        return TypedResults.Ok(result.Value);
+//    }
 
-            if(userIdResponse.IsFailure)
-                return TypedResults.BadRequest(userIdResponse.Error);
+//    public static async Task<IResult> GetLoggedInUserId(ISender sender)
+//    {
+//        var userIdResponse = await sender.Send(new GetLoggedInIdQuery());
 
-            return TypedResults.Ok(userIdResponse);
-        }
+//        if (userIdResponse.IsFailure)
+//            return TypedResults.BadRequest(userIdResponse.Error);
 
-        //public static async Task<IResult> RefreshToken(ISender sender)
-        //{
-        //    return sender.Send(RefreshTokenCommand);
-        //}
-    }
-}
+//        return TypedResults.Ok(userIdResponse);
+//    }
+
+//    //public static async Task<IResult> RefreshToken(ISender sender)
+//    //{
+//    //    return sender.Send(RefreshTokenCommand);
+//    //}
+//}

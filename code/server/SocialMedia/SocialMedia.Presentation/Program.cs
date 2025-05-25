@@ -1,7 +1,6 @@
 using SocialMedia.Infrastructure;
 using SocialMedia.Application;
 using SocialMedia.Presentation.Endpoints.Profile;
-using SocialMedia.Presentation.Endpoints.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +24,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapProfileEndpoints();
-app.MapAuthenticationEndpoints();
+//app.MapAuthenticationEndpoints();
 
 app.Run();
