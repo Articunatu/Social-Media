@@ -1,19 +1,12 @@
 ﻿using SM.Domain.Abstractions;
 
-namespace SM.Domain.Reactions
+namespace SM.Domain.Reactions;
+
+public class Reaction : Entity<Guid>
 {
-    public abstract class Reaction : Entity<Guid>
-    {
-        public Reaction() { }
-        public Reaction(Guid id) : base(id) { }
-        public ReactionType Type { get; set; }
-        public Guid MessageId { get; set; }
-    }
-
-    public sealed class ReactionNoSQL : Reaction { }
-
-    public sealed class ReactionRelational : Reaction
-    {
-        public Guid UserId { get; set; }
-    }
+    public Reaction() { }
+    public Reaction(Guid id) : base(id) { }
+    public ReactionType Type { get; set; }
+    public Guid MessageId { get; set; }
+    public Guid UserId { get; set; }
 }

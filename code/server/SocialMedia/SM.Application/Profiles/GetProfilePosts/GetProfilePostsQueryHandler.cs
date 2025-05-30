@@ -19,7 +19,7 @@ internal class GetProfilePostsQueryHandler(ApplicationDbContext context)
                     Content = p.Content,
                     TimeStamp = DateTime.Now,
                     //ReactionCounts = p.Reactions.GroupBy(r => r.Type),
-                    RepliesCount = p.Replys.Count(),
+                    RepliesCount = p.Replies.Count(),
                 })
                 .AsQueryable()
                 .ToPagedFeed(request.Filter);

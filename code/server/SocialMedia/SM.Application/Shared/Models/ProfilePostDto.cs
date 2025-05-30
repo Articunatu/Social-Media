@@ -1,4 +1,4 @@
-﻿using SM.Domain.Reactions.Enums;
+﻿using SM.Domain.Reactions;
 
 namespace SM.Application.Shared.Models;
 

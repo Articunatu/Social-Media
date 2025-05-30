@@ -1,8 +1,7 @@
-﻿namespace SM.Domain.Abstractions
+﻿namespace SM.Domain.Abstractions;
+
+public interface IEntity
 {
-    public interface IEntity
-    {
-        void ClearDomainEvents();
-        IReadOnlyList<IDomainEvent> GetDomainEvents();
-    }
+    void ClearDomainEvents();
+    IReadOnlyList<IDomainEvent> GetDomainEvents();
 }

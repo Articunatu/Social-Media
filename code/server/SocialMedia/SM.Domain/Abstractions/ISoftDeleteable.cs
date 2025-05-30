@@ -1,8 +1,7 @@
-﻿namespace SM.Domain.Abstractions
+﻿namespace SM.Domain.Abstractions;
+
+public interface ISoftDeletable
 {
-    public interface ISoftDeletable
-    {
-        bool IsDeleted { get; set; }
-        DateTime? TimeOfDelete { get; set; }
-    }
+    bool IsDeleted { get; set; }
+    DateTime? TimeOfDelete { get; set; }
 }

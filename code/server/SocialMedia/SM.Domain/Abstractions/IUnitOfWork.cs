@@ -1,7 +1,6 @@
-﻿namespace SM.Domain.Abstractions
+﻿namespace SM.Domain.Abstractions;
+
+public interface IUnitOfWork
 {
-    public interface IUnitOfWork
-    {
-        Task<int> SaveChangesAsync(CancellationToken ct = default);
-    }
+    Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

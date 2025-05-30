@@ -1,9 +1,6 @@
-﻿namespace SM.Domain.Shared
+﻿namespace SM.Domain.Shared;
+
+public class Constants
 {
-    public static class Constants
-    {
-        public const string USERS_CONTAINER = "Account";
-        public const string POSTS_CONTAINER = "Posts";
-        public const string REACTIONS_CONTAINER = "Reactions";
-    }
+    public const int PAGE_SZIE = 15;
 }

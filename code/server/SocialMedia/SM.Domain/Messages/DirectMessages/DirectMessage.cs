@@ -1,9 +1,7 @@
-﻿using SM.Domain.Messages;
+﻿
+namespace SM.Domain.Messages.DirectMessages;
 
-namespace SM.Domain.Messages.DirectMessages
+public sealed class DirectMessage : Message
 {
-    public sealed class DirectMessage : Message
-    {
-        public Conversation Conversation { get; set; }
-    }
+    public Conversation Conversation { get; set; } = default!;
 }

@@ -17,9 +17,11 @@ public class User(Guid id, string tag, string firstName, string lastName, string
 
     public bool IsDeleted { get; set; }
     public DateTime? TimeOfDelete { get; set; }
+
     public byte[]? PasswordHash { get; set; }
     public byte[]? PasswordSalt { get; set; }
     public Token? Token { get; set; }
+
     public ICollection<Post> Posts { get; set; } = [];
     public ICollection<DirectMessage> DirectMessages { get; set; } = [];
     public ICollection<Photo> Photos { get; set; } = [];
@@ -28,7 +30,7 @@ public class User(Guid id, string tag, string firstName, string lastName, string
 
     public static User Create(string tag, string firstName, string lastName, string email)
     {
-        var userId = Guid.NewGuid();
+        var userId = Guid.CreateVersion7();
 
         var user = new User(userId, tag, firstName, lastName, email);
         user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
