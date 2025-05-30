@@ -1,5 +1,4 @@
-﻿
-namespace SM.Domain.Abstractions
+﻿namespace SM.Domain.Abstractions
 {
     public interface ISoftDeletable
     {
