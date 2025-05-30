@@ -1,7 +1,6 @@
 ﻿using MediatR;
-using SocialMedia.Domain.Shared;
+using SM.Domain.Shared;
 
-namespace SM.Application.Abstractions
-{
-    public interface IQuery<TResponse> : IRequest<Result<TResponse>> { }
-}
+namespace SM.Application.Abstractions;
+
+public interface IQuery<TResponse> : IRequest<Result<TResponse>> { }

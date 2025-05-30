@@ -1,4 +1,4 @@
-﻿using SocialMedia.Domain.Reactions;
+﻿using SM.Domain.Reactions.Enums;
 
 namespace SM.Application.Shared.Models;
 

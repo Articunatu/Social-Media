@@ -1,4 +1,6 @@
-﻿namespace SM.Application.Abstractions;
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace SM.Application.Abstractions;
 
 public class PagedFeed<T> : PageFilter
 {
@@ -13,7 +15,7 @@ public class PageFilter
 
 public static class QueryableExtensions
 {
-    public static PagedFeed<T> ToPagedFeed<T>(this IEnumerable<T> source, PageFilter filter)
+    public static async Task<PagedFeed<T>> ToPagedFeed<T>(this IQueryable<T> source, PageFilter filter)
     {
         var ordered = filter.Order?.ToLower() switch
         {
@@ -26,7 +28,7 @@ public static class QueryableExtensions
         {
             Index = filter.Index,
             Order = filter.Order,
-            Values = ordered.Skip(filter.Index * 20).Take(20).ToList()
+            Values = ordered.Skip(filter.Index * 20).Take(20).ToArrayAsync()
         };
     }
 }

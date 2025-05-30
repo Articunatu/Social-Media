@@ -3,27 +3,28 @@ using FluentValidation;
 using MediatR;
 using SM.Application.Behaviors;
 
-namespace SM.Application
+namespace SM.Application;
+
+public static class DependencyInjection
 {
-    public static class DependencyInjection
+    public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        public static IServiceCollection AddApplication(this IServiceCollection services)
+        var assembly = typeof(DependencyInjection).Assembly;
+
+
+
+        services.AddMediatR(configuration =>
         {
-            var assembly = typeof(DependencyInjection).Assembly;
+            configuration.RegisterServicesFromAssembly(
+                typeof(DependencyInjection).Assembly);
 
-            services.AddMediatR(configuration =>
-            {
-                configuration.RegisterServicesFromAssembly(
-                    typeof(DependencyInjection).Assembly);
+            configuration.AddOpenBehavior(typeof(UnitOfWorkBehavior<,>));
+        });
 
-                configuration.AddOpenBehavior(typeof(UnitOfWorkBehavior<,>));
-            });
+        services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
 
-            services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
+        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>));
 
-            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>));
-
-            return services;
-        }
+        return services;
     }
 }
