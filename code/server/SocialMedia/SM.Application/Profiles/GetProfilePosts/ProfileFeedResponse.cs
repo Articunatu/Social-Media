@@ -3,4 +3,4 @@ using SM.Application.Shared.Models;
 
 namespace SM.Application.Profiles.GetProfilePosts;
 
-public sealed record ProfileFeedResponse(ProfileInfo UserProfile, PagedFeed<ProfilePostDto> ProfileFeed);
+public sealed record ProfileFeedResponse(PagedFeed<ProfilePostDto> ProfileFeed);

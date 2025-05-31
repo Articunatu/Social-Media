@@ -1,13 +1,12 @@
-﻿namespace SM.Domain.Reactions
+﻿namespace SM.Domain.Reactions;
+
+public enum ReactionType
 {
-    public enum ReactionType
-    {
-        Flower = 0,
-        Fire = 1,
-        Raindrop = 2,
-        Lightning = 3,
-        Chemical = 4,
-        Space = 5,
-        Ray = 6
-    }
+    Flower = 0,
+    Fire = 1,
+    Raindrop = 2,
+    Lightning = 3,
+    Chemical = 4,
+    Space = 5,
+    Ray = 6
 }

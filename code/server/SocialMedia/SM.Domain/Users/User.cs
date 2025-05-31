@@ -22,9 +22,10 @@ public class User(Guid id, string tag, string firstName, string lastName, string
     public byte[]? PasswordSalt { get; set; }
     public Token? Token { get; set; }
 
-    public ICollection<Post> Posts { get; set; } = [];
+    public ICollection<Post>? Posts { get; set; }
     public ICollection<DirectMessage> DirectMessages { get; set; } = [];
-    public ICollection<Photo> Photos { get; set; } = [];
+    public ICollection<Photo>? Photos { get; set; }
+    public Photo? PhotoPhoto { get; set; };
     public ICollection<Guid> FollowingIds { get; set; } = [];
     public ICollection<Guid> FollowerIds { get; set; } = [];
 
