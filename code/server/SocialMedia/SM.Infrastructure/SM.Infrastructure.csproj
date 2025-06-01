@@ -10,4 +10,8 @@
     <PackageReference Include="SendGrid" Version="9.29.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SM.Application\SM.Application.csproj" />
+  </ItemGroup>
+
 </Project>

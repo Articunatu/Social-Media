@@ -4,7 +4,7 @@ using SM.Application.Database;
 using SM.Application.Shared.Models;
 using SM.Application.Shared.Extensions;
 
-namespace SM.Application.Profiles.GetProfilePosts;
+namespace SM.Application.Posts.GetProfilePosts;
 
 internal class GetProfilePostsQueryHandler(ApplicationDbContext context)
         : IQueryHandler<GetProfilePostsQuery, ProfileFeedResponse>
@@ -21,10 +21,12 @@ internal class GetProfilePostsQueryHandler(ApplicationDbContext context)
                 {
                     Content = p.Content,
                     TimeStamp = DateTime.Now,
-                    RepliesCount = p.Replies.Count(),
-                    ReactionCounts = p.Reactions
-                        .GroupBy(r => r.Type)
-                        .Select(rt => new ReactionCount(rt.Key, rt.Count()))
+                    RepliesCount = p.Replies != null ? p.Replies.Count() : 0,
+                    ReactionCounts = p.Reactions != null
+                        ? p.Reactions
+                            .GroupBy(r => r.Type)
+                            .Select(rt => new ReactionCount(rt.Key, rt.Count()))
+                        : new List<ReactionCount>()
                 })
                 .AsQueryable()
                 .ToPagedFeed(request.Filter);
