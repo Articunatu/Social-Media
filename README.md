@@ -3,18 +3,18 @@
 ## Technical Overview
 
 ### Server
-* Framework & language: .NET 6 / C#
-* Database: Azure Cosmos DB (NoSQL Cloud) + MS SQL
-* Database driver: Cosmos SDK + EntityFramework
-* Structure: Domain-driven design with CQRS
-* Api: Endpoints without controllers
+* Language & framework: C# / .Net 
+* Database: Microsoft SQL
+* Database driver: EntityFramework
+* Structure: Domain-driven design with CQRS and vertical slice
+* Endpoints: Minimal API
 * Authentication: JSON Web Token
-* Object mapping: Automapper
-* Unit tests: xUnit
+* Unit tests: FluentAssertions
 
 ### Client
 * Framework: React with TypeScript
 * Style utility: Tailwind CSS
+* Component library: DaisyUI
 
 ## Technical Details
 
