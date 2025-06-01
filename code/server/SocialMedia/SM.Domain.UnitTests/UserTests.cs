@@ -1,21 +1,18 @@
-﻿using SM.Domain.Users;
+﻿using FluentAssertions;
+using SM.Domain.Users;
+using SM.Domain.Users.Extensions;
 
 namespace SM.Domain.UnitTests;
 
 public class UserTests
 {
     [Fact]
-    public void GetFullName_FirstAshLastKetchum_ReturnsAshKetchum()
+    public void GetFullName_FirstWolfgangLastGrimner_ReturnsWolfgangWhiteSpaceGrimner()
     {
-        string expctedFullName = "Ash Ketchum";
-        User user = new(Guid.CreateVersion7())
-        {
-            FirstName = "Ash",
-            LastName = "Ketchum"
-        };
+        User user = new(Guid.CreateVersion7(), "greatsteiner", "Wolfgang", "Grimner", "steiner@gmail.com");
 
-        string actualFullName = user.GetFullName();
+        string fullName = user.GetFullName();
 
-        Assert.Equal(expctedFullName, actualFullName);
+        fullName.Should().Be("Wolfgang Grimner");
     }
 }

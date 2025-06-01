@@ -2,6 +2,7 @@
 using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Application.Shared.Models;
+using SM.Application.Shared.Extensions;
 
 namespace SM.Application.Profiles.GetProfilePosts;
 

@@ -27,4 +27,9 @@
 		</AssemblyAttribute>
 	</ItemGroup>
 
+
+	<ItemGroup>
+	  <Folder Include="Profiles\Extensions\" />
+	</ItemGroup>
+
 </Project>

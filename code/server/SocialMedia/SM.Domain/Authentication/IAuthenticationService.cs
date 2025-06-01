@@ -1,4 +1,4 @@
-﻿namespace SM.Domain.Users.Authentication
+﻿namespace SM.Domain.Authentication
 {
     public interface IAuthenticationService
     {

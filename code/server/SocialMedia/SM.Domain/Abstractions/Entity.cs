@@ -1,14 +1,10 @@
 ﻿namespace SM.Domain.Abstractions;
 
-public abstract class Entity<TEntityId>
+public abstract class Entity<TEntityId>(TEntityId id)
 {
     private readonly List<IDomainEvent> _domainEvents = [];
 
-    protected Entity(TEntityId id) => Id = id;
-
-    protected Entity() { }
-
-    public TEntityId Id { get; init; }
+    public TEntityId Id { get; init; } = id;
 
     public IReadOnlyList<IDomainEvent> GetDomainEvents()
     {

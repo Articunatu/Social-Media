@@ -3,12 +3,12 @@ using SM.Domain.Users;
 
 namespace SM.Domain.Photos;
 
-public class Photo : Entity<Guid>
+public class Photo(Guid id) : Entity<Guid>(id)
 {
     public string PhotoUrl { get; set; } = string.Empty;
 
     public PhotoType Type { get; set; }
     public DateTime CreatedAt { get; set; }
     public Guid UserId { get; set; }
-    public User User { get; set; } = default!;
+    public virtual User User { get; set; } = default!;
 }

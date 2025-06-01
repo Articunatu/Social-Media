@@ -1,6 +1,5 @@
-﻿using SM.Domain.Users;
-
-namespace SM.Application.Profiles.Extensions;
+﻿
+namespace SM.Domain.Users.Extensions;
 
 public static class IFullNameExtensions
 {

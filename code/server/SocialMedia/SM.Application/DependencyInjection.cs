@@ -2,16 +2,22 @@
 using FluentValidation;
 using MediatR;
 using SM.Application.Behaviors;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using SM.Application.Database;
 
 namespace SM.Application;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplication(this IServiceCollection services)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration config)
     {
         var assembly = typeof(DependencyInjection).Assembly;
 
 
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
+    
 
         services.AddMediatR(configuration =>
         {
