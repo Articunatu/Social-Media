@@ -26,7 +26,7 @@ public static class AuthenticationEndpoints
         try
         {
             var result = await sender.Send(command);
-            SetRefreshToken(accessor, result.RefreshToken); 
+            SetRefreshToken(accessor, result.RefreshToken);
             return TypedResults.Ok(result.AccessToken);
         }
         catch (UnauthorizedAccessException)
@@ -62,7 +62,7 @@ public static class AuthenticationEndpoints
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Expires = DateTime.Now.AddDays(7) 
+            Expires = DateTime.Now.AddDays(7)
         };
         httpContextAccessor.HttpContext?.Response.Cookies.Append("refreshToken", newRefreshToken.Text, cookieOptions);
     }

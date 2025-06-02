@@ -1,15 +1,19 @@
 using SM.Application;
 using SM.Application.Shared.Errors;
+using SM.Infrastructure;
 using SM.WebApi.Extensions;
 using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddProblemDetails();
 
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
