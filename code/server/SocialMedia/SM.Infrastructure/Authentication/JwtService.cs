@@ -10,6 +10,9 @@ namespace SM.Infrastructure.Authentication;
 
 internal class JwtService : IJwtService
 {
+    //void GeneratePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt);
+    //bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt);
+
     public string CreateToken(string tag, string tokenValue)
     {
         List<Claim> claims =
@@ -50,10 +53,14 @@ internal class JwtService : IJwtService
         passwordHash = secutiry.ComputeHash(Encoding.UTF8.GetBytes(password));
     }
 
-    public bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+    public bool VerifyPasswordHash(string password, byte[]? passwordHash, byte[]? passwordSalt)
     {
+        if (passwordHash is null || passwordSalt is null)
+            return false;
+
         using var hmac = new HMACSHA512(passwordSalt);
         var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
         return computedHash.SequenceEqual(passwordHash);
     }
+
 }

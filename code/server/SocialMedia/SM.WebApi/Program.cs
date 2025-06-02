@@ -1,6 +1,6 @@
 using SM.Application;
 using SM.Application.Shared.Errors;
-using SM.WebApi.Endpoints.Extensions;
+using SM.WebApi.Extensions;
 using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);

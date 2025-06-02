@@ -7,6 +7,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Profiles\**" />
+	  <EmbeddedResource Remove="Profiles\**" />
+	  <None Remove="Profiles\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="FluentValidation" Version="11.11.0" />
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
 		<PackageReference Include="MediatR" Version="12.4.1" />
@@ -25,11 +31,6 @@
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
 			<_Parameter1>SM.Application.UnitTests</_Parameter1>
 		</AssemblyAttribute>
-	</ItemGroup>
-
-
-	<ItemGroup>
-	  <Folder Include="Profiles\Extensions\" />
 	</ItemGroup>
 
 </Project>

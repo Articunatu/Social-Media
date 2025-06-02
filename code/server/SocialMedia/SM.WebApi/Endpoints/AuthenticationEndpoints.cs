@@ -1,7 +1,9 @@
 ﻿using MediatR;
-using SM.Application.Authentication;
+using SM.Application.Authentication.Login;
+using SM.Application.Authentication.Logout;
+using SM.Application.Authentication.RefreshToken;
+using SM.Application.Authentication.SignUp;
 using SM.Domain.Authentication;
-using System.Security.Claims;
 
 namespace SM.WebApi.Endpoints;
 
@@ -19,56 +21,49 @@ public static class AuthenticationEndpoints
         return group;
     }
 
-    public static async Task<IResult> Login(ISender sender)
+    public static async Task<IResult> Login(LoginCommand command, ISender sender, IHttpContextAccessor accessor)
     {
-        await sender.Send(1);
-        return TypedResults.Ok();
-    }
-
-    public static async Task<IResult> Logout(ISender sender)
-    {
-        await sender.Send(1);
-        return TypedResults.Ok();
-    }
-
-    public static async Task<IResult> RefreshToken(string tag, IHttpContextAccessor httpContextAccessor)
-    {
-        string refreshToken = httpContextAccessor.HttpContext!.Request.Cookies["refreshToken"]!;
-        return TypedResults.Ok(refreshToken);
-    }
-
-    public static async Task<IResult> SignUp(ISender sender)
-    {
-        await sender.Send(1);
-        return TypedResults.Ok();
-    }
-
-    public static Guid GetLoggedInUserId(IHttpContextAccessor httpContextAccessor)
-    {
-        if (httpContextAccessor.HttpContext is not null)
+        try
         {
-            var userIdClaim = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return Guid.TryParse(userIdClaim, out Guid userId) ? userId : Guid.Empty;
+            var result = await sender.Send(command);
+            SetRefreshToken(accessor, result.RefreshToken); 
+            return TypedResults.Ok(result.AccessToken);
         }
-        return Guid.Empty;
+        catch (UnauthorizedAccessException)
+        {
+            return TypedResults.Unauthorized();
+        }
     }
 
-    public static string? NewRefreshToken(IJwtService jwtService, IConfiguration config, string tag)
+    public static async Task<IResult> SignUp(SignUpCommand command, ISender sender)
     {
-        string key = config.GetSection("AppSettings:Token").Value!;
-        string token = jwtService.CreateToken(tag, key);
-        var newRefreshToken = jwtService.GenerateRefreshToken();
-        SetRefreshToken(new HttpContextAccessor(), newRefreshToken);
-        return token;
+        await sender.Send(command);
+        return TypedResults.Ok("User registered.");
     }
 
-    public static void SetRefreshToken(IHttpContextAccessor httpContextAccessor, Token newRefreshToken)
+    public static async Task<IResult> RefreshToken(RefreshTokenCommand command, ISender sender, HttpRequest httpRequest)
+    {
+        var refreshToken = httpRequest.Cookies["refreshToken"];
+        if (string.IsNullOrEmpty(refreshToken))
+            return TypedResults.Unauthorized();
+
+        var result = await sender.Send(new RefreshTokenCommand(refreshToken));
+        return TypedResults.Ok(result.AccessToken);
+    }
+
+    public static async Task<IResult> Logout(LogoutCommand command, ISender sender)
+    {
+        await sender.Send(command);
+        return TypedResults.Ok("Logged out.");
+    }
+
+    private static void SetRefreshToken(IHttpContextAccessor httpContextAccessor, Token newRefreshToken)
     {
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Expires = newRefreshToken.Expires
+            Expires = DateTime.Now.AddDays(7) 
         };
-        httpContextAccessor.HttpContext!.Response.Cookies.Append("refreshToken", newRefreshToken.Text, cookieOptions);
+        httpContextAccessor.HttpContext?.Response.Cookies.Append("refreshToken", newRefreshToken.Text, cookieOptions);
     }
 }

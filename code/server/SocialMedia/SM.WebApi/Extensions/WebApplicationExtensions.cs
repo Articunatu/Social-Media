@@ -1,4 +1,6 @@
-﻿namespace SM.WebApi.Endpoints.Extensions
+﻿using SM.WebApi.Endpoints;
+
+namespace SM.WebApi.Extensions
 {
     public static class WebApplicationExtensions
     {
