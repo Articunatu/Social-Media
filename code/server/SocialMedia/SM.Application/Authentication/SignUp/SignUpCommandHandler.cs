@@ -13,17 +13,12 @@ internal class SignUpCommandHandler(ApplicationDbContext context, IJwtService jw
         jwtService.GeneratePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
         var user = User.Create(request.Tag, request.FirstName, request.LastName, request.Email);
+        user.SetLogin(passwordHash, passwordSalt);
 
         context.Users.Add(user);
 
         await context.SaveChangesAsync(cancellationToken);
 
-        //int updated = await context.Users
-        //    .Where(u => u.Tag == request.Tag)
-        //    .ExecuteUpdateAsync(setters => setters
-        //        .SetProperty(u => u.PasswordHash, passwordHash)
-        //        .SetProperty(u => u.PasswordSalt, passwordSalt),
-        //        cancellationToken);
         return Result.Success(user);
     }
 }
