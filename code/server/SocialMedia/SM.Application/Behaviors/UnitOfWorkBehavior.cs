@@ -2,26 +2,25 @@
 
 namespace SM.Application.Behaviors;
 
-public sealed class UnitOfWorkBehavior<TRequest, TResponse>
-    : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull
-{
-    public UnitOfWorkBehavior() { }
 
+public sealed class UnitOfWorkBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+where TRequest : notnull
+{
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        if (!typeof(TRequest).Name.EndsWith("Command"))
+        if (typeof(TRequest).Name.EndsWith("Command"))
         {
-            return await next();
+            var response = await next();
+
+            return response;
         }
 
-        var response = await next();
-
-        return response;
+        return await next();
     }
+
 
     private static bool IsNotCommand()
     {

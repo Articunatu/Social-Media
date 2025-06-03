@@ -15,7 +15,7 @@ public static class DependencyInjection
         var assembly = typeof(DependencyInjection).Assembly;
 
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(config.GetConnectionString("EfcoreSocials")));
     
 
         services.AddMediatR(configuration =>

@@ -37,8 +37,17 @@ public static class AuthenticationEndpoints
 
     public static async Task<IResult> SignUp(SignUpCommand command, ISender sender)
     {
-        await sender.Send(command);
-        return TypedResults.Ok("User registered.");
+        var result = await sender.Send(command);
+
+        if (result.IsFailure)
+        {
+            return TypedResults.Problem(
+                detail: result.Error.Message,
+                title: "Conflict",
+                statusCode: StatusCodes.Status409Conflict);
+        }
+
+        return TypedResults.Created($"/api/users/{result.Value.Id}", result.);
     }
 
     public static async Task<IResult> RefreshToken(RefreshTokenCommand command, ISender sender, HttpRequest httpRequest)

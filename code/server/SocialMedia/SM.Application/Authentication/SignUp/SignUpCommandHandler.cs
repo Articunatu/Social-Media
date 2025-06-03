@@ -1,7 +1,7 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
 using SM.Application.Database;
 using SM.Domain.Shared;
+using SM.Domain.Users;
 
 namespace SM.Application.Authentication.SignUp;
 
@@ -12,16 +12,19 @@ internal class SignUpCommandHandler(ApplicationDbContext context, IJwtService jw
     {
         jwtService.GeneratePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
-        int updated = await context.Users
-            .Where(u => u.Tag == request.Tag)
-            .ExecuteUpdateAsync(setters => setters
-                .SetProperty(u => u.PasswordHash, passwordHash)
-                .SetProperty(u => u.PasswordSalt, passwordSalt),
-                cancellationToken);
+        var user = User.Create(request.Tag, request.FirstName, request.LastName, request.Email);
 
-        return updated == 1
-            ? Result.Success()
-            : Result.Failure(new Error("User not found or update failed."));
+        context.Users.Add(user);
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        //int updated = await context.Users
+        //    .Where(u => u.Tag == request.Tag)
+        //    .ExecuteUpdateAsync(setters => setters
+        //        .SetProperty(u => u.PasswordHash, passwordHash)
+        //        .SetProperty(u => u.PasswordSalt, passwordSalt),
+        //        cancellationToken);
+        return Result.Success(user);
     }
 }
 
