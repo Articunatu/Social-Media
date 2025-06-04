@@ -1,5 +1,4 @@
 using SM.Application;
-using SM.Application.Shared.Errors;
 using SM.Infrastructure;
 using SM.WebApi.Extensions;
 using System.Data;
@@ -28,7 +27,6 @@ app.UseExceptionHandler(new ExceptionHandlerOptions
     {
         InvalidCastException => StatusCodes.Status400BadRequest,
         ArgumentException => StatusCodes.Status400BadRequest,
-        NotFoundException => StatusCodes.Status404NotFound,
         DuplicateNameException => StatusCodes.Status409Conflict,
         _ => StatusCodes.Status500InternalServerError
     }

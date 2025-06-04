@@ -19,8 +19,6 @@ internal class SignUpCommandHandler(ApplicationDbContext context, IJwtService jw
 
         await context.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(user);
+        return Result.Success();
     }
 }
-
-

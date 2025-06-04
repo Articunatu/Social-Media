@@ -1,4 +1,7 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SM.Application.Authentication.Login;
 using SM.Application.Authentication.Logout;
 using SM.Application.Authentication.RefreshToken;
@@ -37,17 +40,32 @@ public static class AuthenticationEndpoints
 
     public static async Task<IResult> SignUp(SignUpCommand command, ISender sender)
     {
-        var result = await sender.Send(command);
-
-        if (result.IsFailure)
+        try
         {
-            return TypedResults.Problem(
-                detail: result.Error.Message,
-                title: "Conflict",
-                statusCode: StatusCodes.Status409Conflict);
-        }
+            var result = await sender.Send(command);
 
-        return TypedResults.Created($"/api/users/{result.Value.Id}", result.);
+            return TypedResults.Ok(command);
+        }
+        catch (ValidationException)
+        {
+            return TypedResults.BadRequest("Validations failed for one or more fields when creating a new user");
+        }
+        catch (DbUpdateException dbEx)
+        {
+            if (dbEx.InnerException?.Message.Contains("UNIQUE", StringComparison.OrdinalIgnoreCase) == true ||
+                dbEx.InnerException?.Message.Contains("duplicate", StringComparison.OrdinalIgnoreCase) == true)
+                return TypedResults.Conflict("Email already exists");
+
+            if (dbEx.InnerException?.Message.Contains("Insert", StringComparison.OrdinalIgnoreCase) == true ||
+                dbEx.InnerException?.Message.Contains("string", StringComparison.OrdinalIgnoreCase) == true)
+                return TypedResults.BadRequest("Validations failed when saving the created user to the database");
+
+            return TypedResults.InternalServerError("A database error occurred");
+        }
+        catch (Exception)
+        {
+            return TypedResults.InternalServerError("An unknown server error occured");
+        }
     }
 
     public static async Task<IResult> RefreshToken(RefreshTokenCommand command, ISender sender, HttpRequest httpRequest)
