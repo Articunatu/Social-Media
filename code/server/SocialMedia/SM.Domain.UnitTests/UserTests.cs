@@ -9,7 +9,7 @@ public class UserTests
     [Fact]
     public void GetFullName_FirstWolfgangLastGrimner_ReturnsWolfgangWhiteSpaceGrimner()
     {
-        User user = new(Guid.CreateVersion7(), "greatsteiner", "Wolfgang", "Grimner", "steiner@gmail.com");
+        var user = User.Create("greatsteiner", "Wolfgang", "Grimner", "steiner@gmail.com");
 
         string fullName = user.GetFullName();
 

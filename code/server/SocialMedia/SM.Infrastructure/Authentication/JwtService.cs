@@ -5,13 +5,16 @@ using System.Security.Cryptography;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using SM.Domain.Authentication;
+using Microsoft.Extensions.Configuration;
 
 namespace SM.Infrastructure.Authentication;
 
-internal class JwtService : IJwtService
+internal class JwtService(IConfiguration configuration) : IJwtService
 {
     //void GeneratePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt);
     //bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt);
+    private readonly string _tokenKey = configuration["JwtSettings:TokenKey"] 
+        ?? throw new NotImplementedException("Token not registered!");
 
     public string CreateToken(string tag, string tokenValue)
     {
@@ -21,7 +24,7 @@ internal class JwtService : IJwtService
             new Claim(ClaimTypes.Role, "Admin")
         ];
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenValue));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenKey));
 
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 

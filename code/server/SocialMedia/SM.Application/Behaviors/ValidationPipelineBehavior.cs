@@ -22,7 +22,7 @@ public class ValidationPipelineBehavior<TRequest, TResponse>
     {
         if (!_validators.Any())
         {
-            return await next();
+            return await next(cancellationToken);
         }
 
         Error[] errors = _validators
@@ -35,12 +35,12 @@ public class ValidationPipelineBehavior<TRequest, TResponse>
             .Distinct()
             .ToArray();
 
-        if (errors.Any())
+        if (errors.Length > 0)
         {
-            CreateValidationResult<TResponse>(errors);
+            throw new ValidationException(errors.Select(x => x.Message).ToString());
         }
 
-        return await next();
+        return await next(cancellationToken);
     }
     static TResult CreateValidationResult<TResult>(Error[] errors)
         where TResult : Result

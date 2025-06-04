@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using SM.Domain.Users.ValueObjects;
 
 namespace SM.Application.Authentication.SignUp;
 
@@ -8,22 +9,30 @@ internal class SignUpCommandValidator : AbstractValidator<SignUpCommand>
     {
         RuleFor(x => x.Tag)
             .NotEmpty()
-            .MaximumLength(25);
+            .MaximumLength(Tag.MaxLength)
+            .Matches(Tag.Pattern);
 
         RuleFor(x => x.FirstName)
             .NotEmpty()
-            .MaximumLength(25);
+            .MinimumLength(FirstName.MinLength)
+            .MaximumLength(FirstName.MaxLength)
+            .Matches(FirstName.Pattern);
 
         RuleFor(x => x.LastName)
             .NotEmpty()
-            .MaximumLength(35);
+            .MinimumLength(LastName.MinLength)
+            .MaximumLength(LastName.MaxLength)
+            .Matches(LastName.Pattern);
 
         RuleFor(x => x.Email)
             .NotEmpty()
-            .MaximumLength(50)
-            .EmailAddress();
+            .MaximumLength(Email.MaxLength)
+            .EmailAddress()
+            .Matches(Email.Pattern);
 
         RuleFor(x => x.Password)
-            .MinimumLength(5);
+            .MinimumLength(Password.MinLength)
+            .MaximumLength(Password.MaxLength)
+            .Matches(Password.Pattern);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SM.Domain.Users;
+using SM.Domain.Users.ValueObjects;
 
 namespace SM.Application.Database.Configurations;
 
@@ -8,21 +9,30 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
+        builder.HasIndex(x => x.Id)
+            .IsUnique();
+        
+        builder.HasIndex(x => x.Tag)
+            .IsUnique();
+        
+        builder.HasIndex(x => x.Email)
+            .IsUnique();
+
         builder.Property(u => u.Tag)
             .IsRequired()
-            .HasMaxLength(20);
+            .HasMaxLength(Tag.MaxLength);
         
         builder.Property(u => u.FirstName)
             .IsRequired()
-            .HasMaxLength(25);
+            .HasMaxLength(FirstName.MaxLength);
         
         builder.Property(u => u.LastName)
             .IsRequired()
-            .HasMaxLength(40);
+            .HasMaxLength(LastName.MaxLength);
         
         builder.Property(u => u.Email)
             .IsRequired()
-            .HasMaxLength(50);
+            .HasMaxLength(Email.MaxLength);
 
         builder.HasMany(u => u.AuthoredMessages)
                .WithOne(p => p.Author)

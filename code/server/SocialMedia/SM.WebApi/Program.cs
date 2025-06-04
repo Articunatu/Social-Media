@@ -1,7 +1,6 @@
 using SM.Application;
 using SM.Infrastructure;
 using SM.WebApi.Extensions;
-using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,16 +20,7 @@ app.MapApiEndpoints();
 
 app.UseStatusCodePages();
 
-app.UseExceptionHandler(new ExceptionHandlerOptions
-{
-    StatusCodeSelector = ex => ex switch
-    {
-        InvalidCastException => StatusCodes.Status400BadRequest,
-        ArgumentException => StatusCodes.Status400BadRequest,
-        DuplicateNameException => StatusCodes.Status409Conflict,
-        _ => StatusCodes.Status500InternalServerError
-    }
-});
+app.SetExceptionHandling();
 
 app.UseSwagger();
 app.UseSwaggerUI();
