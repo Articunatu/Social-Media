@@ -1,4 +1,5 @@
-﻿using SM.Application.Abstractions;
+﻿using Microsoft.EntityFrameworkCore;
+using SM.Application.Abstractions;
 using SM.Application.Shared.Models;
 using SM.Domain.Shared;
 
@@ -21,7 +22,7 @@ public static class QueryableExtensions
         {
             Index = filter.Index,
             Order = filter.Order,
-            Values = ordered.Skip(filter.Index * pageSize).Take(pageSize).ToArray()
+            Values = await ordered.Skip(filter.Index * pageSize).Take(pageSize).ToArrayAsync()
         };
     }
 }

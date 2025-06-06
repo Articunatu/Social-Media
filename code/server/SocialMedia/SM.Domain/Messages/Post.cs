@@ -1,13 +1,14 @@
 ﻿
 namespace SM.Domain.Messages;
 
-public class Post(Guid id, string content, DateTime timeStamp) : Message(id, content, timeStamp)
+public class Post(Guid id, string content, DateTimeOffset timeStamp, Guid authorId) : Message(id, content, timeStamp, authorId)
 {
     public ICollection<Comment>? Replies { get; set; }
 
-    public static Post Create(string content, DateTime timeStamp)
+    public static Post Create(string content, Guid authorId)
     {
         var postId = Guid.CreateVersion7();
-        return new Post(postId, content, timeStamp);
+        var timeStamp = DateTimeOffset.Now;
+        return new Post(postId, content, timeStamp, authorId);
     }
 }

@@ -6,13 +6,13 @@ using SM.Domain.Users.Events;
 
 namespace SM.Domain.Users;
 
-public class User(Guid id, string tag, string firstName, string lastName, string email)
+public class User(Guid id, string tag, string firstName, string lastName)
     : Entity<Guid>(id), ISoftDeletable, IFullName
 {
     public string Tag { get; set; } = tag;
     public string FirstName { get; set; } = firstName;
     public string LastName { get; set; } = lastName;
-    public string Email { get; set; } = email;
+    public string Email { get; set; } = default!;
 
     public bool IsDeleted { get; set; }
     public DateTime? TimeOfDelete { get; set; }
@@ -34,7 +34,10 @@ public class User(Guid id, string tag, string firstName, string lastName, string
     {
         var userId = Guid.CreateVersion7();
 
-        var user = new User(userId, tag, firstName, lastName, email);
+        var user = new User(userId, tag, firstName, lastName)
+        {
+            Email = email
+        };
         user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
 
         return user;

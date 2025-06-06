@@ -1,6 +1,4 @@
 ﻿using MediatR;
-using SM.Application.Abstractions;
-using SM.Domain.Authentication;
 
 namespace SM.Application.Authentication.Login;
 

@@ -20,7 +20,7 @@ internal class GetProfilePostsQueryHandler(ApplicationDbContext context)
                 .Select(p => new ProfilePostDto
                 {
                     Content = p.Content,
-                    TimeStamp = DateTime.Now,
+                    TimeStamp = p.TimeStamp,
                     RepliesCount = p.Replies != null ? p.Replies.Count() : 0,
                     ReactionCounts = p.Reactions != null
                         ? p.Reactions

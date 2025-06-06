@@ -35,4 +35,9 @@
 		</AssemblyAttribute>
 	</ItemGroup>
 
+
+	<ItemGroup>
+	  <Folder Include="Reactions\" />
+	</ItemGroup>
+
 </Project>

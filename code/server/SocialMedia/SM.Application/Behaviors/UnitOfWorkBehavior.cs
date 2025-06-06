@@ -12,13 +12,9 @@ where TRequest : notnull
         CancellationToken cancellationToken)
     {
         if (typeof(TRequest).Name.EndsWith("Command"))
-        {
-            var response = await next();
+            return await next(cancellationToken);
 
-            return response;
-        }
-
-        return await next();
+        return await next(cancellationToken);
     }
 
 

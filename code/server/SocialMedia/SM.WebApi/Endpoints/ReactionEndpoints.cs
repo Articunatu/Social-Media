@@ -9,6 +9,7 @@ public static class ReactionEndpoints
         var group = routes.MapGroup("/api/posts");
 
         group.MapGet("/{postId}/reactions", GetReactionsByPost);
+        group.MapGet("/{userId}/reactions", GetReactionsByUser);
         group.MapPost("/{id}", ReactToPost);
         group.MapDelete("/{postId}/reactions", RemoveReaction);
         group.MapPut("/{postId}/reactions", UpdateReaction);
@@ -16,10 +17,15 @@ public static class ReactionEndpoints
         return group;
     }
 
+
     public static async Task<IResult> GetReactionsByPost(ISender sender)
     {
         await sender.Send(1);
         return TypedResults.Ok();
+    }
+    private static async Task GetReactionsByUser(HttpContext context)
+    {
+        throw new NotImplementedException();
     }
 
     public static async Task<IResult> ReactToPost(ISender sender)

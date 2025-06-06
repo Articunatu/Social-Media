@@ -1,10 +1,8 @@
-﻿using MediatR;
-using SM.Domain.Shared;
-using SM.Domain.Users;
+﻿using SM.Application.Abstractions;
 
 namespace SM.Application.Authentication.SignUp;
 
-public record SignUpCommand : IRequest<Result>, IFullName
+public record SignUpCommand : ICommand<SignUpResponse>
 {
     public string Tag { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;

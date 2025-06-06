@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Domain.Shared;
 using SM.Domain.Users;
@@ -6,9 +6,9 @@ using SM.Domain.Users;
 namespace SM.Application.Authentication.SignUp;
 
 internal class SignUpCommandHandler(ApplicationDbContext context, IJwtService jwtService)
-    : IRequestHandler<SignUpCommand, Result>
+    : ICommandHandler<SignUpCommand, SignUpResponse>
 {
-    public async Task<Result> Handle(SignUpCommand request, CancellationToken cancellationToken)
+    public async Task<Result<SignUpResponse>> Handle(SignUpCommand request, CancellationToken cancellationToken)
     {
         jwtService.GeneratePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
@@ -16,9 +16,10 @@ internal class SignUpCommandHandler(ApplicationDbContext context, IJwtService jw
         user.SetLogin(passwordHash, passwordSalt);
 
         context.Users.Add(user);
-
         await context.SaveChangesAsync(cancellationToken);
 
-        return Result.Success();
+        var response = user.MapToSignUpResponse();
+
+        return Result.Success(response);
     }
 }
