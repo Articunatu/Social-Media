@@ -26,7 +26,7 @@ internal class GetFeedQueryHandler(ApplicationDbContext context) : IQueryHandler
                 {
                     Content = p.Content,
                     TimeStamp = p.TimeStamp,
-                    RepliesCount = p.Replies != null ? p.Replies.Count() : 0,
+                    CommentsCount = p.Replies != null ? p.Replies.Count() : 0,
                     ReactionCounts = p.Reactions != null
                         ? p.Reactions
                             .GroupBy(r => r.Type)
