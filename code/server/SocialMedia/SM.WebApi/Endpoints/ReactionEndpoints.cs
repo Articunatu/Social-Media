@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using SM.Application.Reactions.GetReactionsByPost;
+using SM.Application.Reactions.RemoveReaction;
 
 namespace SM.WebApi.Endpoints;
 
@@ -9,8 +10,8 @@ public static class ReactionEndpoints
     {
         var group = routes.MapGroup("/api/posts");
 
-        group.MapGet("/{postId}/reactions", GetReactionsByPost);
-        group.MapGet("/{userId}/reactions", GetReactionsByUser);
+        group.MapGet("/post/{postId}/reactions", GetReactionsByPost);
+        group.MapGet("/user/{userId}/reactions", GetReactionsByUser);
         group.MapPost("/{id}", ReactToPost);
         group.MapDelete("/{postId}/reactions", RemoveReaction);
         group.MapPut("/{postId}/reactions", UpdateReaction);
@@ -26,7 +27,8 @@ public static class ReactionEndpoints
 
     private static async Task GetReactionsByUser(HttpContext context)
     {
-        throw new NotImplementedException();
+        var result = await sender.Send(query);
+        return TypedResults.Ok(result);
     }
 
     public static async Task<IResult> ReactToPost(ISender sender)
@@ -35,10 +37,10 @@ public static class ReactionEndpoints
         return TypedResults.Ok();
     }
     
-    public static async Task<IResult> RemoveReaction(ISender sender)
+    public static async Task<IResult> RemoveReaction(RemoveReactionCommand command, ISender sender)
     {
-        await sender.Send(1);
-        return TypedResults.Ok();
+        var result = await sender.Send(command);
+        return TypedResults.Ok(result);
     }
 
     public static async Task<IResult> UpdateReaction(ISender sender)

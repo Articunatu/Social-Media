@@ -6,6 +6,8 @@ using SM.Application.Authentication.Logout;
 using SM.Application.Authentication.RefreshToken;
 using SM.Application.Authentication.SignUp;
 using SM.Domain.Authentication;
+using System.ComponentModel.DataAnnotations;
+using ValidationException = FluentValidation.ValidationException;
 
 namespace SM.WebApi.Endpoints;
 

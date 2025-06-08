@@ -11,8 +11,6 @@ namespace SM.Infrastructure.Authentication;
 
 internal class JwtService(IConfiguration configuration) : IJwtService
 {
-    //void GeneratePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt);
-    //bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt);
     private readonly string _tokenKey = configuration["JwtSettings:TokenKey"] 
         ?? throw new NotImplementedException("Token not registered!");
 

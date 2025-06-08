@@ -25,6 +25,6 @@ internal class GetReactionsByPostQueryHandler(ApplicationDbContext context)
 
         var pagedReactions = await reactions.ToPagedFeed(request.Filter);
 
-        Result.Success(pagedReactions);
+        return Result.Success(pagedReactions);
     }
 }

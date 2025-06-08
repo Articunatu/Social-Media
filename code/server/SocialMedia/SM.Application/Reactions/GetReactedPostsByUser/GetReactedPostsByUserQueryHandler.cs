@@ -2,6 +2,7 @@
 using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Application.Shared.Models;
+using SM.Domain.Messages;
 using SM.Domain.Shared;
 
 namespace SM.Application.Reactions.GetReactedPostsByUser;
@@ -20,7 +21,7 @@ internal class GetReactedPostsByUserQueryHandler(ApplicationDbContext context)
                 Content = r.Message.Content,
                 TimeStamp = r.Message.TimeStamp,
                 ReactionCounts = r.Message.Reactions,
-                RepliesCount
+                RepliesCount = r.Message is Post ? (Post)r.Message.rep
             })
     }
 }
