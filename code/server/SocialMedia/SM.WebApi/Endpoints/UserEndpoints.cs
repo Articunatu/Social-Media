@@ -13,6 +13,7 @@ public static class UserEndpoints
         group.MapGet("/{userId}", GetProfile);
         group.MapGet("/{userId}/reactions", GetReactedPostsByUserId);
         group.MapDelete("/users/{userId}/follow", Unfollow);
+        group.MapPost("/users/{userId}/follow", Unfollow);
 
         return group;
     }
