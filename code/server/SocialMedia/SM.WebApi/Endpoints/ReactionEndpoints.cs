@@ -2,6 +2,7 @@
 using SM.Application.Reactions.GetReactedPostsByUser;
 using SM.Application.Reactions.GetReactionsByPost;
 using SM.Application.Reactions.RemoveReaction;
+using System.Security.Claims;
 
 namespace SM.WebApi.Endpoints;
 
@@ -28,7 +29,12 @@ public static class ReactionEndpoints
 
     public static async Task<IResult> GetReactionsByUser(ISender sender, HttpContext context, GetReactedPostsByUserQuery query)
     {
-        var result = await sender.Send(query);
+        string? userIdText = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        Guid userId = Guid.TryParse(userIdText, out Guid id) ? id : Guid.Empty;
+
+        var authenticatedQuery = new GetReactedPostsByUserQuery(userId, query.PagingIndex);
+
+        var result = await sender.Send(authenticatedQuery);
         return TypedResults.Ok(result);
     }
 
