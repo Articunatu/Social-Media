@@ -14,11 +14,11 @@ internal class SearchUserQueryHandler(ApplicationDbContext context) : IQueryHand
         var searchText = request.SearchText.ToLower();
 
         var matchingUsers = await context.Users
-            .Where(u => u.FirstName.ToLower().Contains(searchText) ||
-                        u.Tag.ToLower().Contains(searchText))
+            .Where(u => u.FirstName.Contains(searchText, StringComparison.CurrentCultureIgnoreCase) ||
+                        u.Tag.Contains(searchText, StringComparison.CurrentCultureIgnoreCase))
             .Select(u => u.MapToProfile())
             .ToArrayAsync(cancellationToken);
 
-        return Result.Success(matchingUsers);
+        return Result.Success<IEnumerable<ProfileInfo>>(matchingUsers);
     }
 }

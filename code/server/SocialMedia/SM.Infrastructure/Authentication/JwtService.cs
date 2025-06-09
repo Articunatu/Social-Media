@@ -63,5 +63,4 @@ internal class JwtService(IConfiguration configuration) : IJwtService
         var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
         return computedHash.SequenceEqual(passwordHash);
     }
-
 }

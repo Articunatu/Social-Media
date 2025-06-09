@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using SM.Application.Reactions.GetReactedPostsByUser;
 using SM.Application.Reactions.GetReactionsByPost;
 using SM.Application.Reactions.RemoveReaction;
 
@@ -25,7 +26,7 @@ public static class ReactionEndpoints
         return TypedResults.Ok(result);
     }
 
-    private static async Task GetReactionsByUser(HttpContext context)
+    public static async Task<IResult> GetReactionsByUser(ISender sender, HttpContext context, GetReactedPostsByUserQuery query)
     {
         var result = await sender.Send(query);
         return TypedResults.Ok(result);
