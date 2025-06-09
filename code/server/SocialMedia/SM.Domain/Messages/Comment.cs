@@ -1,13 +1,21 @@
 ﻿
 namespace SM.Domain.Messages;
 
-public class Comment(Guid id, string content, DateTime timeStamp, Guid parentPostId, Guid authorId) : Post(id, content, timeStamp, authorId)
+public class Comment : Post
 {
-    public Guid ParentPostId { get; set; } = parentPostId;
-    public virtual Post ParentPost { get; set; } = default!;
+    public Guid ParentPostId { get; private set; }
+    public virtual Post ParentPost { get; private set; } = default!;
 
-    public static Comment Create(Guid parentPostId, string content, DateTime timeStamp, Guid authorId)
+    protected Comment() { }
+
+    public Comment(Guid id, string content, DateTime timestamp, Guid parentPostId, Guid authorId)
+        : base(id, content, timestamp, authorId)
     {
-        return new Comment(Guid.CreateVersion7(), content, timeStamp, parentPostId, authorId);
+        ParentPostId = parentPostId;
+    }
+
+    public static Comment Create(Guid parentPostId, string content, DateTime timestamp, Guid authorId)
+    {
+        return new Comment(Guid.NewGuid(), content, timestamp, parentPostId, authorId);
     }
 }

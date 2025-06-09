@@ -1,23 +1,21 @@
 ﻿namespace SM.Domain.Abstractions;
 
-public abstract class Entity<TEntityId>(TEntityId id)
+public abstract class Entity<TEntityId>
 {
     private readonly List<IDomainEvent> _domainEvents = [];
 
-    public TEntityId Id { get; init; } = id;
+    public TEntityId Id { get; protected init; } = default!;
 
-    public IReadOnlyList<IDomainEvent> GetDomainEvents()
+    protected Entity() { }
+
+    protected Entity(TEntityId id)
     {
-        return _domainEvents.ToList();
+        Id = id;
     }
 
-    public void ClearDomainEvents()
-    {
-        _domainEvents.Clear();
-    }
+    public IReadOnlyList<IDomainEvent> GetDomainEvents() => _domainEvents.AsReadOnly();
 
-    protected void RaiseDomainEvent(IDomainEvent ev)
-    {
-        _domainEvents.Add(ev);
-    }
+    public void ClearDomainEvents() => _domainEvents.Clear();
+
+    protected void RaiseDomainEvent(IDomainEvent @event) => _domainEvents.Add(@event);
 }

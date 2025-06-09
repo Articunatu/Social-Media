@@ -6,6 +6,7 @@ namespace SM.Domain.Messages;
 
 public abstract class Message(Guid id, string content, DateTimeOffset timeStamp, Guid authorId) : Entity<Guid>(id), ISoftDeletable
 {
+    protected Message() { }
     public string Content { get; set; } = content;
     public DateTimeOffset TimeStamp { get; set; } = timeStamp;
     public bool IsDeleted { get; set; }
