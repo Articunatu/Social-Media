@@ -14,9 +14,9 @@ public class SearchUserQueryHandlerTests
     {
         using ApplicationDbContext context = ArrangeDatabase();
         context.Users.AddRange(
-            new User(Guid.NewGuid(), "bkc_nr1", "Heinrich", "Lunge"),
-            new User(Guid.NewGuid(), "solid_warrior", "Reinar", "Braunn"),
-            new User(Guid.NewGuid(), "rose_duelist", "Utena", "Tenjou")
+            User.Create("bkc_nr1", "Heinrich", "Lunge", "lunge@bkc.de"),
+            User.Create("solid_warrior", "Reinar", "Braunn", "reinar_braunn@atk.ttn"),
+            User.Create("rose_duelist", "Utena", "Tenjou", "revolutionary@shoujo.jp")
         );
         await context.SaveChangesAsync();
         var handler = new SearchUserQueryHandler(context);
