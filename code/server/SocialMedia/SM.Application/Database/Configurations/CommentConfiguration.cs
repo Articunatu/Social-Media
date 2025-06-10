@@ -9,7 +9,7 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
     public void Configure(EntityTypeBuilder<Comment> builder)
     {
         builder.HasOne(c => c.ParentPost)
-               .WithMany(p => p.Replies)
+               .WithMany(p => p.Comments)
                .HasForeignKey(c => c.ParentPostId)
                .OnDelete(DeleteBehavior.Restrict);
     }

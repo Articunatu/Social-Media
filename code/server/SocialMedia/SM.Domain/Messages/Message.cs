@@ -22,5 +22,5 @@ public abstract class Message : Entity<Guid>, ISoftDeletable
     public bool IsDeleted { get; set; }
     public DateTime? TimeOfDelete { get; set; }
     public virtual User Author { get; set; } = default!;
-    public ICollection<Reaction>? Reactions { get; set; }
+    public virtual ICollection<Reaction>? Reactions { get; set; }
 }

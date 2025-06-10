@@ -1,4 +1,6 @@
 ﻿using MediatR;
+using SM.Application.Users.DeleteAccount;
+using SM.Application.Users.Follow;
 
 namespace SM.WebApi.Endpoints;
 
@@ -18,16 +20,16 @@ public static class UserEndpoints
         return group;
     }
 
-    public static async Task<IResult> DeleteAccount(ISender sender)
+    public static async Task<IResult> DeleteAccount(DeleteAccountCommand command, ISender sender)
     {
-        await sender.Send(1);
-        return TypedResults.Ok();
+        var result = await sender.Send(command);
+        return TypedResults.Ok(result);
     }
 
-    public static async Task<IResult> Follow(ISender sender)
+    public static async Task<IResult> Follow(FollowCommand command, ISender sender)
     {
-        await sender.Send(1);
-        return TypedResults.Ok();
+        var result = await sender.Send(command);
+        return TypedResults.Ok(result);
     }
 
     public static async Task<IResult> GetProfile(ISender sender)

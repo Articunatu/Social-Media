@@ -31,7 +31,7 @@ internal class GetPostByIdQueryHandler(ApplicationDbContext context) : IQueryHan
                 {
                     Content = p.Content,
                     TimeStamp = p.TimeStamp,
-                    CommentsCount = p.Replies != null ? p.Replies.Count() : 0,
+                    CommentsCount = p.Comments != null ? p.Comments.Count() : 0,
                     ReactionCounts = p.Reactions != null
                         ? p.Reactions
                             .GroupBy(r => r.Type)
@@ -48,7 +48,7 @@ internal class GetPostByIdQueryHandler(ApplicationDbContext context) : IQueryHan
             {
                 Content = p.Content,
                 TimeStamp = p.TimeStamp,
-                CommentsCount = p.Replies != null ? p.Replies.Count() : 0,
+                CommentsCount = p.Comments != null ? p.Comments.Count() : 0,
                 ReactionCounts = p.Reactions != null
                         ? p.Reactions
                             .GroupBy(r => r.Type)

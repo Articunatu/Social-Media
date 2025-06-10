@@ -27,8 +27,8 @@ public class User(Guid id, string tag, string firstName, string lastName)
     public ICollection<Photo>? Photos { get; set; }
     public Guid? ProfilePhotoId { get; set; }
     public virtual Photo? ProfilePhoto { get; set; }
-    public virtual ICollection<User>? Following { get; set; }
-    public virtual ICollection<User>? Followers { get; set; }
+    public virtual ICollection<User> Following { get; set; } = [];
+    public virtual ICollection<User> Followers { get; set; } = [];
 
     public static User Create(string tag, string firstName, string lastName, string email)
     {
