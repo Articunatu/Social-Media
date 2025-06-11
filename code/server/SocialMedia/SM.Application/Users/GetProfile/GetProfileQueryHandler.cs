@@ -1,0 +1,33 @@
+﻿using Microsoft.EntityFrameworkCore;
+using SM.Application.Abstractions;
+using SM.Application.Database;
+using SM.Application.Shared.Extensions;
+using SM.Domain.Photos;
+using SM.Domain.Shared;
+using SM.Domain.Users;
+
+namespace SM.Application.Users.GetProfile;
+
+internal class GetProfileQueryHandler(ApplicationDbContext context) 
+    : IQueryHandler<GetProfileQuery, ProfileDetails>
+{
+    public async Task<Result<ProfileDetails>> Handle(GetProfileQuery request, CancellationToken cancellationToken)
+    {
+        var profileDetails = await context.Users
+            .Where(u => u.Id == request.Id)
+            .Select(u => new ProfileDetails
+            {
+                Profile = u.MapToProfile(),
+                FollowersCount = u.Followers.Count(),
+                FollowingCount = u.Following.Count(),
+                BackgroundPhoto = u.Photos != null ? u.Photos.FirstOrDefault(p => p.Type == PhotoType.Background) : null,
+                AboutMe = u.AuthoredMessages != null ? u.AuthoredMessages.Last().Content : string.Empty 
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (profileDetails is null)
+            return Result.Failure<ProfileDetails>(new Error(UserErrors.NotFound));
+
+        return Result.Success(profileDetails);
+    }
+}

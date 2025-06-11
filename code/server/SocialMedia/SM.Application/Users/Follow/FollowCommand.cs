@@ -2,4 +2,4 @@
 
 namespace SM.Application.Users.Follow;
 
-public record FollowCommand(Guid FollowerId, Guid FollowingId) : ICommand<IEnumerable<UserCommandResponse>>;
+public record FollowCommand(Guid FollowerId, Guid FollowingId, bool IsUnfollow) : ICommand<IEnumerable<UserCommandResponse>>;
