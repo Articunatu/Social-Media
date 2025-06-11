@@ -32,10 +32,10 @@ public static class UserEndpoints
         return TypedResults.Ok(result);
     }
 
-    public static async Task<IResult> GetProfile(ISender sender)
+    public static async Task<IResult> GetProfile(GetProfileQuery query, ISender sender)
     {
-        await sender.Send(1);
-        return TypedResults.Ok();
+        var result = await sender.Send(query);
+        return TypedResults.Ok(result);
     }
 
     public static async Task<IResult> GetReactedPostsByUserId(ISender sender)
