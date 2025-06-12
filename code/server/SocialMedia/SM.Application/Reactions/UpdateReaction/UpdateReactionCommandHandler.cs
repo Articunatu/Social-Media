@@ -1,0 +1,23 @@
+﻿using Microsoft.EntityFrameworkCore;
+using SM.Application.Abstractions;
+using SM.Application.Database;
+using SM.Domain.Shared;
+
+namespace SM.Application.Reactions.UpdateReaction;
+
+internal class UpdateReactionCommandHandler(ApplicationDbContext context) : ICommandHandler<UpdateReactionCommand, ReactionResponse>
+{
+    public async Task<Result<ReactionResponse>> Handle(UpdateReactionCommand request, CancellationToken cancellationToken)
+    {
+        var reactionToEdit = await context.Reactions.FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
+
+        if (reactionToEdit is null)
+            return Result.Failure<ReactionResponse>(new Error("Reaction.NotFound"));
+
+        reactionToEdit.Type = request.Type;
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return Result.Success(reactionToEdit.MapToResponse());
+    }
+}

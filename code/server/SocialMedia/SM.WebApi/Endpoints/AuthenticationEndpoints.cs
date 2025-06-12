@@ -29,9 +29,9 @@ public static class AuthenticationEndpoints
     {
         try
         {
-            var result = await sender.Send(command);
-            SetRefreshToken(accessor, result.RefreshToken);
-            return TypedResults.Ok(result.AccessToken);
+            var login = await sender.Send(command);
+            SetRefreshToken(accessor, login.RefreshToken);
+            return TypedResults.Ok(login.AccessToken);
         }
         catch (UnauthorizedAccessException)
         {
@@ -43,7 +43,7 @@ public static class AuthenticationEndpoints
     {
         try
         {
-            var result = await sender.Send(command);
+            var createdUser = await sender.Send(command);
 
             return TypedResults.Ok(command);
         }

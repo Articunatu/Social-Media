@@ -2,6 +2,8 @@
 using SM.Application.Posts.CreatePost;
 using SM.Application.Posts.DeletePost;
 using SM.Application.Posts.GetFeed;
+using SM.Application.Posts.GetPostById;
+using SM.Application.Posts.GetProfilePosts;
 
 namespace SM.WebApi.Endpoints;
 
@@ -38,15 +40,15 @@ public static class PostEndpoints
         return TypedResults.Ok(feed);
     }
 
-    public static async Task<IResult> GetPostById(ISender sender)
+    public static async Task<IResult> GetPostById(GetPostByIdQuery query, ISender sender)
     {
-        await sender.Send(1);
-        return TypedResults.Ok();
+        var post = await sender.Send(query);
+        return TypedResults.Ok(post);
     }
 
-    public static async Task<IResult> GetProfilePosts(ISender sender)
+    public static async Task<IResult> GetProfilePosts(GetProfilePostsQuery query, ISender sender)
     {
-        await sender.Send(1);
-        return TypedResults.Ok();
+        var posts = await sender.Send(query);
+        return TypedResults.Ok(posts);
     }
 }

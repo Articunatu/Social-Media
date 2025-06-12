@@ -1,6 +1,4 @@
-﻿using FluentAssertions;
-using FluentAssertions.Execution;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SM.Application.Database;
 using SM.Application.Users.SearchUsers;
 using SM.Domain.Users;

@@ -1,7 +1,9 @@
 ﻿using MediatR;
+using SM.Application.Reactions.AddReaction;
 using SM.Application.Reactions.GetReactedPostsByUser;
 using SM.Application.Reactions.GetReactionsByPost;
 using SM.Application.Reactions.RemoveReaction;
+using SM.Application.Reactions.UpdateReaction;
 using SM.WebApi.Extensions;
 
 namespace SM.WebApi.Endpoints;
@@ -23,8 +25,8 @@ public static class ReactionEndpoints
 
     public static async Task<IResult> GetReactionsByPost(GetReactionsByPostQuery query, ISender sender)
     {
-        var result = await sender.Send(query);
-        return TypedResults.Ok(result);
+        var reactions = await sender.Send(query);
+        return TypedResults.Ok(reactions);
     }
 
     public static async Task<IResult> GetReactionsByUser(ISender sender, HttpContext context, GetReactedPostsByUserQuery query)
@@ -33,25 +35,25 @@ public static class ReactionEndpoints
 
         var authenticatedQuery = new GetReactedPostsByUserQuery(userId, query.PagingIndex);
 
-        var result = await sender.Send(authenticatedQuery);
-        return TypedResults.Ok(result);
+        var reactedPosts = await sender.Send(authenticatedQuery);
+        return TypedResults.Ok(reactedPosts);
     }
 
-    public static async Task<IResult> ReactToPost(ISender sender)
+    public static async Task<IResult> ReactToPost(AddReactionCommand command, ISender sender)
     {
-        await sender.Send(1);
-        return TypedResults.Ok();
+        var reactedPost = await sender.Send(command);
+        return TypedResults.Ok(reactedPost);
     }
     
     public static async Task<IResult> RemoveReaction(RemoveReactionCommand command, ISender sender)
     {
-        var result = await sender.Send(command);
-        return TypedResults.Ok(result);
+        var removedReaction = await sender.Send(command);
+        return TypedResults.Ok(removedReaction);
     }
 
-    public static async Task<IResult> UpdateReaction(ISender sender)
+    public static async Task<IResult> UpdateReaction(UpdateReactionCommand command, ISender sender)
     {
-        await sender.Send(1);
-        return TypedResults.Ok();
+        var updatedReaction = await sender.Send(command);
+        return TypedResults.Ok(updatedReaction);
     }
 }

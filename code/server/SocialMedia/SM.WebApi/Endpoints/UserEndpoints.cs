@@ -24,31 +24,31 @@ public static class UserEndpoints
 
     public static async Task<IResult> DeleteAccount(DeleteAccountCommand command, ISender sender)
     {
-        var result = await sender.Send(command);
-        return TypedResults.Ok(result);
+        var deletedAccount = await sender.Send(command);
+        return TypedResults.Ok(deletedAccount);
     }
 
     public static async Task<IResult> Follow(FollowCommand command, ISender sender)
     {
-        var result = await sender.Send(command);
-        return TypedResults.Ok(result);
+        var followPair = await sender.Send(command);
+        return TypedResults.Ok(followPair);
     }
 
     public static async Task<IResult> GetProfile(GetProfileQuery query, ISender sender)
     {
-        var result = await sender.Send(query);
-        return TypedResults.Ok(result);
+        var profile = await sender.Send(query);
+        return TypedResults.Ok(profile);
     }
 
     public static async Task<IResult> SearchUsers(SearchUserQuery query, ISender sender)
     {
-        var result = await sender.Send(query);
-        return TypedResults.Ok(result);
+        var foundUsers = await sender.Send(query);
+        return TypedResults.Ok(foundUsers);
     }
 
     public static async Task<IResult> Unfollow(UnfollowCommand command, ISender sender)
     {
-        var result = await sender.Send(command);
-        return TypedResults.Ok(result);
+        var unfollowPair = await sender.Send(command);
+        return TypedResults.Ok(unfollowPair);
     }
 }

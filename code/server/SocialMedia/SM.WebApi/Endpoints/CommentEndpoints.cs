@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using SM.Application.Comments.CreateComment;
 
 namespace SM.WebApi.Endpoints;
 
@@ -16,10 +17,10 @@ public static class CommentEndpoints
         return group;
     }
 
-    public static async Task<IResult> CreateComment(ISender sender)
+    public static async Task<IResult> CreateComment(CreateCommentCommand command, ISender sender)
     {
-        await sender.Send(1);
-        return TypedResults.Ok();
+        var createdComment = await sender.Send(command);
+        return TypedResults.Ok(createdComment);
     }
 
     public static async Task<IResult> DeleteComment(ISender sender)

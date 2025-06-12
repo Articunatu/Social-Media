@@ -4,28 +4,18 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Behaviors;
 
-public class ValidationPipelineBehavior<TRequest, TResponse>
-    : IPipelineBehavior<TRequest, TResponse>
+public class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
     where TResponse : Result
 {
-    readonly IEnumerable<IValidator<TRequest>> _validators;
-
-    public ValidationPipelineBehavior(IEnumerable<IValidator<TRequest>> validators)
-    => _validators = validators;
-
-
-    public async Task<TResponse> Handle(
-        TRequest request,
-        RequestHandlerDelegate<TResponse> next,
-        CancellationToken cancellationToken)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        if (!_validators.Any())
+        if (!validators.Any())
         {
             return await next(cancellationToken);
         }
 
-        Error[] errors = _validators
+        Error[] errors = validators
             .Select(validator => validator.Validate(request))
             .SelectMany(validationResult => validationResult.Errors)
             .Where(validationFailure => validationFailure is not null)
@@ -42,6 +32,7 @@ public class ValidationPipelineBehavior<TRequest, TResponse>
 
         return await next(cancellationToken);
     }
+
     static TResult CreateValidationResult<TResult>(Error[] errors)
         where TResult : Result
     {
