@@ -40,4 +40,9 @@
 		</AssemblyAttribute>
 	</ItemGroup>
 
+
+	<ItemGroup>
+	  <Folder Include="Comments\GetCommentById\" />
+	</ItemGroup>
+
 </Project>

@@ -11,8 +11,8 @@ public static class CommentEndpoints
 
         group.MapPost("/posts/{postId}/comments", CreateComment);
         group.MapDelete("/comments/{id}", DeleteComment);
-        group.MapGet("/posts/{postId}/comments", GetReplies);
-        group.MapGet("/comments/{id}", GetReplyById);
+        group.MapGet("/posts/{postId}/comments", GetComments);
+        group.MapGet("/comments/{id}", GetCommentById);
 
         return group;
     }
@@ -29,13 +29,13 @@ public static class CommentEndpoints
         return TypedResults.Ok();
     }
 
-    public static async Task<IResult> GetReplies(ISender sender)
+    public static async Task<IResult> GetComments(ISender sender)
     {
         await sender.Send(1);
         return TypedResults.Ok();
     }
 
-    public static async Task<IResult> GetReplyById(ISender sender)
+    public static async Task<IResult> GetCommentById(ISender sender)
     {
         await sender.Send(1);
         return TypedResults.Ok();
