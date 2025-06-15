@@ -7,7 +7,7 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Comments.GetComments;
 
-internal class GetCommentsQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : IQueryHandler<GetCommentsQuery, PagedFeed<CommentResponse>>
+internal class GetCommentsQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : IQueryHandler<GetCommentsQuery, PagedFeed<CommentQuery>>
 {
     public async Task<Result<PagedFeed<CommentResponse>>> Handle(GetCommentsQuery request, CancellationToken cancellationToken)
     {

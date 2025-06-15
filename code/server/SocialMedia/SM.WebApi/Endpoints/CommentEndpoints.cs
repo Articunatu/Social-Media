@@ -1,5 +1,7 @@
 ﻿using MediatR;
 using SM.Application.Comments.CreateComment;
+using SM.Application.Comments.DeleteComment;
+using SM.Application.Comments.GetComments;
 
 namespace SM.WebApi.Endpoints;
 
@@ -9,8 +11,8 @@ public static class CommentEndpoints
     {
         var group = routes.MapGroup("/api");
 
-        group.MapPost("/posts/{postId}/comments", CreateComment);
-        group.MapDelete("/comments/{id}", DeleteComment);
+        group.MapPost("/comments/", CreateComment);
+        group.MapDelete("/comments/", DeleteComment);
         group.MapGet("/posts/{postId}/comments", GetComments);
         group.MapGet("/comments/{id}", GetCommentById);
 
@@ -23,21 +25,21 @@ public static class CommentEndpoints
         return TypedResults.Ok(createdComment);
     }
 
-    public static async Task<IResult> DeleteComment(ISender sender)
+    public static async Task<IResult> DeleteComment(DeleteCommentCommand command, ISender sender)
     {
-        await sender.Send(1);
-        return TypedResults.Ok();
+        var deletedComment = await sender.Send(command);
+        return TypedResults.Ok(deletedComment);
     }
 
-    public static async Task<IResult> GetComments(ISender sender)
+    public static async Task<IResult> GetComments(GetCommentsQuery query, ISender sender)
     {
-        await sender.Send(1);
-        return TypedResults.Ok();
+        var comments = await sender.Send(query);
+        return TypedResults.Ok(comments);
     }
 
     public static async Task<IResult> GetCommentById(ISender sender)
     {
-        await sender.Send(1);
+        await sender.Send();
         return TypedResults.Ok();
     }
 }
