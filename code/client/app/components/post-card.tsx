@@ -1,4 +1,4 @@
-import React from 'react';
+import Image from 'next/image';
 
 interface PostCardProps {
   profileImage: string;
@@ -13,7 +13,7 @@ const PostCard: React.FC<PostCardProps> = ({ profileImage, displayName, username
       <figure className="flex items-center px-4 pt-4">
         <div className="avatar">
           <div className="w-16 rounded-full">
-            <img src={profileImage} alt={`${displayName}'s profile`} />
+            <Image src={profileImage} alt={`${displayName}'s profile`} />
           </div>
         </div>
         <div className="ml-4">
