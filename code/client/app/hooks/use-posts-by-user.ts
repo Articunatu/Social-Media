@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchPostsByUser, Post } from '../services/post-service';
+import { fetchPostsByUser } from '../services/post-service';
+import { Post } from '../models/post';
 
 export const usePostsByUser = (userId: number) => {
   return useQuery<Post[], Error>({
