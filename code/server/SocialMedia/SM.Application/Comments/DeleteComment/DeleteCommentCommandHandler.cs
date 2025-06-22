@@ -5,7 +5,7 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Comments.DeleteComment;
 
-internal class DeleteCommentCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory 
+internal class DeleteCommentCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
     : ICommandHandler<DeleteCommentCommand, CommentResponse>
 {
     public async Task<Result<CommentResponse>> Handle(DeleteCommentCommand request, CancellationToken ct)

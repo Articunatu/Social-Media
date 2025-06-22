@@ -1,5 +1,6 @@
-﻿namespace SM.Application.Authentication.ChangePassword;
+﻿using SM.Application.Abstractions;
 
-public record ChangePasswordCommand
-{
-}
+namespace SM.Application.Authentication.ChangePassword;
+
+public record ChangePasswordCommand(Guid UserId, string OldPassword, string NewPassword, string ConfirmPassword) 
+    :ICommand<string>;

@@ -1,11 +1,11 @@
-﻿using SM.Application.Authentication;
+﻿using SM.Domain.Authentication;
+using SM.Application.Authentication;
 using System.Text;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using SM.Domain.Authentication;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace SM.Infrastructure.Authentication;
 
