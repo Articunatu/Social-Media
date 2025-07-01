@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using SM.Application.Comments.CreateComment;
 using SM.Application.Comments.DeleteComment;
+using SM.Application.Comments.GetCommentById;
 using SM.Application.Comments.GetComments;
 
 namespace SM.WebApi.Endpoints;
@@ -37,9 +38,9 @@ public static class CommentEndpoints
         return TypedResults.Ok(comments);
     }
 
-    public static async Task<IResult> GetCommentById(ISender sender)
+    public static async Task<IResult> GetCommentById(GetCommentByIdQuery query, ISender sender)
     {
-        await sender.Send();
-        return TypedResults.Ok();
+        var comment = await sender.Send(query);
+        return TypedResults.Ok(comment);
     }
 }

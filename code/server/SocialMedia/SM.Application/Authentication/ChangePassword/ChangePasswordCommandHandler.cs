@@ -12,7 +12,7 @@ internal class ChangePasswordCommandHandler(IDbContextFactory<ApplicationDbConte
     {
         await using var context = await contextFactory.CreateDbContextAsync(ct);
 
-        jwt.GeneratePasswordHash(command.OldPassword, out byte[] oldPasswordHash, out byte[] oldPasswordSalt)
+        jwt.GeneratePasswordHash(command.OldPassword, out byte[] oldPasswordHash, out byte[] oldPasswordSalt);
 
         if (!jwt.VerifyPasswordHash(command.OldPassword, oldPasswordHash, oldPasswordSalt))
         {

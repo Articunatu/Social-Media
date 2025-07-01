@@ -9,15 +9,15 @@ namespace SM.Application.Comments.GetComments;
 
 internal class GetCommentsQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : IQueryHandler<GetCommentsQuery, PagedFeed<CommentQuery>>
 {
-    public async Task<Result<PagedFeed<CommentResponse>>> Handle(GetCommentsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PagedFeed<CommentQuery>>> Handle(GetCommentsQuery request, CancellationToken cancellationToken)
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
         var comments = await context.Comments
-            .Where(p => p.ParentPostId == request.Id)
+            .Where(p => p.ParentPostId == request.ParentPostId)
             .Select(p => new CommentQuery
             {
-                ParentPostId = request.Id,
+                ParentPostId = request.ParentPostId,
                 Content = p.Content,
                 TimeStamp = p.TimeStamp,
                 CommentsCount = p.Comments != null ? p.Comments.Count() : 0,
@@ -29,5 +29,7 @@ internal class GetCommentsQueryHandler(IDbContextFactory<ApplicationDbContext> c
             })
             .AsQueryable()
             .ToPagedFeed(request.Filter);
+
+        return Result.Success(comments);
     }
 }

@@ -5,9 +5,9 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Comments.CreateComment;
 
-internal class CreateCommentCommandHandler(ApplicationDbContext context) : ICommandHandler<CreateCommentCommand, CommentResponse>
+internal class CreateCommentCommandHandler(ApplicationDbContext context) : ICommandHandler<CreateCommentCommand, CommentCommand>
 {
-    public async Task<Result<CommentResponse>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
+    public async Task<Result<CommentCommand>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
     {
         var comment = Comment.Create(request.ParentPostId, request.Content, DateTime.Now, request.AuthorId);
 

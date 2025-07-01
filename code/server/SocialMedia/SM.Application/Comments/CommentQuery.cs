@@ -1,5 +1,5 @@
 ﻿using SM.Application.Shared.Models;
-namespace SM.Application.Comments.GetComments;
+namespace SM.Application.Comments;
 
 public record CommentQuery : ProfilePostDto
 {

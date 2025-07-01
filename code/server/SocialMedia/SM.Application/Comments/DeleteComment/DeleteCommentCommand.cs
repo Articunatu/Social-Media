@@ -2,5 +2,5 @@
 
 namespace SM.Application.Comments.DeleteComment
 {
-    public record DeleteCommentCommand(Guid Id) : ICommand<CommentResponse>;
+    public record DeleteCommentCommand(Guid Id) : ICommand<CommentCommand>;
 }

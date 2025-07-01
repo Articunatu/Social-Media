@@ -6,16 +6,16 @@ using SM.Domain.Shared;
 namespace SM.Application.Comments.DeleteComment;
 
 internal class DeleteCommentCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
-    : ICommandHandler<DeleteCommentCommand, CommentResponse>
+    : ICommandHandler<DeleteCommentCommand, CommentCommand>
 {
-    public async Task<Result<CommentResponse>> Handle(DeleteCommentCommand request, CancellationToken ct)
+    public async Task<Result<CommentCommand>> Handle(DeleteCommentCommand request, CancellationToken ct)
     {
         await using var context = await contextFactory.CreateDbContextAsync(ct);
 
         var commentToDelete = await context.Comments.FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken: ct);
 
         if (commentToDelete is null)
-            return Result.Failure<CommentResponse>(new Error("Comment.NotFound"));
+            return Result.Failure<CommentCommand>(new Error("Comment.NotFound"));
 
         context.Comments.Remove(commentToDelete);
 
