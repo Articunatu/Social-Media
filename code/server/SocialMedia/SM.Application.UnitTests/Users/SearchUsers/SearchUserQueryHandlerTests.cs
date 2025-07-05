@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SM.Application.Database;
+using SM.Application.UnitTests.Helpers;
 using SM.Application.Users.SearchUsers;
 using SM.Domain.Users;
 
@@ -17,7 +18,8 @@ public class SearchUserQueryHandlerTests
             User.Create("rose_duelist", "Utena", "Tenjou", "revolutionary@shoujo.jp")
         );
         await context.SaveChangesAsync();
-        var handler = new SearchUserQueryHandler(context);
+        var factory = context.CreateSubstituteFactory();
+        var handler = new SearchUserQueryHandler(factory);
         var query = new SearchUserQuery("ein");
 
         var result = await handler.Handle(query, CancellationToken.None);

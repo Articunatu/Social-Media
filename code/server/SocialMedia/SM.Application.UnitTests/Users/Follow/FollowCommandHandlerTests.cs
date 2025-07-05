@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SM.Application.Database;
+using SM.Application.UnitTests.Helpers;
 using SM.Application.Users.Follow;
 using SM.Domain.Users;
 
@@ -17,7 +18,8 @@ public class FollowCommandHandlerTests
         var following = User.Create("rose_duelist", "Utena", "Tenjou", "revolutionary@shoujo.jp");
         context.Users.AddRange(follower, following);
         await context.SaveChangesAsync();
-        var handler = new FollowCommandHandler(context);
+        var factory = context.CreateSubstituteFactory();
+        var handler = new FollowCommandHandler(factory);
         var command = new FollowCommand(follower.Id, following.Id);
 
         var result = await handler.Handle(command, CancellationToken.None);
@@ -39,7 +41,8 @@ public class FollowCommandHandlerTests
         var follower = User.Create("solid_warrior", "Reinar", "Braunn", "reinar_braunn@atk.ttn");
         context.Users.Add(follower);
         await context.SaveChangesAsync();
-        var handler = new FollowCommandHandler(context);
+        var factory = context.CreateSubstituteFactory();
+        var handler = new FollowCommandHandler(factory);
         var command = new FollowCommand(follower.Id, Guid.NewGuid());
 
         var result = await handler.Handle(command, CancellationToken.None);

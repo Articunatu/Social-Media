@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SM.Application.Database;
+using SM.Application.UnitTests.Helpers;
 using SM.Application.Users.Unfollow;
 using SM.Domain.Users;
 
@@ -19,7 +20,8 @@ public class UnfollowCommandHandlerTests
         following.Followers.Add(follower);
         context.Users.AddRange(follower, following);
         await context.SaveChangesAsync();
-        var handler = new UnfollowCommandHandler(context);
+        var factory = context.CreateSubstituteFactory();
+        var handler = new UnfollowCommandHandler(factory);
         var command = new UnfollowCommand(follower.Id, following.Id);
 
         var unfollow = await handler.Handle(command, CancellationToken.None);
@@ -41,7 +43,8 @@ public class UnfollowCommandHandlerTests
         var follower = User.Create("solid_warrior", "Reinar", "Braunn", "reinar_braunn@atk.ttn");
         context.Users.Add(follower);
         await context.SaveChangesAsync();
-        var handler = new UnfollowCommandHandler(context);
+        var factory = context.CreateSubstituteFactory();
+        var handler = new UnfollowCommandHandler(factory);
         var command = new UnfollowCommand(follower.Id, Guid.NewGuid());
 
         var unfollow = await handler.Handle(command, CancellationToken.None);

@@ -15,7 +15,7 @@ public static class PostEndpoints
     {
         var group = routes.MapGroup("/api/posts");
 
-        group.MapPost("/", CreatePost);
+        //group.MapPost("/", CreatePost);
         group.MapDelete("/{id}", DeletePost);
         group.MapGet("/", GetFeed);
         group.MapGet("/{id}", GetPostById);
