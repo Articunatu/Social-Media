@@ -30,8 +30,8 @@ public static class AuthenticationEndpoints
         try
         {
             var login = await sender.Send(command);
-            SetRefreshToken(accessor, login.RefreshToken);
-            return TypedResults.Ok(login.AccessToken);
+            SetRefreshToken(accessor, login.Value.RefreshToken);
+            return TypedResults.Ok(login.Value.AccessToken);
         }
         catch (UnauthorizedAccessException)
         {

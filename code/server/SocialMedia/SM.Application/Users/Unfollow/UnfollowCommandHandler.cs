@@ -7,11 +7,13 @@ using SM.Domain.Users;
 
 namespace SM.Application.Users.Unfollow;
 
-internal class UnfollowCommandHandler(ApplicationDbContext context) 
+internal class UnfollowCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
     : ICommandHandler<UnfollowCommand, IEnumerable<UserCommandResponse>>
 {
     public async Task<Result<IEnumerable<UserCommandResponse>>> Handle(UnfollowCommand request, CancellationToken cancellationToken)
     {
+        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+
         var followerTask = context.Users.FirstOrDefaultAsync(u => u.Id == request.FollowerId, cancellationToken);
         var followingTask = context.Users.FirstOrDefaultAsync(u => u.Id == request.FollowingId, cancellationToken);
 

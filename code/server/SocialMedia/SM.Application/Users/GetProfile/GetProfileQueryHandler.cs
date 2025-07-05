@@ -8,11 +8,12 @@ using SM.Domain.Users;
 
 namespace SM.Application.Users.GetProfile;
 
-internal class GetProfileQueryHandler(ApplicationDbContext context) 
+internal class GetProfileQueryHandler(ApplicationDbContext context)
     : IQueryHandler<GetProfileQuery, ProfileDetails>
 {
     public async Task<Result<ProfileDetails>> Handle(GetProfileQuery request, CancellationToken cancellationToken)
     {
+
         var profileDetails = await context.Users
             .Where(u => u.Id == request.Id)
             .Select(u => new ProfileDetails

@@ -7,11 +7,13 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Reactions.GetReactedPostsByUser;
 
-internal class GetReactedPostsByUserQueryHandler(ApplicationDbContext context)
+internal class GetReactedPostsByUserQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
     : IQueryHandler<GetReactedPostsByUserQuery, PagedFeed<ReactedProfilePost>>
 {
     public async Task<Result<PagedFeed<ReactedProfilePost>>> Handle(GetReactedPostsByUserQuery request, CancellationToken cancellationToken)
     {
+        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+
         var reactedPosts = context.Reactions
             .Where(r => r.UserId == request.UserId)
             .Include(r => r.Message)

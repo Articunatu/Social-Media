@@ -3,14 +3,17 @@ using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Application.Shared.Models;
 using SM.Application.Shared.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace SM.Application.Posts.GetProfilePosts;
 
-internal class GetProfilePostsQueryHandler(ApplicationDbContext context)
+internal class GetProfilePostsQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
         : IQueryHandler<GetProfilePostsQuery, ProfileFeedResponse>
 {
     public async Task<Result<ProfileFeedResponse>> Handle(GetProfilePostsQuery request, CancellationToken cancellationToken)
     {
+        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+
         var posts = new PagedFeed<ProfilePostDto>();
 
         try

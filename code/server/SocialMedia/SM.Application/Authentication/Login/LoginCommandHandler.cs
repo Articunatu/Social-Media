@@ -1,16 +1,18 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Domain.Shared;
 using SM.Domain.Users;
 
 namespace SM.Application.Authentication.Login;
 
-internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config, ApplicationDbContext context) : IRequestHandler<LoginCommand, LoginResponse>
+internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config, IDbContextFactory<ApplicationDbContext> contextFactory) : ICommandHandler<LoginCommand, LoginResponse>
 {
     public async Task<Result<LoginResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
+        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+
         var userAuth = await context.Users
                 .Where(u => u.Tag == request.Tag)
                 .Select(u => new

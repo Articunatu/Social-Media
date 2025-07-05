@@ -7,10 +7,12 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Users.SearchUsers;
 
-internal class SearchUserQueryHandler(ApplicationDbContext context) : IQueryHandler<SearchUserQuery, IEnumerable<ProfileInfo>>
+internal class SearchUserQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : IQueryHandler<SearchUserQuery, IEnumerable<ProfileInfo>>
 {
     public async Task<Result<IEnumerable<ProfileInfo>>> Handle(SearchUserQuery request, CancellationToken cancellationToken)
     {
+        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+
         var searchText = request.SearchText.ToLower();
 
         var matchingUsers = await context.Users

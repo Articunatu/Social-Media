@@ -7,11 +7,13 @@ using SM.Domain.Users;
 
 namespace SM.Application.Users.Follow;
 
-internal class FollowCommandHandler(ApplicationDbContext context)
+internal class FollowCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
     : ICommandHandler<FollowCommand, IEnumerable<UserCommandResponse>>
 {
     public async Task<Result<IEnumerable<UserCommandResponse>>> Handle(FollowCommand request, CancellationToken cancellationToken)
     {
+        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+
         var followerTask = context.Users.FirstOrDefaultAsync(u => u.Id == request.FollowerId, cancellationToken);
         var followingTask = context.Users.FirstOrDefaultAsync(u => u.Id == request.FollowingId, cancellationToken);
 

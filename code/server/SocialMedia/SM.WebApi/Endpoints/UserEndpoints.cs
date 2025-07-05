@@ -3,7 +3,6 @@ using SM.Application.Users.DeleteAccount;
 using SM.Application.Users.Follow;
 using SM.Application.Users.GetProfile;
 using SM.Application.Users.SearchUsers;
-using SM.Application.Users.Unfollow;
 
 namespace SM.WebApi.Endpoints;
 

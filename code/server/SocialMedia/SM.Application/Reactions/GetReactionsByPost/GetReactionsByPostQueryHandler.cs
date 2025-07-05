@@ -7,11 +7,13 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Reactions.GetReactionsByPost;
 
-internal class GetReactionsByPostQueryHandler(ApplicationDbContext context) 
+internal class GetReactionsByPostQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory) 
     : IQueryHandler<GetReactionsByPostQuery, PagedFeed<ReactionResponse>>
 {
     public async Task<Result<PagedFeed<ReactionResponse>>> Handle(GetReactionsByPostQuery request, CancellationToken cancellationToken)
     {
+        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+
         var reactions = context.Reactions
             .Where(r => r.MessageId == request.PostId
                 && r.Type == request.Type)

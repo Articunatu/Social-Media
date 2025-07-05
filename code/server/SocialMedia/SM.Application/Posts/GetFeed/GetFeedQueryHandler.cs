@@ -7,10 +7,12 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Posts.GetFeed;
 
-internal class GetFeedQueryHandler(ApplicationDbContext context) : IQueryHandler<GetFeedQuery, PagedFeed<FeedResponse>>
+internal class GetFeedQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : IQueryHandler<GetFeedQuery, PagedFeed<FeedResponse>>
 {
     public async Task<Result<PagedFeed<FeedResponse>>> Handle(GetFeedQuery request, CancellationToken cancellationToken)
     {
+        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+
         var followingIds = await context.Users
             .Where(u => u.Id == request.UserId)
             .SelectMany(u => u.Following != null ? u.Following.Select(f => f.Id) : default!)

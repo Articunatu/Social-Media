@@ -5,11 +5,13 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Reactions.RemoveReaction;
 
-internal class RemoveReactionCommandHandler(ApplicationDbContext context) 
+internal class RemoveReactionCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory) 
     : ICommandHandler<RemoveReactionCommand, ReactionResponse>
 {
     public async Task<Result<ReactionResponse>> Handle(RemoveReactionCommand request, CancellationToken cancellationToken)
     {
+        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+
         var reactionToRemove = await context.Reactions
             .FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken: cancellationToken);
 

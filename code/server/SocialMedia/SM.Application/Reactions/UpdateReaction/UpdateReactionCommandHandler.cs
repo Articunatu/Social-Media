@@ -5,10 +5,12 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Reactions.UpdateReaction;
 
-internal class UpdateReactionCommandHandler(ApplicationDbContext context) : ICommandHandler<UpdateReactionCommand, ReactionResponse>
+internal class UpdateReactionCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : ICommandHandler<UpdateReactionCommand, ReactionResponse>
 {
     public async Task<Result<ReactionResponse>> Handle(UpdateReactionCommand request, CancellationToken cancellationToken)
     {
+        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+
         var reactionToEdit = await context.Reactions.FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
 
         if (reactionToEdit is null)

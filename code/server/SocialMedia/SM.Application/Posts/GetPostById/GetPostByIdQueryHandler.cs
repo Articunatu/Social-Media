@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Application.Shared.Extensions;
@@ -8,10 +9,12 @@ using SM.Domain.Users;
 
 namespace SM.Application.Posts.GetPostById;
 
-internal class GetPostByIdQueryHandler(ApplicationDbContext context) : IQueryHandler<GetPostByIdQuery, PostDetailsResponse>
+internal class GetPostByIdQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : IQueryHandler<GetPostByIdQuery, PostDetailsResponse>
 {
     public async Task<Result<PostDetailsResponse>> Handle(GetPostByIdQuery request, CancellationToken cancellationToken)
     {
+        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+
         if (request.Profile is null)
         {
             var user = await context.Users
