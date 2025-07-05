@@ -26,12 +26,13 @@ builder.Services.AddAuthentication(options =>
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]!)),
+            Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:TokenKey"]!)),
         ValidateIssuer = false,
         ValidateAudience = false,
         ClockSkew = TimeSpan.Zero
     };
 });
+builder.Services.AddAuthorization();
 
 builder.Services.AddSwaggerGen();
 

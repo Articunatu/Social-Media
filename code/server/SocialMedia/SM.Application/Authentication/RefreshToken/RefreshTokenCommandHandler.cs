@@ -1,15 +1,18 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Configuration;
 using SM.Application.Database;
 
 namespace SM.Application.Authentication.RefreshToken;
 
-internal class RefreshTokenCommandHandler(IJwtService jwtService, IConfiguration config, ApplicationDbContext context) 
+internal class RefreshTokenCommandHandler(IJwtService jwtService, IConfiguration config, IDbContextFactory<ApplicationDbContext> contextFactory) 
     : IRequestHandler<RefreshTokenCommand, LoginResponse>
 {
     public async Task<LoginResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
+        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+
         var existing = await context.Tokens
             .FirstOrDefaultAsync(t => t.Text == request.RefreshToken, cancellationToken);
 

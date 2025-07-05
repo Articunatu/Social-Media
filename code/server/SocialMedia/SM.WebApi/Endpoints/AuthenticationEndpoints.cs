@@ -1,12 +1,11 @@
-﻿using FluentValidation;
-using MediatR;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SM.Application.Authentication.Login;
 using SM.Application.Authentication.Logout;
 using SM.Application.Authentication.RefreshToken;
 using SM.Application.Authentication.SignUp;
 using SM.Domain.Authentication;
-using System.ComponentModel.DataAnnotations;
 using ValidationException = FluentValidation.ValidationException;
 
 namespace SM.WebApi.Endpoints;
@@ -25,7 +24,7 @@ public static class AuthenticationEndpoints
         return group;
     }
 
-    public static async Task<IResult> Login(LoginCommand command, ISender sender, IHttpContextAccessor accessor)
+    public static async Task<IResult> Login([FromBody] LoginCommand command, ISender sender, IHttpContextAccessor accessor)
     {
         try
         {
@@ -39,7 +38,7 @@ public static class AuthenticationEndpoints
         }
     }
 
-    public static async Task<IResult> SignUp(SignUpCommand command, ISender sender)
+    public static async Task<IResult> SignUp([FromBody] SignUpCommand command, ISender sender)
     {
         try
         {
@@ -69,7 +68,7 @@ public static class AuthenticationEndpoints
         }
     }
 
-    public static async Task<IResult> RefreshToken(RefreshTokenCommand command, ISender sender, HttpRequest httpRequest)
+    public static async Task<IResult> RefreshToken([FromBody] RefreshTokenCommand command, ISender sender, HttpRequest httpRequest)
     {
         var refreshToken = httpRequest.Cookies["refreshToken"];
         if (string.IsNullOrEmpty(refreshToken))
@@ -79,7 +78,7 @@ public static class AuthenticationEndpoints
         return TypedResults.Ok(result.AccessToken);
     }
 
-    public static async Task<IResult> Logout(LogoutCommand command, ISender sender)
+    public static async Task<IResult> Logout([FromBody] LogoutCommand command, ISender sender)
     {
         await sender.Send(command);
         return TypedResults.Ok("Logged out.");

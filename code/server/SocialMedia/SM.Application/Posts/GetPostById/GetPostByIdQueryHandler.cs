@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Application.Shared.Extensions;
