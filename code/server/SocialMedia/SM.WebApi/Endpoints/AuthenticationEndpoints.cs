@@ -1,13 +1,11 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SM.Application.Authentication.Login;
 using SM.Application.Authentication.Logout;
 using SM.Application.Authentication.RefreshToken;
 using SM.Application.Authentication.SignUp;
 using SM.Domain.Authentication;
 using SM.WebApi.Extensions;
-using ValidationException = FluentValidation.ValidationException;
 
 namespace SM.WebApi.Endpoints;
 
@@ -42,15 +40,20 @@ public static class AuthenticationEndpoints
     }
 
 
-    public static async Task<IResult> RefreshToken([FromBody] RefreshTokenCommand command, ISender sender, HttpRequest httpRequest)
+    public static async Task<IResult> RefreshToken(
+        [FromBody] RefreshTokenCommand command,
+        ISender sender,
+        HttpRequest request)
     {
-        var refreshToken = httpRequest.Cookies["refreshToken"];
+        var refreshToken = request.Cookies["refreshToken"];
         if (string.IsNullOrEmpty(refreshToken))
             return TypedResults.Unauthorized();
 
         var result = await sender.Send(new RefreshTokenCommand(refreshToken));
-        return TypedResults.Ok(result.AccessToken);
+
+        return result.ToActionResult(token => TypedResults.Ok(token.AccessToken));
     }
+
 
     public static async Task<IResult> Logout([FromBody] LogoutCommand command, ISender sender)
     {

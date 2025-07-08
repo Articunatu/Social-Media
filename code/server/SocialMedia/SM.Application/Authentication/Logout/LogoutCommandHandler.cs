@@ -1,12 +1,14 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using SM.Application.Abstractions;
 using SM.Application.Database;
+using SM.Domain.Shared;
 
 namespace SM.Application.Authentication.Logout;
 
-internal class LogoutCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : IRequestHandler<LogoutCommand, Unit>
+internal class LogoutCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : ICommandHandler<LogoutCommand, Unit>
 {
-    public async Task<Unit> Handle(LogoutCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Unit>> Handle(LogoutCommand request, CancellationToken cancellationToken)
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
@@ -17,6 +19,6 @@ internal class LogoutCommandHandler(IDbContextFactory<ApplicationDbContext> cont
             await context.SaveChangesAsync(cancellationToken);
         }
 
-        return Unit.Value;
+        return Result.Success(Unit.Value);
     }
 }

@@ -1,15 +1,15 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using SM.Application.Abstractions;
 using SM.Application.Database;
+using SM.Domain.Shared;
 
 namespace SM.Application.Authentication.RefreshToken;
 
 internal class RefreshTokenCommandHandler(IJwtService jwtService, IConfiguration config, IDbContextFactory<ApplicationDbContext> contextFactory) 
-    : IRequestHandler<RefreshTokenCommand, LoginResponse>
+    : ICommandHandler<RefreshTokenCommand, LoginResponse>
 {
-    public async Task<LoginResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
+    public async Task<Result<LoginResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
@@ -17,7 +17,7 @@ internal class RefreshTokenCommandHandler(IJwtService jwtService, IConfiguration
             .FirstOrDefaultAsync(t => t.Text == request.RefreshToken, cancellationToken);
 
         if (existing == null || existing.Expires < DateTime.UtcNow)
-            throw new UnauthorizedAccessException("Invalid or expired refresh token");
+            return Result.Failure<LoginResponse>(new Error("Invalid or expired refresh token"), StatusCode.Validation);
 
         string accessToken = jwtService.CreateToken(existing.UserId.ToString(), config["AppSettings:Token"]!);
         var refreshedToken = jwtService.GenerateRefreshToken();
@@ -27,6 +27,6 @@ internal class RefreshTokenCommandHandler(IJwtService jwtService, IConfiguration
         await context.Tokens.AddAsync(refreshedToken, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
 
-        return new LoginResponse(accessToken, refreshedToken);
+        return Result.Success(new LoginResponse(accessToken, refreshedToken));
     }
 }

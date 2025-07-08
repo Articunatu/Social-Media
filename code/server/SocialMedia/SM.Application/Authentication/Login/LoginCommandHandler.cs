@@ -7,7 +7,8 @@ using SM.Domain.Users;
 
 namespace SM.Application.Authentication.Login;
 
-internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config, IDbContextFactory<ApplicationDbContext> contextFactory) : ICommandHandler<LoginCommand, LoginResponse>
+internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config, IDbContextFactory<ApplicationDbContext> contextFactory) 
+    : ICommandHandler<LoginCommand, LoginResponse>
 {
     public async Task<Result<LoginResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
