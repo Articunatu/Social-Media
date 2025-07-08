@@ -12,12 +12,12 @@ public static class CommentEndpoints
 {
     public static RouteGroupBuilder MapCommentEndpoints(this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("/api");
+        var group = routes.MapGroup("/api/comments/");
 
-        group.MapPost("/comments/", CreateComment);
-        group.MapDelete("/comments/", DeleteComment);
-        group.MapGet("/posts/{postId}/comments", GetComments);
-        group.MapGet("/comments/{id}", GetCommentById);
+        group.MapPost("create", CreateComment);
+        group.MapDelete("delete/{id}", DeleteComment);
+        group.MapGet("get-by-post-id/{postId}", GetComments);
+        group.MapGet("{id}", GetCommentById);
 
         return group;
     }
@@ -28,9 +28,9 @@ public static class CommentEndpoints
         return TypedResults.Ok(createdComment);
     }
 
-    public static async Task<IResult> DeleteComment([FromBody] DeleteCommentCommand command, ISender sender)
+    public static async Task<IResult> DeleteComment(Guid id, ISender sender)
     {
-        var deletedComment = await sender.Send(command);
+        var deletedComment = await sender.Send(new DeleteCommentCommand(id));
         return TypedResults.Ok(deletedComment);
     }
 

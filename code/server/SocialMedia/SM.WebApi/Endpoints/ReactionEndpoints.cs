@@ -7,7 +7,6 @@ using SM.Application.Reactions.RemoveReaction;
 using SM.Application.Reactions.UpdateReaction;
 using SM.Application.Shared.Models;
 using SM.Domain.Reactions;
-using SM.WebApi.Extensions;
 
 namespace SM.WebApi.Endpoints;
 
@@ -15,13 +14,13 @@ public static class ReactionEndpoints
 {
     public static RouteGroupBuilder MapReactionEndpoints(this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("/api");
+        var group = routes.MapGroup("/api/reactions/");
 
-        group.MapGet("/post/{postId}/reactions", GetReactionsByPost);
-        group.MapGet("/user/reactions", GetReactionsByUser);
-        group.MapPost("/reactions", ReactToPost);
-        group.MapDelete("/reactions", RemoveReaction);
-        group.MapPut("/reactions", UpdateReaction);
+        group.MapGet("get-by-post/{postId}", GetReactionsByPost);
+        group.MapGet("users-reactions/{userId}", GetReactionsByUser);
+        group.MapPost("react-to-post", ReactToPost);
+        group.MapDelete("delete/{id}", RemoveReaction);
+        group.MapPatch("update-reaction", UpdateReaction);
 
         return group;
     }
@@ -42,11 +41,8 @@ public static class ReactionEndpoints
     }
 
 
-    public static async Task<IResult> GetReactionsByUser(ISender sender, HttpContext context,
-        [AsParameters] PageFilter filter)
+    public static async Task<IResult> GetReactionsByUser(ISender sender, Guid userId, [AsParameters] PageFilter filter)
     {
-        Guid userId = context.GetLoggedInUserId();
-
         var authenticatedQuery = new GetReactedPostsByUserQuery(userId, filter.Index);
 
         var reactedPosts = await sender.Send(authenticatedQuery);
@@ -59,9 +55,9 @@ public static class ReactionEndpoints
         return TypedResults.Ok(reactedPost);
     }
     
-    public static async Task<IResult> RemoveReaction([FromBody] RemoveReactionCommand command, ISender sender)
+    public static async Task<IResult> RemoveReaction(Guid id, ISender sender)
     {
-        var removedReaction = await sender.Send(command);
+        var removedReaction = await sender.Send(new RemoveReactionCommand(id));
         return TypedResults.Ok(removedReaction);
     }
 

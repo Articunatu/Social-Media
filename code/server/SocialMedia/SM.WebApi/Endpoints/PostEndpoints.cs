@@ -13,13 +13,13 @@ public static class PostEndpoints
 {
     public static RouteGroupBuilder MapPostEndpoints(this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("/api/posts");
+        var group = routes.MapGroup("/api/posts/");
 
-        group.MapPost("/", CreatePost);
-        group.MapDelete("/{id}", DeletePost);
-        group.MapGet("/", GetFeed);
-        group.MapGet("/{id}", GetPostById);
-        group.MapGet("/profile/{userId}", GetProfilePosts);
+        group.MapPost("create", CreatePost);
+        group.MapDelete("delete/{id}", DeletePost);
+        group.MapGet("get-feed", GetFeed);
+        group.MapGet("{id}", GetPostById);
+        group.MapGet("get-posts-by-user/{userId}", GetProfilePosts);
 
         return group;
     }
