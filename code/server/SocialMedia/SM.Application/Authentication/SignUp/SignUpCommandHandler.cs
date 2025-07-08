@@ -13,7 +13,17 @@ internal class SignUpCommandHandler(IDbContextFactory<ApplicationDbContext> cont
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
-        jwtService.GeneratePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+        var existingUser = await context.Users
+            .Where(u => u.Email == request.Email || u.Tag == request.Tag)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (existingUser is not null)
+        {
+            return Result.Failure<SignUpResponse>(
+                new Error("A user with this email or tag already exists"), StatusCode.Conflict);
+        }
+
+        jwtService.GeneratePasswordHash(request.Password, out var passwordHash, out var passwordSalt);
 
         var user = User.Create(request.Tag, request.FirstName, request.LastName, request.Email);
         user.SetLogin(passwordHash, passwordSalt);

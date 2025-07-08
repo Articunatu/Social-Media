@@ -14,7 +14,7 @@ internal class UpdateReactionCommandHandler(IDbContextFactory<ApplicationDbConte
         var reactionToEdit = await context.Reactions.FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
 
         if (reactionToEdit is null)
-            return Result.Failure<ReactionResponse>(new Error("Reaction.NotFound"));
+            return Result.Failure<ReactionResponse>(new Error("Reaction.NotFound"), StatusCode.NotFound);
 
         reactionToEdit.Type = request.Type;
 

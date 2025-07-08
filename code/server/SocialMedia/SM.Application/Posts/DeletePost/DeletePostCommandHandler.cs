@@ -14,7 +14,7 @@ internal class DeletePostCommandHandler(IDbContextFactory<ApplicationDbContext> 
         var postToDelete = await context.Posts.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken: cancellationToken);
 
         if (postToDelete is null)
-            return Result.Failure<PostResponse>(new Error("Post.NotFound"));
+            return Result.Failure<PostResponse>(new Error("Post.NotFound"), StatusCode.NotFound);
 
         context.Posts.Remove(postToDelete);
 

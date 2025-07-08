@@ -15,7 +15,7 @@ internal class DeleteCommentCommandHandler(IDbContextFactory<ApplicationDbContex
         var commentToDelete = await context.Comments.FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken: ct);
 
         if (commentToDelete is null)
-            return Result.Failure<CommentCommand>(new Error("Comment.NotFound"));
+            return Result.Failure<CommentCommand>(new Error("Comment.NotFound"), StatusCode.NotFound);
 
         context.Comments.Remove(commentToDelete);
 

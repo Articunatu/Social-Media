@@ -22,7 +22,7 @@ internal class GetPostByIdQueryHandler(IDbContextFactory<ApplicationDbContext> c
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (user is null)
-                return Result.Failure<PostDetailsResponse>(new Error("User.NotFound"));
+                return Result.Failure<PostDetailsResponse>(new Error("User.NotFound"), StatusCode.NotFound);
 
             request.Profile = user.MapToProfile();
         }                
@@ -42,7 +42,7 @@ internal class GetPostByIdQueryHandler(IDbContextFactory<ApplicationDbContext> c
                 }).FirstOrDefaultAsync();
 
         if (request.Post is null)
-            return Result.Failure<PostDetailsResponse>(new Error("Post.NotFound"));
+            return Result.Failure<PostDetailsResponse>(new Error("Post.NotFound"), StatusCode.NotFound);
 
         var comments = context.Comments
             .Where(c => c.ParentPostId == request.Id)

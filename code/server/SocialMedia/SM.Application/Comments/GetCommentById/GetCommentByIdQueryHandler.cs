@@ -30,7 +30,7 @@ internal class GetCommentByIdQueryHandler(IDbContextFactory<ApplicationDbContext
             .FirstOrDefaultAsync(ct);
 
         if (comment is null)
-            return Result.Failure<CommentQuery>(new Error(UserErrors.NotFound));
+            return Result.Failure<CommentQuery>(new Error(UserErrors.NotFound), StatusCode.NotFound);
 
         return Result.Success(comment);
     }

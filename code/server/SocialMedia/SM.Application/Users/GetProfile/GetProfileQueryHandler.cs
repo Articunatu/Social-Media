@@ -23,12 +23,14 @@ internal class GetProfileQueryHandler(IDbContextFactory<ApplicationDbContext> co
                 FollowersCount = u.Followers.Count(),
                 FollowingCount = u.Following.Count(),
                 BackgroundPhoto = u.Photos != null ? u.Photos.FirstOrDefault(p => p.Type == PhotoType.Background) : null,
-                AboutMe = u.AuthoredMessages != null ? u.AuthoredMessages.Last().Content : string.Empty 
+                AboutMe = u.AuthoredMessages != null ? u.AuthoredMessages.OrderBy(am => am.TimeStamp).Last().Content : string.Empty 
             })
             .FirstOrDefaultAsync(cancellationToken);
 
         if (profileDetails is null)
-            return Result.Failure<ProfileDetails>(new Error(UserErrors.NotFound));
+        {
+            return Result.Failure<ProfileDetails>(new Error(UserErrors.NotFound), StatusCode.NotFound);
+        }
 
         return Result.Success(profileDetails);
     }

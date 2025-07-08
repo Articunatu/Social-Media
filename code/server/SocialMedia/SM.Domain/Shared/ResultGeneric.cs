@@ -1,38 +1,36 @@
 ﻿namespace SM.Domain.Shared;
 
-public class Result<TValue> : Result
+public class Result<T> : Result
 {
-    private readonly TValue? _value;
+    private readonly T? _value;
 
-    protected internal Result(TValue value, bool isSuccess, Error error)
-        : base(isSuccess, error)
+    protected internal Result(T value, bool isSuccess, Error error, StatusCode status)
+        : base(isSuccess, error, status)
     {
         if (isSuccess && value == null)
-            throw new ArgumentNullException(nameof(value), "Successful result must have a non-null value");
+            throw new ArgumentNullException(nameof(value), "Successful result must have a non-null value.");
 
         _value = value;
     }
 
-    protected internal Result(bool isSuccess, Error error)
-        : base(isSuccess, error)
+    protected internal Result(bool isSuccess, Error error, StatusCode status)
+        : base(isSuccess, error, status)
     {
         if (isSuccess)
-            throw new InvalidOperationException("Successful result must have a value");
+            throw new InvalidOperationException("Successful result must have a value.");
 
         _value = default;
     }
 
-    public TValue Value => IsSuccess
-        ? _value!
-        : throw new InvalidOperationException("The value of a failure result cannot be accessed");
+    public T Value => IsSuccess ? _value! : throw new InvalidOperationException("No value present.");
 
-    public static implicit operator Result<TValue>(TValue value) => Create(value);
+    public static implicit operator Result<T>(T value) => Create(value);
 
-    public static Result<TValue> Create(TValue value)
+    public static Result<T> Create(T value)
     {
         if (value == null)
-            throw new ArgumentNullException(nameof(value), "The value cannot be null");
+            throw new ArgumentNullException(nameof(value), "The value cannot be null.");
 
-        return new Result<TValue>(value, true, Error.None);
+        return new Result<T>(value, true, Error.None, StatusCode.Ok);
     }
 }

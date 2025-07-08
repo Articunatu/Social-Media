@@ -23,7 +23,7 @@ internal class FollowCommandHandler(IDbContextFactory<ApplicationDbContext> cont
         var following = await followingTask;
 
         if (follower is null || following is null)
-            return Result.Failure<IEnumerable<UserCommandResponse>>(UserErrors.NotFound);
+            return Result.Failure<IEnumerable<UserCommandResponse>>(UserErrors.NotFound, StatusCode.NotFound);
 
         follower.Following.Add(following);
         following.Followers.Add(follower);

@@ -16,7 +16,7 @@ internal class ChangePasswordCommandHandler(IDbContextFactory<ApplicationDbConte
 
         if (!jwt.VerifyPasswordHash(command.OldPassword, oldPasswordHash, oldPasswordSalt))
         {
-            return Result.Failure<string>(new Error("Credentials invalid"));
+            return Result.Failure<string>(new Error("Credentials invalid"), StatusCode.Validation);
         }
 
         jwt.GeneratePasswordHash(command.NewPassword, out byte[] newPasswordHash, out byte[] newPasswordSalt);
@@ -30,7 +30,7 @@ internal class ChangePasswordCommandHandler(IDbContextFactory<ApplicationDbConte
 
         if (updated <= 0)
         {
-            return Result.Failure<string>(new Error("Updating password failed"));
+            return Result.Failure<string>(new Error("Updating password failed"), StatusCode.Validation);
         }
 
         return Result.Success("PasswordChangeSuccess");

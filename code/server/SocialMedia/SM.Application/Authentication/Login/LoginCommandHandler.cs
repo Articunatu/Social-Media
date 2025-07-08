@@ -24,18 +24,18 @@ internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config
                 .FirstOrDefaultAsync(cancellationToken);
 
         if (userAuth is null)
-            return Result.Failure<LoginResponse>(new Error(UserErrors.NotFound));
+            return Result.Failure<LoginResponse>(new Error(UserErrors.NotFound), StatusCode.NotFound);
 
         if (!jwtService.VerifyPasswordHash(request.Password, userAuth.PasswordHash, userAuth.PasswordSalt))
         {
-            return Result.Failure<LoginResponse>(new Error("Credentials invalid"));
+            return Result.Failure<LoginResponse>(new Error("Credentials invalid"), StatusCode.Validation);
         }
 
         string accessToken = jwtService.CreateToken(userAuth.Id.ToString(), config["AppSettings:Token"]!);
         var refreshToken = jwtService.GenerateRefreshToken();
         if (refreshToken is null)
         {
-            return Result.Failure<LoginResponse>(new Error("Token could not be refreshed"));
+            return Result.Failure<LoginResponse>(new Error("Token could not be refreshed"), StatusCode.Unauthorized);
         }
 
         refreshToken.UserId = userAuth.Id;

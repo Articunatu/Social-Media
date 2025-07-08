@@ -16,7 +16,7 @@ internal class RemoveReactionCommandHandler(IDbContextFactory<ApplicationDbConte
             .FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken: cancellationToken);
 
         if (reactionToRemove is null)
-            return Result.Failure<ReactionResponse>(new Error("NotFound"));
+            return Result.Failure<ReactionResponse>(new Error("NotFound"), StatusCode.NotFound);
 
         context.Reactions.Remove(reactionToRemove);
 

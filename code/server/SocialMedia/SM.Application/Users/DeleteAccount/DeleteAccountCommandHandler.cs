@@ -17,7 +17,7 @@ internal class DeleteAccountCommandHandler(IDbContextFactory<ApplicationDbContex
         var user = await context.Users.FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
 
         if (user is null)
-            return Result.Failure<UserCommandResponse>(UserErrors.NotFound);
+            return Result.Failure<UserCommandResponse>(UserErrors.NotFound, StatusCode.NoContent);
 
         context.Users.Remove(user);
 

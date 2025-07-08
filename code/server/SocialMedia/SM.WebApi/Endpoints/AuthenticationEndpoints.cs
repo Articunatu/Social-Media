@@ -6,6 +6,7 @@ using SM.Application.Authentication.Logout;
 using SM.Application.Authentication.RefreshToken;
 using SM.Application.Authentication.SignUp;
 using SM.Domain.Authentication;
+using SM.WebApi.Extensions;
 using ValidationException = FluentValidation.ValidationException;
 
 namespace SM.WebApi.Endpoints;
@@ -23,50 +24,23 @@ public static class AuthenticationEndpoints
 
         return group;
     }
-
     public static async Task<IResult> Login([FromBody] LoginCommand command, ISender sender, IHttpContextAccessor accessor)
     {
-        try
-        {
-            var login = await sender.Send(command);
-            SetRefreshToken(accessor, login.Value.RefreshToken);
-            return TypedResults.Ok(login.Value.AccessToken);
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return TypedResults.Unauthorized();
-        }
+        var result = await sender.Send(command);
+
+        if (result.IsSuccess)
+            SetRefreshToken(accessor, result.Value.RefreshToken);
+
+        return result.ToActionResult();
     }
+
 
     public static async Task<IResult> SignUp([FromBody] SignUpCommand command, ISender sender)
     {
-        try
-        {
-            var createdUser = await sender.Send(command);
-
-            return TypedResults.Ok(command);
-        }
-        catch (ValidationException)
-        {
-            return TypedResults.BadRequest("Validations failed for one or more fields when creating a new user");
-        }
-        catch (DbUpdateException dbEx)
-        {
-            if (dbEx.InnerException?.Message.Contains("UNIQUE", StringComparison.OrdinalIgnoreCase) == true ||
-                dbEx.InnerException?.Message.Contains("duplicate", StringComparison.OrdinalIgnoreCase) == true)
-                return TypedResults.Conflict("Email already exists");
-
-            if (dbEx.InnerException?.Message.Contains("Insert", StringComparison.OrdinalIgnoreCase) == true ||
-                dbEx.InnerException?.Message.Contains("string", StringComparison.OrdinalIgnoreCase) == true)
-                return TypedResults.BadRequest("Validations failed when saving the created user to the database");
-
-            return TypedResults.InternalServerError("A database error occurred");
-        }
-        catch (Exception)
-        {
-            return TypedResults.InternalServerError("An unknown server error occured");
-        }
+        var result = await sender.Send(command);
+        return result.ToActionResult();
     }
+
 
     public static async Task<IResult> RefreshToken([FromBody] RefreshTokenCommand command, ISender sender, HttpRequest httpRequest)
     {
