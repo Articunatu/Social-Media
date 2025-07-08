@@ -13,11 +13,12 @@ internal class SearchUserQueryHandler(IDbContextFactory<ApplicationDbContext> co
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var searchText = request.SearchText.ToLower();
+        var search = request.SearchText.ToLower();
 
         var matchingUsers = await context.Users
-            .Where(u => u.FirstName.Contains(searchText, StringComparison.CurrentCultureIgnoreCase) ||
-                        u.Tag.Contains(searchText, StringComparison.CurrentCultureIgnoreCase))
+            .Where(u =>
+                u.FirstName.ToLower().Contains(search) ||
+                u.Tag.ToLower().Contains(search))
             .Select(u => u.MapToProfile())
             .ToArrayAsync(cancellationToken);
 

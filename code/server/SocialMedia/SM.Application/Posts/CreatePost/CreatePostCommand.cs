@@ -2,8 +2,4 @@
 
 namespace SM.Application.Posts.CreatePost;
 
-public record CreatePostCommand : ICommand<PostResponse>
-{
-    public string Content { get; set; } = string.Empty; 
-    public Guid AuthorId { get; set; }
-}
+public record CreatePostCommand(string Content, Guid AuthorId) : ICommand<PostResponse>;

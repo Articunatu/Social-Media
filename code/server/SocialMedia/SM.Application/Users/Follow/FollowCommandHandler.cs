@@ -14,13 +14,8 @@ internal class FollowCommandHandler(IDbContextFactory<ApplicationDbContext> cont
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var followerTask = context.Users.FirstOrDefaultAsync(u => u.Id == request.FollowerId, cancellationToken);
-        var followingTask = context.Users.FirstOrDefaultAsync(u => u.Id == request.FollowingId, cancellationToken);
-
-        await Task.WhenAll(followerTask, followingTask);
-
-        var follower = await followerTask;
-        var following = await followingTask;
+        var follower = await context.Users.FirstOrDefaultAsync(u => u.Id == request.FollowerId, cancellationToken);
+        var following = await context.Users.FirstOrDefaultAsync(u => u.Id == request.FollowingId, cancellationToken);
 
         if (follower is null || following is null)
             return Result.Failure<IEnumerable<UserCommandResponse>>(UserErrors.NotFound, StatusCode.NotFound);

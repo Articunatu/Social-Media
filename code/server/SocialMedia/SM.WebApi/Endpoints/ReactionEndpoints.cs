@@ -15,11 +15,11 @@ public static class ReactionEndpoints
 {
     public static RouteGroupBuilder MapReactionEndpoints(this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("/api/posts");
+        var group = routes.MapGroup("/api");
 
         group.MapGet("/post/{postId}/reactions", GetReactionsByPost);
         group.MapGet("/user/reactions", GetReactionsByUser);
-        group.MapPost("", ReactToPost);
+        group.MapPost("/reactions", ReactToPost);
         group.MapDelete("/reactions", RemoveReaction);
         group.MapPut("/reactions", UpdateReaction);
 
