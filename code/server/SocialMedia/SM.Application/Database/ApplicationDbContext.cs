@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SM.Domain.Authentication;
 using SM.Domain.Messages;
+using SM.Domain.Photos;
 using SM.Domain.Reactions;
 using SM.Domain.Users;
 
@@ -13,6 +14,7 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
     public DbSet<Comment> Comments { get; set; } = default!;
     public DbSet<Reaction> Reactions { get; set; } = default!;
     public DbSet<Token> Tokens { get; set; } = default!;
+    public DbSet<Photo> Photos { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
