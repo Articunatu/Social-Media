@@ -17,8 +17,8 @@ internal class SearchUserQueryHandler(IDbContextFactory<ApplicationDbContext> co
 
         var matchingUsers = await context.Users
             .Where(u =>
-                u.FirstName.ToLower().Contains(search) ||
-                u.Tag.ToLower().Contains(search))
+                u.FirstName.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
+                u.Tag.Contains(search, StringComparison.CurrentCultureIgnoreCase))
             .Select(u => u.MapToProfile())
             .ToArrayAsync(cancellationToken);
 

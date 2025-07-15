@@ -16,11 +16,11 @@ public abstract class Message : Entity<Guid>, ISoftDeletable
         AuthorId = authorId;
     }
 
-    public string Content { get; set; }
+    public string Content { get; set; } = string.Empty;
     public DateTimeOffset TimeStamp { get; set; }
     public Guid AuthorId { get; set; }
     public bool IsDeleted { get; set; }
     public DateTime? TimeOfDelete { get; set; }
     public virtual User Author { get; set; } = default!;
-    public virtual ICollection<Reaction>? Reactions { get; set; }
+    public virtual ICollection<Reaction> Reactions { get; set; } = [];
 }

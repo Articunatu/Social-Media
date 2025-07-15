@@ -1,10 +1,9 @@
-﻿using SM.Application.Behaviors;
-using SM.Application.Database;
+﻿using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
-using MediatR;
-using FluentValidation;
+using SM.Application.Behaviors;
+using SM.Application.Database;
 
 namespace SM.Application;
 
@@ -19,15 +18,12 @@ public static class DependencyInjection
 
         services.AddMediatR(configuration =>
         {
-            configuration.RegisterServicesFromAssembly(
-                typeof(DependencyInjection).Assembly);
-
+            configuration.RegisterServicesFromAssembly(assembly);
             configuration.AddOpenBehavior(typeof(UnitOfWorkBehavior<,>));
+            configuration.AddOpenBehavior(typeof(ValidationPipelineBehavior<,>));
         });
 
         services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
-
-        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>));
 
         return services;
     }
