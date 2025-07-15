@@ -57,8 +57,6 @@ app.MapApiEndpoints();
 
 app.UseStatusCodePages();
 
-app.SetExceptionHandling();
-
 app.UseAuthentication();
 app.UseAuthorization();
 

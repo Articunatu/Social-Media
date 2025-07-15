@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SM.Application.Database;
+using SM.Application.Shared.Models;
 using SM.Application.UnitTests.Helpers;
 using SM.Application.Users.SearchUsers;
 using SM.Domain.Users;
@@ -20,7 +21,7 @@ public class SearchUserQueryHandlerTests
         await context.SaveChangesAsync();
         var factory = context.CreateSubstituteFactory();
         var handler = new SearchUserQueryHandler(factory);
-        var query = new SearchUserQuery("ein");
+        var query = new SearchUserQuery(new PageFilter { SearchText = "ein"});
 
         var result = await handler.Handle(query, CancellationToken.None);
 
