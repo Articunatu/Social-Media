@@ -2,8 +2,7 @@ import api from './api';
 import {
   CreatePostCommand,
   FeedPost,
-  FullPostDetails,
-  PostSummary,
+  ProfilePost
 } from '../models/api/post-models';
 import { UUID } from 'crypto';
 
@@ -11,7 +10,7 @@ const postUri = '/posts';
 
 const postService = {
   createPost: (command: CreatePostCommand) =>
-    api.post<FullPostDetails>(`${postUri}/create`, command),
+    api.post<ProfilePost>(`${postUri}/create`, command),
 
   deletePost: (postId: UUID) =>
     api.delete(`${postUri}/delete/${postId}`),
@@ -20,10 +19,10 @@ const postService = {
     api.get<FeedPost[]>(`${postUri}/get-feed?pageNumber=${pageNumber}`),
 
   getPostById: (postId: UUID, pageNumber: number) =>
-    api.get<FullPostDetails>(`${postUri}/${postId}?pageNumber=${pageNumber}`),
+    api.get<ProfilePost>(`${postUri}/${postId}?pageNumber=${pageNumber}`),
 
   getProfilePosts: (userId: UUID, pageNumber: number) =>
-    api.get<PostSummary[]>(`${postUri}/get-posts-by-user/${userId}?pageNumber=${pageNumber}`),
+    api.get<ProfilePost[]>(`${postUri}/get-posts-by-user/${userId}?pageNumber=${pageNumber}`),
 };
 
 export default postService;

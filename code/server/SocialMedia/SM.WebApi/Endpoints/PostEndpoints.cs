@@ -6,6 +6,7 @@ using SM.Application.Posts.GetFeed;
 using SM.Application.Posts.GetPostById;
 using SM.Application.Posts.GetProfilePosts;
 using SM.Application.Shared.Models;
+using SM.WebApi.Extensions;
 
 namespace SM.WebApi.Endpoints;
 
@@ -36,32 +37,26 @@ public static class PostEndpoints
         return TypedResults.Ok(deletedPost);
     }
 
-    public static async Task<IResult> GetPostById(
-        Guid id,
-        int pageNumber,
-        ISender sender,
-        HttpContext httpContext)
+    public static async Task<IResult> GetPostById(Guid id, int pageNumber,
+        ISender sender, HttpContext httpContext)
     {
-        var userIdClaim = httpContext.User.FindFirst("sub")?.Value;
-        if (userIdClaim is null || !Guid.TryParse(userIdClaim, out var userId))
+        var userId = httpContext.GetLoggedInUserId();
+        if (userId == Guid.Empty)
             return TypedResults.Unauthorized();
 
         var filter = new PageFilter { Index = pageNumber };
         var query = new GetPostByIdQuery(id, userId, filter);
-        var result = await sender.Send(query);
+        var post = await sender.Send(query);
 
-        return result.IsSuccess
-            ? TypedResults.Ok(result.Value)
-            : TypedResults.BadRequest(result.Error);
+        return post.IsSuccess
+            ? TypedResults.Ok(post.Value)
+            : TypedResults.BadRequest(post.Error);
     }
 
-    public static async Task<IResult> GetFeed(
-        int pageNumber,
-        ISender sender,
-        HttpContext httpContext)
+    public static async Task<IResult> GetFeed(int pageNumber, ISender sender, HttpContext httpContext)
     {
-        var userIdClaim = httpContext.User.FindFirst("sub")?.Value;
-        if (userIdClaim is null || !Guid.TryParse(userIdClaim, out var userId))
+        var userId = httpContext.GetLoggedInUserId();
+        if (userId == Guid.Empty)
             return TypedResults.Unauthorized();
 
         var filter = new PageFilter { Index = pageNumber };

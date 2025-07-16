@@ -1,3 +1,5 @@
+import { ReactionCount } from "./reaction-models";
+import { ProfileInfo } from "./user-models";
 
 export interface CreatePostCommand {
     content: string;
@@ -6,21 +8,23 @@ export interface CreatePostCommand {
 }
 
 export interface FeedPost {
-    id: string;
+    profile: ProfileInfo;
     content: string;
     authorId: string;
     createdAt: string;
 }
 
-export interface PostSummary {
-    id: string;
+export interface ProfilePost {
     content: string;
-    createdAt: string;
+    timeStamp: string;
+    commentsCount: number;
+    reactionCounts: ReactionCount[];
 }
 
-export interface FullPostDetails extends PostSummary {
-    comments: CommentModel[];
-    likesCount: number;
+export interface PostDetails {
+    post: ProfilePost;
+    profile: ProfileInfo;
+    comments: ProfilePost[];
 }
 
 export interface DeletePostCommand {
