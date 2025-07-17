@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Diagnostics;
 using SM.Application;
 using SM.Infrastructure;
+using SM.WebApi;
 using SM.WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,7 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddProblemDetails();
 builder.Services.AddValidationProblems();
+builder.Services.AddSingleton<IExceptionHandler, GlobalExceptionHandler>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();

@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using SM.Domain.Messages.ValueObjects;
 
 namespace SM.Application.Posts.CreatePost;
 
@@ -12,6 +13,6 @@ internal class CreatePostCommandValidator : AbstractValidator<CreatePostCommand>
         RuleFor(x => x.Content)
             .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("ContentEmpty")
-            .MaximumLength(300).WithMessage("ContentMaxLength");
+            .MaximumLength(Content.MaxLength).WithMessage("ContentMaxLength");
     }
 }

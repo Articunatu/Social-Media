@@ -2,5 +2,5 @@
 
 public class Constants
 {
-    public const int PAGE_SZIE = 15;
+    public const int PAGE_SIZE = 15;
 }

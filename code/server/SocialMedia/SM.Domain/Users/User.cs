@@ -17,16 +17,16 @@ public class User(Guid id, string tag, string firstName, string lastName)
     public bool IsDeleted { get; set; }
     public DateTime? TimeOfDelete { get; set; }
 
-    public byte[]? PasswordHash { get; set; }
-    public byte[]? PasswordSalt { get; set; }
+    public byte[] PasswordHash { get; set; } = [];
+    public byte[] PasswordSalt { get; set; } = [];
     public Token? Token { get; set; }
 
-    public ICollection<Message>? AuthoredMessages { get; set; }
-    public ICollection<Post>? ReactedPosts { get; set; }
+    public ICollection<Message> AuthoredMessages { get; set; } = [];
+    public ICollection<Post> ReactedPosts { get; set; } = [];
     //public ICollection<DirectMessage>? DirectMessages { get; set; }
-    public ICollection<Photo>? Photos { get; set; }
+    public ICollection<Photo> Photos { get; set; } = [];
     public Guid? ProfilePhotoId { get; set; }
-    public virtual Photo? ProfilePhoto { get; set; }
+    public virtual Photo ProfilePhoto { get; set; } = default!;
     public virtual ICollection<User> Following { get; set; } = [];
     public virtual ICollection<User> Followers { get; set; } = [];
 
