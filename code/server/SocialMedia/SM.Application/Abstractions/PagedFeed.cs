@@ -4,5 +4,5 @@ namespace SM.Application.Abstractions;
 
 public class PagedFeed<T> : PageFilter
 {
-    public IEnumerable<T>? Values { get; set; }
+    public IEnumerable<T> Values { get; set; } = [];
 }

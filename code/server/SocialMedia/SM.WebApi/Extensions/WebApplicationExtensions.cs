@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-using SM.WebApi.Endpoints;
-using System.Data;
+﻿using SM.WebApi.Endpoints;
 
 namespace SM.WebApi.Extensions;
 

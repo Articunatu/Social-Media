@@ -25,12 +25,9 @@ internal class FollowCommandHandler(IDbContextFactory<ApplicationDbContext> cont
 
         await context.SaveChangesAsync(cancellationToken);
 
-        IEnumerable<UserCommandResponse> response =
-        [
+        return Result.Success<IEnumerable<UserCommandResponse>>([
             follower.MapToCommandResponse(),
             following.MapToCommandResponse()
-        ];
-
-        return Result.Success(response);
+        ]);
     }
 }

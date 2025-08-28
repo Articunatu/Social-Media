@@ -14,8 +14,6 @@ internal class GetProfilePostsQueryHandler(IDbContextFactory<ApplicationDbContex
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var emptyReactionCounts = new List<ReactionCount>();
-
         var posts = await context.Posts
             .Where(p => p.AuthorId == request.UserId)
             .Select(p => new ProfilePostDto
@@ -26,7 +24,7 @@ internal class GetProfilePostsQueryHandler(IDbContextFactory<ApplicationDbContex
                 ReactionCounts = p.Reactions != null
                     ? p.Reactions.GroupBy(r => r.Type)
                         .Select(rt => new ReactionCount(rt.Key, rt.Count()))
-                    : emptyReactionCounts
+                    : new List<ReactionCount>()
             })
             .ToPagedFeed(request.Filter);
 
