@@ -30,6 +30,7 @@ internal class UploadPhotoCommandHandler(IDbContextFactory<ApplicationDbContext>
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
         context.Photos.Add(photo);
+        await context.SaveChangesAsync(cancellationToken);
 
         return Result.Success(photo.Id);
     }

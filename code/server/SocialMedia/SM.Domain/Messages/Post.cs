@@ -8,7 +8,7 @@ public class Post : Message
     protected Post(Guid id, string content, DateTimeOffset timeStamp, Guid authorId)
         : base(id, content, timeStamp, authorId) { }
 
-    public ICollection<Comment>? Comments { get; set; }
+    public ICollection<Comment> Comments { get; set; } = [];
 
     public static Post Create(string content, Guid authorId)
     {

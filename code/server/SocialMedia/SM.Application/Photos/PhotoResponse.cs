@@ -5,7 +5,7 @@ namespace SM.Application.Photos;
 public class PhotoResponse
 {
     public string FileName { get; set; } = string.Empty;
-    public string ContentType { get; set; } = "image/jpeg";
+    public string ContentType { get; set; } = "image/jpg";
     public string Base64Data { get; set; } = string.Empty;
 
     public static PhotoResponse MapToResponse(Photo photo)
