@@ -1,6 +1,7 @@
 ﻿using SM.Domain.Abstractions;
 using SM.Domain.Authentication;
 using SM.Domain.Messages;
+using SM.Domain.Messages.DirectMessages;
 using SM.Domain.Photos;
 using SM.Domain.Users.Events;
 
@@ -21,12 +22,10 @@ public class User(Guid id, string tag, string firstName, string lastName)
     public byte[] PasswordSalt { get; set; } = [];
     public Token? Token { get; set; }
 
-    public ICollection<Message> AuthoredMessages { get; set; } = [];
-    public ICollection<Post> ReactedPosts { get; set; } = [];
-    //public ICollection<DirectMessage>? DirectMessages { get; set; }
-    public ICollection<Photo> Photos { get; set; } = [];
-    public Guid? ProfilePhotoId { get; set; }
-    public virtual Photo ProfilePhoto { get; set; } = default!;
+    public virtual ICollection<Message> AuthoredMessages { get; set; } = [];
+    public virtual ICollection<Post> ReactedPosts { get; set; } = [];
+    public virtual ICollection<Conversation> Conversations { get; set; } = [];
+    public virtual ICollection<Photo> Photos { get; set; } = [];
     public virtual ICollection<User> Following { get; set; } = [];
     public virtual ICollection<User> Followers { get; set; } = [];
 
@@ -47,11 +46,5 @@ public class User(Guid id, string tag, string firstName, string lastName)
     {
         PasswordHash = passwordHash;
         PasswordSalt = passwordSalt;
-    }
-
-    public static void SetLoginForUsers(IEnumerable<User> users, byte[] passwordHash, byte[] passwordSalt)
-    {
-        foreach (var user in users)
-            user.SetLogin(passwordHash, passwordSalt);
     }
 }

@@ -26,6 +26,7 @@ internal class AddReactionCommandHandler(IDbContextFactory<ApplicationDbContext>
         await context.SaveChangesAsync(cancellationToken);
 
         var reaction = await context.Reactions
+            .AsSplitQuery()
             .Include(r => r.User)
             .Select(r => new Reaction(r.Id)
             {
@@ -36,7 +37,7 @@ internal class AddReactionCommandHandler(IDbContextFactory<ApplicationDbContext>
             .FirstOrDefaultAsync(r => r.Id == reactionToAdd.Id, cancellationToken);
 
         if (reaction is null)
-            return Result.Failure<ReactionResponse>(new Error("Reaction disappeared..."), HttpStatusCode.NotFound);
+            return Result.Failure<ReactionResponse>(new Error("ReactionDisappeared"), HttpStatusCode.NotFound);
 
         return Result.Success(reaction.MapToResponse());
     }

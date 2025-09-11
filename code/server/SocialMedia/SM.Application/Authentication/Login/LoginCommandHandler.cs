@@ -1,52 +1,69 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SM.Application.Abstractions;
+using SM.Application.Authentication.Login.Models;
 using SM.Application.Database;
+using SM.Domain.Authentication;
 using SM.Domain.Shared;
 using SM.Domain.Users;
 using System.Net;
 
 namespace SM.Application.Authentication.Login;
 
-internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config, IDbContextFactory<ApplicationDbContext> contextFactory) 
+internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config, IDbContextFactory<ApplicationDbContext> contextFactory)
     : ICommandHandler<LoginCommand, LoginResponse>
 {
-    public async Task<Result<LoginResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
+    public async Task<Result<LoginResponse>> Handle(LoginCommand request, CancellationToken ct)
     {
-        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var context = await contextFactory.CreateDbContextAsync(ct);
 
-        var userAuth = await context.Users
-                .Where(u => u.Tag == request.Tag)
-                .Select(u => new
-                {
-                    u.Id,
-                    u.PasswordHash,
-                    u.PasswordSalt
-                })
-                .FirstOrDefaultAsync(cancellationToken);
-
+        var userAuth = await GetUserAuthAsync(context, request.Tag, ct);
         if (userAuth is null)
-            return Result.Failure<LoginResponse>(new Error(UserErrors.NotFound), HttpStatusCode.NotFound);
+            return Failure(UserErrors.NotFound, HttpStatusCode.NotFound);
 
         if (!jwtService.VerifyPasswordHash(request.Password, userAuth.PasswordHash, userAuth.PasswordSalt))
-        {
-            return Result.Failure<LoginResponse>(new Error("Credentials invalid"), HttpStatusCode.BadRequest);
-        }
+            return Failure("CredentialsInvalid", HttpStatusCode.BadRequest);
 
-        string accessToken = jwtService.CreateToken(userAuth.Id.ToString(), config["AppSettings:Token"]!);
+        var accessToken = jwtService.CreateToken(userAuth.Id.ToString(), config["AppSettings:Token"]!);
         var refreshToken = jwtService.GenerateRefreshToken();
+
         if (refreshToken is null)
-        {
-            return Result.Failure<LoginResponse>(new Error("Token could not be refreshed"), HttpStatusCode.Unauthorized);
-        }
+            return Failure("TokenFailedRefresh", HttpStatusCode.Unauthorized);
 
         refreshToken.UserId = userAuth.Id;
-
-        await context.Tokens.AddAsync(refreshToken, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
+        await UpsertRefreshTokenAsync(context, refreshToken, ct);
 
         var loginResponse = new LoginResponse(accessToken, refreshToken);
         return Result.Success(loginResponse);
     }
-}
 
+    private static async Task<UserAuthDto?> GetUserAuthAsync(ApplicationDbContext context, string tag, CancellationToken ct)
+    {
+        return await context.Users
+            .Where(u => u.Tag == tag)
+            .Select(u => new UserAuthDto(u.Id, u.PasswordHash, u.PasswordSalt))
+            .FirstOrDefaultAsync(ct);
+    }
+
+    private static async Task UpsertRefreshTokenAsync(ApplicationDbContext context, Token refreshToken, CancellationToken ct)
+    {
+        var existingToken = await context.Tokens.FirstOrDefaultAsync(t => t.UserId == refreshToken.UserId, ct);
+
+        if (existingToken is null)
+        {
+            await context.Tokens.AddAsync(refreshToken, ct);
+            await context.SaveChangesAsync(ct);
+            return;
+        }
+        existingToken.Created = refreshToken.Created;
+        existingToken.Expires = refreshToken.Expires;
+
+        await context.SaveChangesAsync(ct);
+    }
+
+    private static Result<LoginResponse> Failure(string message, HttpStatusCode statusCode) =>
+        Result.Failure<LoginResponse>(new Error(message), statusCode);
+
+    private static Result<LoginResponse> Failure(Error error, HttpStatusCode statusCode) =>
+        Result.Failure<LoginResponse>(error, statusCode);
+}
