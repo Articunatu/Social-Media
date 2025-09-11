@@ -5,6 +5,7 @@ using SM.Application.Shared.Extensions;
 using SM.Domain.Photos;
 using SM.Domain.Shared;
 using SM.Domain.Users;
+using System.Net;
 
 namespace SM.Application.Users.GetProfile;
 
@@ -28,7 +29,7 @@ internal class GetProfileQueryHandler(IDbContextFactory<ApplicationDbContext> co
             .FirstOrDefaultAsync(cancellationToken);
 
         return profileDetails is null ? 
-            Result.Failure<ProfileDetails>(new Error(UserErrors.NotFound), StatusCode.NotFound) : 
+            Result.Failure<ProfileDetails>(new Error(UserErrors.NotFound), HttpStatusCode.NotFound) : 
             Result.Success(profileDetails);
     }
 }

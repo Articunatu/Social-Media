@@ -5,6 +5,7 @@ using SM.Application.Shared.Extensions;
 using SM.Application.Shared.Models;
 using SM.Domain.Shared;
 using SM.Domain.Users;
+using System.Net;
 
 namespace SM.Application.Posts.GetPostById;
 
@@ -22,7 +23,7 @@ internal class GetPostByIdQueryHandler(IDbContextFactory<ApplicationDbContext> c
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (user is null)
-                return Result.Failure<PostDetailsResponse>(new Error("User.NotFound"), StatusCode.NotFound);
+                return Result.Failure<PostDetailsResponse>(new Error("User.NotFound"), HttpStatusCode.NotFound);
 
             request.Profile = user.MapToProfile();
         }                
@@ -42,7 +43,7 @@ internal class GetPostByIdQueryHandler(IDbContextFactory<ApplicationDbContext> c
                 }).FirstOrDefaultAsync();
 
         if (request.Post is null)
-            return Result.Failure<PostDetailsResponse>(new Error("Post.NotFound"), StatusCode.NotFound);
+            return Result.Failure<PostDetailsResponse>(new Error("Post.NotFound"), HttpStatusCode.NotFound);
 
         var comments = context.Comments
             .Where(c => c.ParentPostId == request.Id)

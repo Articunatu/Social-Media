@@ -4,6 +4,7 @@ using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Domain.Shared;
 using SM.Domain.Users;
+using System.Net;
 
 namespace SM.Application.Authentication.Login;
 
@@ -25,18 +26,18 @@ internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config
                 .FirstOrDefaultAsync(cancellationToken);
 
         if (userAuth is null)
-            return Result.Failure<LoginResponse>(new Error(UserErrors.NotFound), StatusCode.NotFound);
+            return Result.Failure<LoginResponse>(new Error(UserErrors.NotFound), HttpStatusCode.NotFound);
 
         if (!jwtService.VerifyPasswordHash(request.Password, userAuth.PasswordHash, userAuth.PasswordSalt))
         {
-            return Result.Failure<LoginResponse>(new Error("Credentials invalid"), StatusCode.Validation);
+            return Result.Failure<LoginResponse>(new Error("Credentials invalid"), HttpStatusCode.BadRequest);
         }
 
         string accessToken = jwtService.CreateToken(userAuth.Id.ToString(), config["AppSettings:Token"]!);
         var refreshToken = jwtService.GenerateRefreshToken();
         if (refreshToken is null)
         {
-            return Result.Failure<LoginResponse>(new Error("Token could not be refreshed"), StatusCode.Unauthorized);
+            return Result.Failure<LoginResponse>(new Error("Token could not be refreshed"), HttpStatusCode.Unauthorized);
         }
 
         refreshToken.UserId = userAuth.Id;

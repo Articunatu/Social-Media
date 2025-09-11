@@ -3,6 +3,7 @@ using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Domain.Shared;
 using SM.Domain.Users;
+using System.Net;
 
 namespace SM.Application.Authentication.SignUp;
 
@@ -20,7 +21,7 @@ internal class SignUpCommandHandler(IDbContextFactory<ApplicationDbContext> cont
         if (existingUser is not null)
         {
             return Result.Failure<SignUpResponse>(
-                new Error("A user with this email or tag already exists"), StatusCode.Conflict);
+                new Error("A user with this email or tag already exists"), HttpStatusCode.Conflict);
         }
 
         jwtService.GeneratePasswordHash(request.Password, out var passwordHash, out var passwordSalt);

@@ -4,6 +4,7 @@ using SM.Application.Database;
 using SM.Application.Shared.Models;
 using SM.Domain.Shared;
 using SM.Domain.Users;
+using System.Net;
 
 namespace SM.Application.Comments.GetCommentById;
 
@@ -30,7 +31,7 @@ internal class GetCommentByIdQueryHandler(IDbContextFactory<ApplicationDbContext
             .FirstOrDefaultAsync(ct);
 
         if (comment is null)
-            return Result.Failure<CommentQuery>(new Error(UserErrors.NotFound), StatusCode.NotFound);
+            return Result.Failure<CommentQuery>(new Error(UserErrors.NotFound), HttpStatusCode.NotFound);
 
         return Result.Success(comment);
     }

@@ -1,9 +1,11 @@
-﻿namespace SM.Domain.Shared;
+﻿using System.Net;
+
+namespace SM.Domain.Shared;
 
 public sealed class ValidationResult<TValue> : Result<TValue>, IValidationResult
 {
     private ValidationResult(Error[] errors)
-        : base(default!, false, IValidationResult.ValidationError, StatusCode.Validation)
+        : base(default!, false, IValidationResult.ValidationError, HttpStatusCode.BadRequest)
     {
         Errors = errors;
     }

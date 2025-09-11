@@ -2,6 +2,7 @@
 using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Domain.Shared;
+using System.Net;
 
 namespace SM.Application.Authentication.ChangePassword;
 
@@ -16,7 +17,7 @@ internal class ChangePasswordCommandHandler(IDbContextFactory<ApplicationDbConte
 
         if (!jwt.VerifyPasswordHash(command.OldPassword, oldPasswordHash, oldPasswordSalt))
         {
-            return Result.Failure<string>(new Error("Credentials invalid"), StatusCode.Validation);
+            return Result.Failure<string>(new Error("Credentials invalid"), HttpStatusCode.BadRequest);
         }
 
         jwt.GeneratePasswordHash(command.NewPassword, out byte[] newPasswordHash, out byte[] newPasswordSalt);
@@ -30,7 +31,7 @@ internal class ChangePasswordCommandHandler(IDbContextFactory<ApplicationDbConte
 
         if (updated <= 0)
         {
-            return Result.Failure<string>(new Error("Updating password failed"), StatusCode.Validation);
+            return Result.Failure<string>(new Error("Updating password failed"), HttpStatusCode.BadRequest);
         }
 
         return Result.Success("PasswordChangeSuccess");

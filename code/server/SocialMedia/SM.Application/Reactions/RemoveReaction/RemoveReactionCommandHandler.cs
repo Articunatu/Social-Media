@@ -2,6 +2,7 @@
 using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Domain.Shared;
+using System.Net;
 
 namespace SM.Application.Reactions.RemoveReaction;
 
@@ -16,7 +17,7 @@ internal class RemoveReactionCommandHandler(IDbContextFactory<ApplicationDbConte
             .FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
 
         if (reactionToRemove is null)
-            return Result.Failure<ReactionResponse>(new Error("NotFound"), StatusCode.NotFound);
+            return Result.Failure<ReactionResponse>(new Error("NotFound"), HttpStatusCode.NotFound);
 
         context.Reactions.Remove(reactionToRemove);
 

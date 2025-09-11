@@ -2,6 +2,7 @@
 using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Domain.Shared;
+using System.Net;
 
 namespace SM.Application.Comments.DeleteComment;
 
@@ -15,7 +16,7 @@ internal class DeleteCommentCommandHandler(IDbContextFactory<ApplicationDbContex
         var commentToDelete = await context.Comments.FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken: ct);
 
         if (commentToDelete is null)
-            return Result.Failure<CommentCommand>(new Error("Comment.NotFound"), StatusCode.NotFound);
+            return Result.Failure<CommentCommand>(new Error("Comment.NotFound"), HttpStatusCode.NotFound);
 
         context.Comments.Remove(commentToDelete);
 

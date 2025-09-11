@@ -3,6 +3,7 @@ using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Domain.Photos;
 using SM.Domain.Shared;
+using System.Net;
 
 namespace SM.Application.Photos.UploadPhoto;
 
@@ -14,7 +15,7 @@ internal class UploadPhotoCommandHandler(IDbContextFactory<ApplicationDbContext>
         var file = request.File;
 
         if (file is null || file.Length == 0)
-            return Result.Failure<Guid>(new Error("No file uploaded."), StatusCode.Validation);
+            return Result.Failure<Guid>(new Error("No file uploaded."), HttpStatusCode.BadRequest);
 
         using var ms = new MemoryStream();
         file.CopyTo(ms);

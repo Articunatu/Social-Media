@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Domain.Shared;
+using System.Net;
 
 namespace SM.Application.Authentication.RefreshToken;
 
@@ -17,7 +18,7 @@ internal class RefreshTokenCommandHandler(IJwtService jwtService, IConfiguration
             .FirstOrDefaultAsync(t => t.Text == request.RefreshToken, cancellationToken);
 
         if (existing == null || existing.Expires < DateTime.UtcNow)
-            return Result.Failure<LoginResponse>(new Error("Invalid or expired refresh token"), StatusCode.Validation);
+            return Result.Failure<LoginResponse>(new Error("Invalid or expired refresh token"), HttpStatusCode.BadRequest);
 
         string accessToken = jwtService.CreateToken(existing.UserId.ToString(), config["AppSettings:Token"]!);
         var refreshedToken = jwtService.GenerateRefreshToken();

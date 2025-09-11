@@ -4,6 +4,7 @@ using SM.Application.Database;
 using SM.Domain.Reactions;
 using SM.Domain.Shared;
 using SM.Domain.Users;
+using System.Net;
 
 namespace SM.Application.Reactions.AddReaction;
 
@@ -35,7 +36,7 @@ internal class AddReactionCommandHandler(IDbContextFactory<ApplicationDbContext>
             .FirstOrDefaultAsync(r => r.Id == reactionToAdd.Id, cancellationToken);
 
         if (reaction is null)
-            return Result.Failure<ReactionResponse>(new Error("Reaction disappeared..."), StatusCode.Unexpected);
+            return Result.Failure<ReactionResponse>(new Error("Reaction disappeared..."), HttpStatusCode.NotFound);
 
         return Result.Success(reaction.MapToResponse());
     }

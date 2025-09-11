@@ -4,6 +4,7 @@ using SM.Application.Database;
 using SM.Application.Shared.Extensions;
 using SM.Domain.Shared;
 using SM.Domain.Users;
+using System.Net;
 
 namespace SM.Application.Users.Follow;
 
@@ -18,7 +19,7 @@ internal class FollowCommandHandler(IDbContextFactory<ApplicationDbContext> cont
         var following = await context.Users.FirstOrDefaultAsync(u => u.Id == request.FollowingId, cancellationToken);
 
         if (follower is null || following is null)
-            return Result.Failure<IEnumerable<UserCommandResponse>>(UserErrors.NotFound, StatusCode.NotFound);
+            return Result.Failure<IEnumerable<UserCommandResponse>>(UserErrors.NotFound, HttpStatusCode.NotFound);
 
         follower.Following.Add(following);
         following.Followers.Add(follower);

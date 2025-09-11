@@ -3,6 +3,7 @@ using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Domain.Messages;
 using SM.Domain.Shared;
+using System.Net;
 
 namespace SM.Application.Posts.CreatePost;
 
@@ -15,7 +16,7 @@ internal class CreatePostCommandHandler(IDbContextFactory<ApplicationDbContext> 
 
         var authorExists = await context.Users.AnyAsync(u => u.Id == request.AuthorId, cancellationToken);
         if (!authorExists)
-            return Result.Failure<PostResponse>(new Error("Author not found"), StatusCode.NotFound);
+            return Result.Failure<PostResponse>(new Error("Author not found"), HttpStatusCode.NotFound);
 
         var post = Post.Create(request.Content, request.AuthorId);
 

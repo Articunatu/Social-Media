@@ -2,6 +2,7 @@
 using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Domain.Shared;
+using System.Net;
 
 namespace SM.Application.Posts.DeletePost;
 
@@ -14,7 +15,7 @@ internal class DeletePostCommandHandler(IDbContextFactory<ApplicationDbContext> 
         var postToDelete = await context.Posts.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken: cancellationToken);
 
         if (postToDelete is null)
-            return Result.Failure<PostResponse>(new Error("Post.NotFound"), StatusCode.NotFound);
+            return Result.Failure<PostResponse>(new Error("Post.NotFound"), HttpStatusCode.NotFound);
 
         context.Posts.Remove(postToDelete);
 

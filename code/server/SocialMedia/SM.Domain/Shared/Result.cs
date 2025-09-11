@@ -1,8 +1,10 @@
-﻿namespace SM.Domain.Shared;
+﻿using System.Net;
+
+namespace SM.Domain.Shared;
 
 public class Result
 {
-    protected internal Result(bool isSuccess, Error error, StatusCode status)
+    protected internal Result(bool isSuccess, Error error, HttpStatusCode status)
     {
         if (isSuccess && error != Error.None)
             throw new InvalidOperationException("Successful result must not contain an error.");
@@ -19,18 +21,18 @@ public class Result
     public bool IsFailure => !IsSuccess;
 
     public Error Error { get; }
-    public StatusCode Status { get; }
+    public HttpStatusCode Status { get; }
 
-    public static Result Success() => new(true, Error.None, StatusCode.Ok);
+    public static Result Success() => new(true, Error.None, HttpStatusCode.OK);
 
-    public static Result Failure(Error error, StatusCode status) => new(false, error, status);
+    public static Result Failure(Error error, HttpStatusCode status) => new(false, error, status);
 
-    public static Result<T> Success<T>(T value) => new(value, true, Error.None, StatusCode.Ok);
+    public static Result<T> Success<T>(T value) => new(value, true, Error.None, HttpStatusCode.OK);
 
-    public static Result<T> Failure<T>(Error error, StatusCode status) => new(default!, false, error, status);
+    public static Result<T> Failure<T>(Error error, HttpStatusCode status) => new(default!, false, error, status);
 
     public static Result<T> Create<T>(T? value) =>
         value is not null
             ? Success(value)
-            : Failure<T>(Error.NullValue, StatusCode.Validation);
+            : Failure<T>(Error.NullValue, HttpStatusCode.BadRequest);
 }

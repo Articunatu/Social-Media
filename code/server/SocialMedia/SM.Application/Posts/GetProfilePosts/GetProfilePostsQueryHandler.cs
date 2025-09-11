@@ -4,6 +4,7 @@ using SM.Application.Database;
 using SM.Application.Shared.Models;
 using SM.Application.Shared.Extensions;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace SM.Application.Posts.GetProfilePosts;
 
@@ -31,7 +32,7 @@ internal class GetProfilePostsQueryHandler(IDbContextFactory<ApplicationDbContex
         if (posts.Values is not { } values || !values.Any())
         {
             return Result.Failure<ProfileFeedResponse>(
-                new Error("This user hasn't posted anything"), StatusCode.NoContent);
+                new Error("This user hasn't posted anything"), HttpStatusCode.NoContent);
         }
 
         return Result.Success(new ProfileFeedResponse(posts));
