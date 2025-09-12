@@ -21,8 +21,8 @@ internal class GetProfileQueryHandler(IDbContextFactory<ApplicationDbContext> co
             .Select(u => new ProfileDetails
             {
                 Profile = u.MapToProfile(),
-                FollowersCount = u.Followers.Count(),
-                FollowingCount = u.Following.Count(),
+                FollowersCount = u.Followers.Count,
+                FollowingCount = u.Following.Count,
                 BackgroundPhoto = u.Photos != null ? u.Photos.FirstOrDefault(p => p.Type == PhotoType.Background) : null,
                 AboutMe = u.AuthoredMessages != null ? u.AuthoredMessages.OrderBy(am => am.TimeStamp).Last().Content : string.Empty 
             })

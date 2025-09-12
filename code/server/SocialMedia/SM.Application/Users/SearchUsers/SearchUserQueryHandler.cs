@@ -9,9 +9,9 @@ namespace SM.Application.Users.SearchUsers;
 
 internal class SearchUserQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : IQueryHandler<SearchUserQuery, IEnumerable<ProfileInfo>>
 {
-    public async Task<Result<IEnumerable<ProfileInfo>>> Handle(SearchUserQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IEnumerable<ProfileInfo>>> Handle(SearchUserQuery request, CancellationToken ct)
     {
-        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var context = await contextFactory.CreateDbContextAsync(ct);
 
         var search = request.Filter.SearchText.ToLower();
 
@@ -20,8 +20,8 @@ internal class SearchUserQueryHandler(IDbContextFactory<ApplicationDbContext> co
                 u.FirstName.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
                 u.Tag.Contains(search, StringComparison.CurrentCultureIgnoreCase))
             .Select(u => u.MapToProfile())
-            .ToArrayAsync(cancellationToken);
+            .ToPagedFeed(request.Filter);
 
-        return Result.Success<IEnumerable<ProfileInfo>>(matchingUsers);
+        return Result.Success(matchingUsers.Values);
     }
 }
