@@ -22,7 +22,7 @@ internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config
             return Failure(UserErrors.NotFound, HttpStatusCode.NotFound);
 
         if (!jwtService.VerifyPasswordHash(request.Password, userAuth.PasswordHash, userAuth.PasswordSalt))
-            return Failure("CredentialsInvalid", HttpStatusCode.BadRequest);
+            return Failure("CredentialsInvalid", HttpStatusCode.Unauthorized);
 
         var accessToken = jwtService.CreateToken(userAuth.Id.ToString(), config["AppSettings:Token"]!);
         var refreshToken = jwtService.GenerateRefreshToken();

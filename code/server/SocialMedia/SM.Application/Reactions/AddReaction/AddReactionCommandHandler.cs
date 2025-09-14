@@ -25,20 +25,39 @@ internal class AddReactionCommandHandler(IDbContextFactory<ApplicationDbContext>
 
         await context.SaveChangesAsync(cancellationToken);
 
-        var reaction = await context.Reactions
-            .AsSplitQuery()
-            .Include(r => r.User)
-            .Select(r => new Reaction(r.Id)
+        var reactionData = await context.Reactions
+            .Where(r => r.Id == reactionToAdd.Id)
+            .Select(r => new
             {
-                Type = r.Type,
-                MessageId = r.MessageId,
-                User = new User(r.User.Id, r.User.Tag, r.User.FirstName, r.User.LastName)
+                r.Id,
+                r.Type,
+                r.MessageId,
+                User = new
+                {
+                    r.User.Id,
+                    r.User.Tag,
+                    r.User.FirstName,
+                    r.User.LastName
+                }
             })
-            .FirstOrDefaultAsync(r => r.Id == reactionToAdd.Id, cancellationToken);
+            .FirstOrDefaultAsync(cancellationToken);
 
-        if (reaction is null)
-            return Result.Failure<ReactionResponse>(new Error("ReactionDisappeared"), HttpStatusCode.NotFound);
+        if (reactionData is null)
+            return Result.Failure<ReactionResponse>(
+                new Error("ReactionDisappeared"), HttpStatusCode.NotFound);
+
+        var reaction = new Reaction(reactionData.Id)
+        {
+            Type = reactionData.Type,
+            MessageId = reactionData.MessageId,
+            User = new User(
+                reactionData.User.Id,
+                reactionData.User.Tag,
+                reactionData.User.FirstName,
+                reactionData.User.LastName)
+        };
 
         return Result.Success(reaction.MapToResponse());
+
     }
 }

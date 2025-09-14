@@ -24,7 +24,6 @@ public class User(Guid id, string tag, string firstName, string lastName)
 
     public virtual ICollection<Message> AuthoredMessages { get; set; } = [];
     public virtual ICollection<Post> ReactedPosts { get; set; } = [];
-    public virtual ICollection<Conversation> Conversations { get; set; } = [];
     public virtual ICollection<Photo> Photos { get; set; } = [];
     public virtual ICollection<User> Following { get; set; } = [];
     public virtual ICollection<User> Followers { get; set; } = [];

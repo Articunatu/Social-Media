@@ -17,24 +17,40 @@ internal class GetProfilePostsQueryHandler(IDbContextFactory<ApplicationDbContex
 
         var posts = await context.Posts
             .Where(p => p.AuthorId == request.UserId)
-            .Select(p => new ProfilePostDto
+            .Select(p => new
             {
-                Content = p.Content,
-                TimeStamp = p.TimeStamp,
+                p.Content,
+                p.TimeStamp,
                 CommentsCount = p.Comments != null ? p.Comments.Count() : 0,
                 ReactionCounts = p.Reactions != null
                     ? p.Reactions.GroupBy(r => r.Type)
-                        .Select(rt => new ReactionCount(rt.Key, rt.Count()))
-                    : new List<ReactionCount>()
+                        .Select(rt => new { Type = rt.Key, Count = rt.Count() })
+                    : null
             })
             .ToPagedFeed(request.Filter);
 
-        if (posts.Values is not { } values || !values.Any())
+        var mapped = posts.Values.Select(p => new ProfilePostDto
+        {
+            Content = p.Content,
+            TimeStamp = p.TimeStamp,
+            CommentsCount = p.CommentsCount,
+            ReactionCounts = p.ReactionCounts != null
+                ? p.ReactionCounts.Select(rc => new ReactionCount(rc.Type, rc.Count)).ToList()
+                : []
+        }).ToArray();
+
+        if (mapped.Length == 0)
         {
             return Result.Failure<ProfileFeedResponse>(
                 new Error("This user hasn't posted anything"), HttpStatusCode.NoContent);
         }
 
-        return Result.Success(new ProfileFeedResponse(posts));
+        return Result.Success(new ProfileFeedResponse(new PagedFeed<ProfilePostDto>
+        {
+            Index = posts.Index,
+            Order = posts.Order,
+            Values = mapped
+        }));
     }
 }
+

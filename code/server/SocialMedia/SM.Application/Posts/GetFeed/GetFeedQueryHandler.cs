@@ -22,7 +22,7 @@ internal class GetFeedQueryHandler(IDbContextFactory<ApplicationDbContext> conte
             .Where(p => followingIds.Contains(p.AuthorId))
             .Include(p => p.Author)
             .Select(p => new FeedResponse(
-                new ProfileInfo(p.Author.Id, p.Author.Tag, p.Author.FirstName + " " + p.Author.LastName, p.Author.ProfilePhoto)
+                new ProfileInfo(p.Author.Id, p.Author.Tag, p.Author.FirstName + " " + p.Author.LastName, p.Author.GetProfilePhoto())
                 ,
                 new ProfilePostDto
                 {

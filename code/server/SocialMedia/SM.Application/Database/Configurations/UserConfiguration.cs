@@ -43,11 +43,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
                .WithOne(p => p.User)
                .HasForeignKey(p => p.UserId)
                .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasOne(u => u.ProfilePhoto)
-               .WithMany()
-               .HasForeignKey(u => u.ProfilePhotoId)
-               .OnDelete(DeleteBehavior.Restrict);
     }
 }
 

@@ -22,7 +22,7 @@ internal class GetReactionsByPostQueryHandler(IDbContextFactory<ApplicationDbCon
             (
                 r.Id,
                 r.Type,
-                new ProfileInfo(r.UserId, r.User.Tag, r.User.FirstName + " " + r.User.LastName, r.User.ProfilePhoto)
+                new ProfileInfo(r.UserId, r.User.Tag, r.User.FirstName + " " + r.User.LastName, r.User.GetProfilePhoto())
             )).AsQueryable();
 
         var pagedReactions = await reactions.ToPagedFeed(request.Filter);

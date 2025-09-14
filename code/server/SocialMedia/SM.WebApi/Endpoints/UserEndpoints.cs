@@ -12,7 +12,7 @@ public static class UserEndpoints
 {
     public static RouteGroupBuilder MapUserEndpoints(this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("/api/users/");
+        var group = routes.MapGroup("/api/users/").RequireAuthorization();
 
         group.MapDelete("delete", DeleteAccount);
         group.MapPost("follow", Follow);
