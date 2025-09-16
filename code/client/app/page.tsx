@@ -1,5 +1,5 @@
 import React from 'react';
-import FeedPage from './pages/feed-page';
+import FeedPage from './pages/posts/feed-page';
 
 const HomePage: React.FC = () => {
   return (
