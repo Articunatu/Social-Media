@@ -34,7 +34,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasMaxLength(Email.MaxLength);
 
-        builder.HasMany(u => u.AuthoredMessages)
+        builder.HasMany(u => u.AuthoredPosts)
                .WithOne(p => p.Author)
                .HasForeignKey(p => p.AuthorId)
                .OnDelete(DeleteBehavior.Restrict);

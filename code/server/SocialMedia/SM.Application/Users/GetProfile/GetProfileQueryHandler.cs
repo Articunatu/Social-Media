@@ -24,7 +24,7 @@ internal class GetProfileQueryHandler(IDbContextFactory<ApplicationDbContext> co
                 FollowersCount = u.Followers.Count,
                 FollowingCount = u.Following.Count,
                 BackgroundPhoto = u.Photos != null ? u.Photos.FirstOrDefault(p => p.Type == PhotoType.Background) : null,
-                AboutMe = u.AuthoredMessages != null ? u.AuthoredMessages.OrderBy(am => am.TimeStamp).Last().Content : string.Empty 
+                AboutMe = u.AuthoredPosts != null ? u.AuthoredPosts.OrderBy(am => am.TimeStamp).Last().Content : string.Empty 
             })
             .FirstOrDefaultAsync(cancellationToken);
 

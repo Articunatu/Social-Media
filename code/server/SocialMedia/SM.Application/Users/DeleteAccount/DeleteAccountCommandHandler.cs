@@ -20,8 +20,7 @@ internal class DeleteAccountCommandHandler(IDbContextFactory<ApplicationDbContex
         if (user is null)
             return Result.Failure<UserCommandResponse>(UserErrors.NotFound, HttpStatusCode.NoContent);
 
-        user.IsDeleted = true;
-        user.TimeOfDelete = DateTime.UtcNow;
+        context.Users.Remove(user);
 
         await context.SaveChangesAsync(cancellationToken);
 

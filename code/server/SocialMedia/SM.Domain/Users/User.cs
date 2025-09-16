@@ -1,7 +1,6 @@
 ﻿using SM.Domain.Abstractions;
 using SM.Domain.Authentication;
 using SM.Domain.Messages;
-using SM.Domain.Messages.DirectMessages;
 using SM.Domain.Photos;
 using SM.Domain.Users.Events;
 
@@ -22,7 +21,8 @@ public class User(Guid id, string tag, string firstName, string lastName)
     public byte[] PasswordSalt { get; set; } = [];
     public Token? Token { get; set; }
 
-    public virtual ICollection<Message> AuthoredMessages { get; set; } = [];
+    public virtual ICollection<Post> AuthoredPosts { get; set; } = [];
+    public virtual ICollection<Comment> AuthoredComments { get; set; } = [];
     public virtual ICollection<Post> ReactedPosts { get; set; } = [];
     public virtual ICollection<Photo> Photos { get; set; } = [];
     public virtual ICollection<User> Following { get; set; } = [];

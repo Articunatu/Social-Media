@@ -4,16 +4,16 @@ using SM.Domain.Messages;
 
 namespace SM.Application.Database.Configurations;
 
-public class MessageConfiguration : IEntityTypeConfiguration<Message>
+public class PostConfiguration : IEntityTypeConfiguration<Post>
 {
-    public void Configure(EntityTypeBuilder<Message> builder)
+    public void Configure(EntityTypeBuilder<Post> builder)
     {
-        builder.Property(m => m.Content)
+        builder.Property(p => p.Content)
             .IsRequired()
             .HasMaxLength(280);
 
         builder.HasOne(p => p.Author)
-               .WithMany(u => u.AuthoredMessages)
+               .WithMany(u => u.AuthoredPosts)
                .HasForeignKey(p => p.AuthorId)
                .OnDelete(DeleteBehavior.Restrict);
     }
