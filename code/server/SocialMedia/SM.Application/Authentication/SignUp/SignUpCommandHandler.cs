@@ -10,12 +10,12 @@ namespace SM.Application.Authentication.SignUp;
 internal class SignUpCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory, IJwtService jwtService)
     : ICommandHandler<SignUpCommand, SignUpResponse>
 {
-    public async Task<Result<SignUpResponse>> Handle(SignUpCommand request, CancellationToken cancellationToken)
+    public async Task<Result<SignUpResponse>> Handle(SignUpCommand dto, CancellationToken cancellationToken)
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
         var existingUser = await context.Users
-            .Where(u => u.Email == request.Email || u.Tag == request.Tag)
+            .Where(u => u.Email == dto.Email || u.Tag == dto.Tag)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (existingUser is not null)
@@ -24,9 +24,9 @@ internal class SignUpCommandHandler(IDbContextFactory<ApplicationDbContext> cont
                 new Error("A user with this email or tag already exists"), HttpStatusCode.Conflict);
         }
 
-        jwtService.GeneratePasswordHash(request.Password, out var passwordHash, out var passwordSalt);
+        jwtService.GeneratePasswordHash(dto.Password, out var passwordHash, out var passwordSalt);
 
-        var user = User.Create(request.Tag, request.FirstName, request.LastName, request.Email);
+        var user = User.Create(dto.Tag, dto.FirstName, dto.LastName, dto.Email);
         user.SetLogin(passwordHash, passwordSalt);
 
         context.Users.Add(user);

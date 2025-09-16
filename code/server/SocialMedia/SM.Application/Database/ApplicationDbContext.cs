@@ -20,6 +20,20 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
     {
         base.OnModelCreating(builder);
 
+        builder.Entity<Post>().ToTable(nameof(Posts));
+        builder.Entity<Comment>().ToTable(nameof(Comments));
+
+        // modelBuilder.Entity<DirectMessage>().ToTable("DirectMessages");
+
+        builder.Entity<Message>()
+            .HasKey(m => m.Id);
+
+        builder.Entity<Comment>()
+            .HasOne(c => c.ParentPost)
+            .WithMany(p => p.Comments)
+            .HasForeignKey(c => c.ParentPostId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
 }
