@@ -30,10 +30,10 @@ const PostCard: React.FC<PostCardProps> = ({ profileImage, displayName, username
           </div>
           <p className="mt-1 text-gray-800">{content}</p>
           <div className="mt-3 flex gap-4">
-            <button className="btn btn-circle btn-sm">
+            <button className="btn-circle btn-sm ">
               <span className="material-symbols-outlined text-[1.3em]">star</span>
             </button>
-            <button className="btn btn-circle btn-sm">
+            <button className="btn-circle btn-sm">
               <span className="material-symbols-outlined text-[1.3em]">comment</span>
             </button>
           </div>

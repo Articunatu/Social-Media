@@ -16,6 +16,9 @@ const FeedPage: React.FC = () => {
             username="roseduelist"
             content="I don’t want the power to revolutionize the world, but Himemiya needs me!"
         />
+        <button className="btn btn-primary">Primary</button>
+        <p className="text-foreground">Normal text</p>
+        <div className="bg-background">Panel</div>
         </div>
     );
 };
