@@ -1,7 +1,8 @@
-﻿using SM.Domain.Users;
+﻿using SM.Application.Authentication.SignUp.Models;
+using SM.Domain.Users;
 using SM.Domain.Users.Extensions;
 
-namespace SM.Application.Authentication.SignUp;
+namespace SM.Application.Authentication.SignUp.Extensions;
 
 public static class UserExtensions
 {

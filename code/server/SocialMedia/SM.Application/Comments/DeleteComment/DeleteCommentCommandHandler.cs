@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SM.Application.Abstractions;
+using SM.Application.Comments.Extensions;
+using SM.Application.Comments.Models;
 using SM.Application.Database;
 using SM.Domain.Shared;
 using System.Net;

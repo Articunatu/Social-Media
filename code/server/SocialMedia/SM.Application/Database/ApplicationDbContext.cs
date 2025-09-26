@@ -23,6 +23,8 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
         builder.Entity<Post>().ToTable(nameof(Posts));
         builder.Entity<Comment>().ToTable(nameof(Comments));
 
+        Users.Where(u => u.IsDeleted == false);
+
         // modelBuilder.Entity<DirectMessage>().ToTable("DirectMessages");
 
         builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);

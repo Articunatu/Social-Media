@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SM.Application.Abstractions;
+using SM.Application.Authentication.SignUp.Extensions;
+using SM.Application.Authentication.SignUp.Models;
 using SM.Application.Database;
 using SM.Domain.Shared;
 using SM.Domain.Users;
@@ -26,7 +28,7 @@ internal class SignUpCommandHandler(IDbContextFactory<ApplicationDbContext> cont
 
         jwtService.GeneratePasswordHash(dto.Password, out var passwordHash, out var passwordSalt);
 
-        var user = User.Create(dto.Tag, dto.FirstName, dto.LastName, dto.Email);
+        var user = User.Create(dto);
         user.SetLogin(passwordHash, passwordSalt);
 
         context.Users.Add(user);

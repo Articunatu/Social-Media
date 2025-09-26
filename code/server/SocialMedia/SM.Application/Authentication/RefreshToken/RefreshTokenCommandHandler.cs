@@ -25,7 +25,7 @@ internal class RefreshTokenCommandHandler(IJwtService jwtService, IConfiguration
         refreshedToken.UserId = existing.UserId;
 
         context.Tokens.Remove(existing);
-        await context.Tokens.AddAsync(refreshedToken, cancellationToken);
+        context.Tokens.Add(refreshedToken);
         await context.SaveChangesAsync(cancellationToken);
 
         return Result.Success(new LoginResponse(accessToken, refreshedToken));

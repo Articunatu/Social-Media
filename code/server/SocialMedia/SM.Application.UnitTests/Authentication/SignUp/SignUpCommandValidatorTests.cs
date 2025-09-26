@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using FluentValidation.TestHelper;
 using SM.Application.Authentication.SignUp;
+using SM.Application.Authentication.SignUp.Validators;
 
 namespace SM.Application.UnitTests.Authentication.SignUp;
 

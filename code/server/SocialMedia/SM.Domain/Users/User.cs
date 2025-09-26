@@ -14,12 +14,12 @@ public class User(Guid id, string tag, string firstName, string lastName)
     public string LastName { get; set; } = lastName;
     public string Email { get; set; } = default!;
 
-    public bool IsDeleted { get; set; }
-    public DateTime? TimeOfDelete { get; set; }
+    public virtual bool IsDeleted { get; set; }
+    public virtual DateTime? TimeOfDelete { get; set; }
 
-    public byte[] PasswordHash { get; set; } = [];
-    public byte[] PasswordSalt { get; set; } = [];
-    public Token? Token { get; set; }
+    public virtual byte[] PasswordHash { get; set; } = [];
+    public virtual byte[] PasswordSalt { get; set; } = [];
+    public virtual Token? Token { get; set; }
 
     public virtual ICollection<Post> AuthoredPosts { get; set; } = [];
     public virtual ICollection<Comment> AuthoredComments { get; set; } = [];
@@ -28,13 +28,13 @@ public class User(Guid id, string tag, string firstName, string lastName)
     public virtual ICollection<User> Following { get; set; } = [];
     public virtual ICollection<User> Followers { get; set; } = [];
 
-    public static User Create(string tag, string firstName, string lastName, string email)
+    public static User Create(IUser request)
     {
         var userId = Guid.CreateVersion7();
 
-        var user = new User(userId, tag, firstName, lastName)
+        var user = new User(userId, request.Tag, request.FirstName, request.LastName)
         {
-            Email = email
+            Email = request.Email
         };
         user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
 
@@ -45,5 +45,13 @@ public class User(Guid id, string tag, string firstName, string lastName)
     {
         PasswordHash = passwordHash;
         PasswordSalt = passwordSalt;
+    }
+
+    public interface IUser
+    {
+        string Tag { get; set; }
+        string FirstName { get; set; }
+        string LastName { get; set; }
+        string Email { get; set; }
     }
 }
