@@ -39,6 +39,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
                .HasForeignKey(p => p.AuthorId)
                .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasMany(u => u.AuthoredComments)
+               .WithOne(p => p.Author)
+               .HasForeignKey(p => p.AuthorId)
+               .OnDelete(DeleteBehavior.Restrict);
+        
         builder.HasMany(u => u.Photos)
                .WithOne(p => p.User)
                .HasForeignKey(p => p.UserId)

@@ -12,7 +12,7 @@ internal class CreateCommentCommandHandler(IDbContextFactory<ApplicationDbContex
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var comment = Comment.Create(request.ParentPostId, request.Content, DateTime.Now, request.AuthorId);
+        var comment = Comment.Create(request.ParentPostId, request.Content, request.AuthorId);
 
         context.Comments.Add(comment);
 

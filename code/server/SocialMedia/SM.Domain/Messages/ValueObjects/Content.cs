@@ -3,5 +3,5 @@ namespace SM.Domain.Messages.ValueObjects;
 
 public class Content
 {
-    public const int MaxLength = 300;
+    public const int MaxLength = 280;
 }

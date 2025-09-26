@@ -13,7 +13,7 @@ public class Post : Message
     public static Post Create(string content, Guid authorId)
     {
         var postId = Guid.CreateVersion7();
-        var timeStamp = DateTimeOffset.Now;
+        var timeStamp = DateTimeOffset.UtcNow;
         return new Post(postId, content, timeStamp, authorId);
     }
 }

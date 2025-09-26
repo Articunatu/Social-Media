@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SM.Domain.Messages;
+using SM.Domain.Messages.ValueObjects;
 
 namespace SM.Application.Database.Configurations;
 
@@ -10,7 +11,7 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
     {
         builder.Property(p => p.Content)
             .IsRequired()
-            .HasMaxLength(280);
+            .HasMaxLength(Content.MaxLength);
 
         builder.HasOne(p => p.Author)
                .WithMany(u => u.AuthoredPosts)
@@ -18,4 +19,3 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
                .OnDelete(DeleteBehavior.Restrict);
     }
 }
-
