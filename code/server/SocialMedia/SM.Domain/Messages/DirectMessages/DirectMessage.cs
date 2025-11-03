@@ -1,8 +1,19 @@
-﻿
-namespace SM.Domain.Messages.DirectMessages;
+﻿namespace SM.Domain.Messages.DirectMessages;
 
-public sealed class DirectMessage(Guid id, string content, DateTime timeStamp, Guid authorId) 
-    : Message(id, content, timeStamp, authorId)
+public sealed class DirectMessage : Message
 {
-    public Conversation Conversation { get; set; } = default!;
+    public Guid ConversationId { get; private set; }
+    public Conversation Conversation { get; private set; } = default!;
+
+    public static DirectMessage Create(Guid conversationId, string content, Guid authorId)
+    {
+        return new DirectMessage
+        {
+            Id = Guid.CreateVersion7(),
+            Content = content,
+            TimeStamp = DateTimeOffset.UtcNow,
+            AuthorId = authorId,
+            ConversationId = conversationId
+        };
+    }
 }

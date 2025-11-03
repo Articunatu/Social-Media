@@ -4,7 +4,6 @@ using SM.Application.Database;
 using SM.Application.Shared.Extensions;
 using SM.Application.Shared.Models;
 using SM.Domain.Shared;
-using SM.Domain.Users;
 using System.Net;
 
 namespace SM.Application.Posts.GetPostById;
@@ -17,49 +16,50 @@ internal class GetPostByIdQueryHandler(IDbContextFactory<ApplicationDbContext> c
 
         if (request.Profile is null)
         {
-            var user = await context.Users
+            var userProfile = await context.Users
+                .AsNoTracking()
                 .Where(u => u.Id == request.UserId)
-                .Select(u => new User(u.Id, u.Tag, u.FirstName, u.LastName))
+                .Select(u => u.MapToProfile())
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (user is null)
+            if (userProfile is null)
                 return Result.Failure<PostDetailsResponse>(new Error("User.NotFound"), HttpStatusCode.NotFound);
 
-            request.Profile = user.MapToProfile();
-        }                
+            request.Profile = userProfile;
+        }
 
         request.Post ??= await context.Posts
-                .Where(p => p.Id == request.Id)
-                .Select(p => new ProfilePostDto
-                {
-                    Content = p.Content,
-                    TimeStamp = p.TimeStamp,
-                    CommentsCount = p.Comments != null ? p.Comments.Count() : 0,
-                    ReactionCounts = p.Reactions != null
-                        ? p.Reactions
-                            .GroupBy(r => r.Type)
-                            .Select(rt => new ReactionCount(rt.Key, rt.Count()))
-                        : new List<ReactionCount>()
-                }).FirstOrDefaultAsync();
-
-        if (request.Post is null)
-            return Result.Failure<PostDetailsResponse>(new Error("Post.NotFound"), HttpStatusCode.NotFound);
-
-        var comments = context.Comments
-            .Where(c => c.ParentPostId == request.Id)
+            .AsNoTracking()
+            .Where(p => p.Id == request.Id && !p.IsDeleted)
             .Select(p => new ProfilePostDto
             {
                 Content = p.Content,
                 TimeStamp = p.TimeStamp,
-                CommentsCount = p.Comments != null ? p.Comments.Count() : 0,
-                ReactionCounts = p.Reactions != null
-                        ? p.Reactions
-                            .GroupBy(r => r.Type)
-                            .Select(rt => new ReactionCount(rt.Key, rt.Count()))
-                        : new List<ReactionCount>()
-            }).AsQueryable();
+                CommentsCount = p.Comments.Where(c => !c.IsDeleted).Count(),
+                ReactionCounts = p.Reactions
+                    .GroupBy(r => r.Type)
+                    .Select(rt => new ReactionCount(rt.Key, rt.Count()))
+            })
+            .FirstOrDefaultAsync(cancellationToken);
 
-        var pagedComments = await comments.ToPagedFeed(request.Filter);
+        if (request.Post is null)
+            return Result.Failure<PostDetailsResponse>(new Error("Post.NotFound"), HttpStatusCode.NotFound);
+
+        var commentsQuery = context.Comments
+            .AsNoTracking()
+            .Where(c => c.ParentPostId == request.Id && c.ParentCommentId == null && !c.IsDeleted)
+            .OrderByDescending(c => c.TimeStamp)
+            .Select(p => new ProfilePostDto
+            {
+                Content = p.Content,
+                TimeStamp = p.TimeStamp,
+                CommentsCount = p.Replies.Where(r => !r.IsDeleted).Count(),
+                ReactionCounts = p.Reactions
+                    .GroupBy(r => r.Type)
+                    .Select(rt => new ReactionCount(rt.Key, rt.Count()))
+            });
+
+        var pagedComments = await commentsQuery.ToPagedFeed(request.Filter);
 
         return Result.Success(new PostDetailsResponse(request.Profile, request.Post, pagedComments));
     }

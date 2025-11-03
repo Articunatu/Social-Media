@@ -15,12 +15,21 @@ internal class DeleteCommentCommandHandler(IDbContextFactory<ApplicationDbContex
     {
         await using var context = await contextFactory.CreateDbContextAsync(ct);
 
-        var commentToDelete = await context.Comments.FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken: ct);
+        var commentToDelete = await context.Comments
+            .Include(c => c.Replies)
+            .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken: ct);
 
         if (commentToDelete is null)
             return Result.Failure<CommentCommand>(new Error("Comment.NotFound"), HttpStatusCode.NotFound);
 
-        context.Comments.Remove(commentToDelete);
+        commentToDelete.IsDeleted = true;
+        commentToDelete.TimeOfDelete = DateTime.UtcNow;
+
+        foreach (var reply in commentToDelete.Replies)
+        {
+            reply.IsDeleted = true;
+            reply.TimeOfDelete = DateTime.UtcNow;
+        }
 
         await context.SaveChangesAsync(ct);
 

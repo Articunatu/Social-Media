@@ -17,10 +17,25 @@ namespace SM.Application.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.5")
+                .HasAnnotation("ProductVersion", "9.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Follows", b =>
+                {
+                    b.Property<Guid>("FollowersId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FollowingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("FollowersId", "FollowingId");
+
+                    b.HasIndex("FollowingId");
+
+                    b.ToTable("Follows", (string)null);
+                });
 
             modelBuilder.Entity("SM.Domain.Authentication.Token", b =>
                 {
@@ -28,11 +43,11 @@ namespace SM.Application.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("datetimeoffset");
 
-                    b.Property<DateTime>("Expires")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("Expires")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Text")
                         .IsRequired()
@@ -49,7 +64,7 @@ namespace SM.Application.Migrations
                     b.ToTable("Tokens");
                 });
 
-            modelBuilder.Entity("SM.Domain.Messages.Message", b =>
+            modelBuilder.Entity("SM.Domain.Messages.Comment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -63,10 +78,45 @@ namespace SM.Application.Migrations
                         .HasMaxLength(280)
                         .HasColumnType("nvarchar(280)");
 
-                    b.Property<string>("Discriminator")
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ParentCommentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ParentPostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("TimeOfDelete")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTimeOffset>("TimeStamp")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("ParentCommentId");
+
+                    b.HasIndex("ParentPostId");
+
+                    b.ToTable("Comments", (string)null);
+                });
+
+            modelBuilder.Entity("SM.Domain.Messages.Post", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)");
+                        .HasMaxLength(280)
+                        .HasColumnType("nvarchar(280)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -79,11 +129,9 @@ namespace SM.Application.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Message");
+                    b.HasIndex("AuthorId");
 
-                    b.HasDiscriminator().HasValue("Message");
-
-                    b.UseTphMappingStrategy();
+                    b.ToTable("Posts", (string)null);
                 });
 
             modelBuilder.Entity("SM.Domain.Photos.Photo", b =>
@@ -126,7 +174,10 @@ namespace SM.Application.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("MessageId")
+                    b.Property<Guid?>("CommentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("PostId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Type")
@@ -139,10 +190,18 @@ namespace SM.Application.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.HasIndex("MessageId", "UserId")
-                        .IsUnique();
+                    b.HasIndex("CommentId", "UserId")
+                        .IsUnique()
+                        .HasFilter("[CommentId] IS NOT NULL");
 
-                    b.ToTable("Reactions");
+                    b.HasIndex("PostId", "UserId")
+                        .IsUnique()
+                        .HasFilter("[PostId] IS NOT NULL");
+
+                    b.ToTable("Reactions", t =>
+                        {
+                            t.HasCheckConstraint("CK_Reaction_Target", "(CASE WHEN [PostId] IS NOT NULL THEN 1 ELSE 0 END + CASE WHEN [CommentId] IS NOT NULL THEN 1 ELSE 0 END) = 1");
+                        });
                 });
 
             modelBuilder.Entity("SM.Domain.Users.User", b =>
@@ -199,96 +258,7 @@ namespace SM.Application.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("UserUser", b =>
-                {
-                    b.Property<Guid>("FollowersId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("FollowingId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("FollowersId", "FollowingId");
-
-                    b.HasIndex("FollowingId");
-
-                    b.ToTable("UserUser");
-                });
-
-            modelBuilder.Entity("SM.Domain.Messages.Comment", b =>
-                {
-                    b.HasBaseType("SM.Domain.Messages.Message");
-
-                    b.Property<Guid?>("ParentCommentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ParentPostId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasIndex("AuthorId");
-
-                    b.HasIndex("ParentCommentId");
-
-                    b.HasIndex("ParentPostId");
-
-                    b.HasDiscriminator().HasValue("Comment");
-                });
-
-            modelBuilder.Entity("SM.Domain.Messages.Post", b =>
-                {
-                    b.HasBaseType("SM.Domain.Messages.Message");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasIndex("AuthorId");
-
-                    b.HasIndex("UserId");
-
-                    b.HasDiscriminator().HasValue("Post");
-                });
-
-            modelBuilder.Entity("SM.Domain.Authentication.Token", b =>
-                {
-                    b.HasOne("SM.Domain.Users.User", "User")
-                        .WithOne("Token")
-                        .HasForeignKey("SM.Domain.Authentication.Token", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("SM.Domain.Photos.Photo", b =>
-                {
-                    b.HasOne("SM.Domain.Users.User", "User")
-                        .WithMany("Photos")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("SM.Domain.Reactions.Reaction", b =>
-                {
-                    b.HasOne("SM.Domain.Messages.Message", "Message")
-                        .WithMany("Reactions")
-                        .HasForeignKey("MessageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SM.Domain.Users.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Message");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("UserUser", b =>
+            modelBuilder.Entity("Follows", b =>
                 {
                     b.HasOne("SM.Domain.Users.User", null)
                         .WithMany()
@@ -303,6 +273,17 @@ namespace SM.Application.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SM.Domain.Authentication.Token", b =>
+                {
+                    b.HasOne("SM.Domain.Users.User", "User")
+                        .WithOne("Token")
+                        .HasForeignKey("SM.Domain.Authentication.Token", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SM.Domain.Messages.Comment", b =>
                 {
                     b.HasOne("SM.Domain.Users.User", "Author")
@@ -312,9 +293,9 @@ namespace SM.Application.Migrations
                         .IsRequired();
 
                     b.HasOne("SM.Domain.Messages.Comment", "ParentComment")
-                        .WithMany("Comments")
+                        .WithMany("Replies")
                         .HasForeignKey("ParentCommentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("SM.Domain.Messages.Post", "ParentPost")
                         .WithMany("Comments")
@@ -337,15 +318,56 @@ namespace SM.Application.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("SM.Domain.Users.User", null)
-                        .WithMany("ReactedPosts")
-                        .HasForeignKey("UserId");
-
                     b.Navigation("Author");
                 });
 
-            modelBuilder.Entity("SM.Domain.Messages.Message", b =>
+            modelBuilder.Entity("SM.Domain.Photos.Photo", b =>
                 {
+                    b.HasOne("SM.Domain.Users.User", "User")
+                        .WithMany("Photos")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SM.Domain.Reactions.Reaction", b =>
+                {
+                    b.HasOne("SM.Domain.Messages.Comment", "Comment")
+                        .WithMany("Reactions")
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SM.Domain.Messages.Post", "Post")
+                        .WithMany("Reactions")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SM.Domain.Users.User", "User")
+                        .WithMany("Reactions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Comment");
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SM.Domain.Messages.Comment", b =>
+                {
+                    b.Navigation("Reactions");
+
+                    b.Navigation("Replies");
+                });
+
+            modelBuilder.Entity("SM.Domain.Messages.Post", b =>
+                {
+                    b.Navigation("Comments");
+
                     b.Navigation("Reactions");
                 });
 
@@ -357,19 +379,9 @@ namespace SM.Application.Migrations
 
                     b.Navigation("Photos");
 
-                    b.Navigation("ReactedPosts");
+                    b.Navigation("Reactions");
 
                     b.Navigation("Token");
-                });
-
-            modelBuilder.Entity("SM.Domain.Messages.Comment", b =>
-                {
-                    b.Navigation("Comments");
-                });
-
-            modelBuilder.Entity("SM.Domain.Messages.Post", b =>
-                {
-                    b.Navigation("Comments");
                 });
 #pragma warning restore 612, 618
         }

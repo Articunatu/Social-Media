@@ -22,7 +22,10 @@ public static class AuthenticationEndpoints
 
         return group;
     }
-    public static async Task<IResult> Login([FromBody] LoginCommand command, ISender sender, IHttpContextAccessor accessor)
+
+    public static async Task<IResult> Login([FromBody] LoginCommand command, 
+        ISender sender, 
+        IHttpContextAccessor accessor)
     {
         var result = await sender.Send(command);
 
@@ -40,8 +43,7 @@ public static class AuthenticationEndpoints
     }
 
 
-    public static async Task<IResult> RefreshToken(
-        [FromBody] RefreshTokenCommand command,
+    public static async Task<IResult> RefreshToken([FromBody] RefreshTokenCommand command,
         ISender sender,
         HttpRequest request)
     {

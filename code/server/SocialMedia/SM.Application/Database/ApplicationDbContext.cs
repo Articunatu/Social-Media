@@ -20,12 +20,11 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
     {
         base.OnModelCreating(builder);
 
+        // Ignore abstract base so only concrete tables exist
+        builder.Ignore<Message>();
+
         builder.Entity<Post>().ToTable(nameof(Posts));
         builder.Entity<Comment>().ToTable(nameof(Comments));
-
-        Users.Where(u => u.IsDeleted == false);
-
-        // modelBuilder.Entity<DirectMessage>().ToTable("DirectMessages");
 
         builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }

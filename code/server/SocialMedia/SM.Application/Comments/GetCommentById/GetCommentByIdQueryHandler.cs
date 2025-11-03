@@ -22,7 +22,7 @@ internal class GetCommentByIdQueryHandler(IDbContextFactory<ApplicationDbContext
                 ParentPostId = c.ParentPostId,
                 Content = c.Content,
                 TimeStamp = c.TimeStamp,
-                CommentsCount = c.Comments != null ? c.Comments.Count() : 0,
+                CommentsCount = c.Replies != null ? c.Replies.Count() : 0,
                 ReactionCounts = c.Reactions != null
                     ? c.Reactions
                         .GroupBy(r => r.Type)

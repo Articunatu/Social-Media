@@ -14,23 +14,23 @@ internal class GetCommentsQueryHandler(IDbContextFactory<ApplicationDbContext> c
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var comments = await context.Comments
-            .Where(p => p.ParentPostId == request.ParentPostId)
+        var commentsQuery = context.Comments
+            .AsNoTracking()
+            .Where(p => p.ParentPostId == request.ParentPostId && p.ParentCommentId == null && !p.IsDeleted)
+            .OrderByDescending(p => p.TimeStamp)
             .Select(p => new CommentQuery
             {
                 ParentPostId = request.ParentPostId,
                 Content = p.Content,
                 TimeStamp = p.TimeStamp,
-                CommentsCount = p.Comments != null ? p.Comments.Count() : 0,
-                ReactionCounts = p.Reactions != null
-                    ? p.Reactions
-                        .GroupBy(r => r.Type)
-                        .Select(rt => new ReactionCount(rt.Key, rt.Count()))
-                    : new List<ReactionCount>()
-            })
-            .AsQueryable()
-            .ToPagedFeed(request.Filter);
+                CommentsCount = p.Replies.Where(r => !r.IsDeleted).Count(),
+                ReactionCounts = p.Reactions
+                    .GroupBy(r => r.Type)
+                    .Select(rt => new ReactionCount(rt.Key, rt.Count()))
+            });
 
-        return Result.Success(comments);
+        var paged = await commentsQuery.ToPagedFeed(request.Filter);
+
+        return Result.Success(paged);
     }
 }

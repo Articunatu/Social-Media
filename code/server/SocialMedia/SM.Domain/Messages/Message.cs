@@ -1,26 +1,15 @@
-﻿using SM.Domain.Abstractions;
-using SM.Domain.Reactions;
-using SM.Domain.Users;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using SM.Domain.Abstractions;
 
 namespace SM.Domain.Messages;
 
+[NotMapped]
 public abstract class Message : Entity<Guid>, ISoftDeletable
 {
-    protected Message() { }
-
-    protected Message(Guid id, string content, DateTimeOffset timeStamp, Guid authorId)
-    {
-        Id = id;
-        Content = content;
-        TimeStamp = timeStamp;
-        AuthorId = authorId;
-    }
-
+    // Base properties shared by Post and Comment
     public string Content { get; set; } = string.Empty;
     public DateTimeOffset TimeStamp { get; set; }
     public Guid AuthorId { get; set; }
-    public bool IsDeleted { get; set; }
-    public DateTime? TimeOfDelete { get; set; }
-    public virtual User Author { get; set; } = default!;
-    public virtual ICollection<Reaction> Reactions { get; set; } = [];
+    public virtual bool IsDeleted { get; set; }
+    public virtual DateTime? TimeOfDelete { get; set; }
 }

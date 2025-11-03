@@ -15,7 +15,7 @@ internal class GetReactionsByPostQueryHandler(IDbContextFactory<ApplicationDbCon
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
         var reactions = context.Reactions
-            .Where(r => r.MessageId == request.PostId
+            .Where(r => r.PostId == request.PostId
                 && r.Type == request.Type)
             .Include(r => r.User)
             .Select(r => new ReactionResponse

@@ -7,8 +7,11 @@ namespace SM.Domain.Reactions;
 public class Reaction(Guid id) : Entity<Guid>(id)
 {
     public ReactionType Type { get; set; }
-    public Guid MessageId { get; set; }
     public Guid UserId { get; set; }
-    public virtual Message Message { get; set; } = default!;
+    public Guid? PostId { get; set; }
+    public Guid? CommentId { get; set; }
+
     public virtual User User { get; set; } = default!;
+    public virtual Post? Post { get; set; }
+    public virtual Comment? Comment { get; set; }
 }

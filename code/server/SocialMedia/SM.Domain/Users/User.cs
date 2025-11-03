@@ -3,6 +3,8 @@ using SM.Domain.Authentication;
 using SM.Domain.Messages;
 using SM.Domain.Photos;
 using SM.Domain.Users.Events;
+using SM.Domain.Users.ValueObjects;
+using SM.Domain.Reactions;
 
 namespace SM.Domain.Users;
 
@@ -23,7 +25,7 @@ public class User(Guid id, string tag, string firstName, string lastName)
 
     public virtual ICollection<Post> AuthoredPosts { get; set; } = [];
     public virtual ICollection<Comment> AuthoredComments { get; set; } = [];
-    public virtual ICollection<Post> ReactedPosts { get; set; } = [];
+    public virtual ICollection<Reaction> Reactions { get; set; } = [];
     public virtual ICollection<Photo> Photos { get; set; } = [];
     public virtual ICollection<User> Following { get; set; } = [];
     public virtual ICollection<User> Followers { get; set; } = [];
@@ -36,6 +38,20 @@ public class User(Guid id, string tag, string firstName, string lastName)
         {
             Email = request.Email
         };
+        user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
+
+        return user;
+    }
+
+    public static User Create(string tag, string firstName, string lastName, string email)
+    {
+        var userId = Guid.CreateVersion7();
+
+        var user = new User(userId, tag, firstName, lastName)
+        {
+            Email = email
+        };
+
         user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
 
         return user;

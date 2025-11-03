@@ -14,28 +14,24 @@ internal class GetReactedPostsByUserQueryHandler(IDbContextFactory<ApplicationDb
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var reactedPosts = context.Reactions
-            .Where(r => r.UserId == request.UserId)
-            .Include(r => r.Message)
-            .ThenInclude(m => m.Author)
+        var reactedPostsQuery = context.Reactions
+            .AsNoTracking()
+            .Where(r => r.UserId == request.UserId && r.PostId != null && r.Post != null)
+            .Include(r => r.Post)
+                .ThenInclude(p => p.Author)
             .Select(r => new ReactedProfilePost(r.Type)
             {
-                Content = r.Message.Content,
-                TimeStamp = r.Message.TimeStamp,
-                CommentsCount = 4, //r.Message.Comments != null ? r.Message.Replies.Count() : 0,
-                ReactionCounts = r.Message.Reactions != null
-                        ? r.Message.Reactions
-                            .GroupBy(r => r.Type)
-                            .Select(rt => new ReactionCount(rt.Key, rt.Count()))
-                        : new List<ReactionCount>()
-            }).AsQueryable();
+                Content = r.Post!.Content,
+                TimeStamp = r.Post.TimeStamp,
+                CommentsCount = r.Post.Comments.Where(c => !c.IsDeleted && c.ParentCommentId == null).Count(),
+                ReactionCounts = r.Post.Reactions
+                    .GroupBy(x => x.Type)
+                    .Select(g => new ReactionCount(g.Key, g.Count()))
+            });
 
-        var filter = new PageFilter()
-        {
-            Index = request.PagingIndex
-        };
+        var filter = new PageFilter { Index = request.PagingIndex };
 
-        var pagedReactions = await reactedPosts.ToPagedFeed(filter);
+        var pagedReactions = await reactedPostsQuery.ToPagedFeed(filter);
 
         return Result.Success(pagedReactions);
     }

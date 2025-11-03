@@ -12,17 +12,17 @@ internal class DeletePostCommandHandler(IDbContextFactory<ApplicationDbContext> 
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var postToDelete = await context.Posts.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken: cancellationToken);
+        var postToDelete = await context.Posts
+            .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken: cancellationToken);
 
         if (postToDelete is null)
             return Result.Failure<PostResponse>(new Error("Post.NotFound"), HttpStatusCode.NotFound);
 
-        context.Posts.Remove(postToDelete);
+        postToDelete.IsDeleted = true;
+        postToDelete.TimeOfDelete = DateTime.UtcNow;
 
         await context.SaveChangesAsync(cancellationToken);
 
-        var response = postToDelete.MapToResponse();
-
-        return Result.Success(response);
+        return Result.Success(postToDelete.MapToResponse());
     }
 }

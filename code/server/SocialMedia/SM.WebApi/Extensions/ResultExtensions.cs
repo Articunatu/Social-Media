@@ -7,11 +7,11 @@ public static class ResultExtensions
     public static IResult ToActionResult<T>(this Result<T> result)
     {
         if (result.IsSuccess)
-            return Results.Ok(result.Value);
+            return TypedResults.Ok(result.Value);
 
         var status = result.Status;
 
-        return Results.Problem(
+        return TypedResults.Problem(
             detail: string.Join("; ", result.Error),
             statusCode: (int)status,
             title: status.ToTitle(),
@@ -26,7 +26,7 @@ public static class ResultExtensions
 
         var status = result.Status;
 
-        return Results.Problem(
+        return TypedResults.Problem(
             detail: string.Join("; ", result.Error),
             statusCode: (int)status,
             title: status.ToTitle(),

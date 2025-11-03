@@ -14,17 +14,17 @@ internal class CreatePostCommandHandler(IDbContextFactory<ApplicationDbContext> 
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var authorExists = await context.Users.AnyAsync(u => u.Id == request.AuthorId, cancellationToken);
+        var authorExists = await context.Users
+            .AsNoTracking()
+            .AnyAsync(u => u.Id == request.AuthorId, cancellationToken);
         if (!authorExists)
-            return Result.Failure<PostResponse>(new Error("Author not found"), HttpStatusCode.NotFound);
+            return Result.Failure<PostResponse>(new Error("User.NotFound"), HttpStatusCode.NotFound);
 
         var post = Post.Create(request.Content, request.AuthorId);
 
         context.Posts.Add(post);
         await context.SaveChangesAsync(cancellationToken);
 
-        var response = post.MapToResponse();
-
-        return Result.Success(response);
+        return Result.Success(post.MapToResponse());
     }
 }
