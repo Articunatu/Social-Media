@@ -5,15 +5,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap');
 
 body {
-  @apply font-sans text-foreground bg-background;
+  font-family: 'Segoe UI', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+}
 
-  /* globals.css */
-  @layer utilities {
-    .pokeshadow {
-      @apply shadow-[4px_4px_0_0_rgba(0,0,0,1)];
-    }
-    .pokeshadow-hover {
-      @apply hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)];
-    }
+@layer utilities {
+  .pokeshadow {
+    @apply shadow-[4px_4px_0_0_rgba(0,0,0,1)];
+  }
+  .pokeshadow-hover {
+    @apply hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)];
+  }
+  .body-tailwind {
+    @apply font-sans text-foreground bg-background antialiased;
   }
 }
