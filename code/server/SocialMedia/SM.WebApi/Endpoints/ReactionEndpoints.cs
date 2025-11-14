@@ -40,7 +40,6 @@ public static class ReactionEndpoints
             : TypedResults.BadRequest(result.Error);
     }
 
-
     public static async Task<IResult> GetReactionsByUser(ISender sender, Guid userId, [AsParameters] PageFilter filter)
     {
         var authenticatedQuery = new GetReactedPostsByUserQuery(userId, filter.Index);
