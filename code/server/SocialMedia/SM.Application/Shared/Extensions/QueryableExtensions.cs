@@ -7,37 +7,20 @@ namespace SM.Application.Shared.Extensions;
 
 public static class QueryableExtensions
 {
-    public static async Task<PagedFeed<T>> ToPagedFeed<T>(this IQueryable<T> source, PageFilter filter)
+    public static async Task<PagedFeed<T>> ToPagedFeed<T>(this IQueryable<T> source, PageFilter? filter)
     {
         filter ??= new PageFilter();
-
-        var order = (filter.Order ?? string.Empty).Trim().ToLower();
-
-        IQueryable<T> ordered = source;
-
-        try
-        {
-            if (order == "asc")
-            {
-                ordered = source.OrderBy(e => true); 
-            }
-            else if (order == "desc")
-            {
-                ordered = source.OrderByDescending(e => true);
-            }
-        }
-        catch
-        {
-            ordered = source;
-        }
+        if (filter.Index < 0) 
+            filter.Index = 0;
 
         int pageSize = Constants.PAGE_SIZE;
+        var values = await source.Skip(filter.Index * pageSize).Take(pageSize).ToArrayAsync();
 
         return new PagedFeed<T>
         {
             Index = filter.Index,
-            Order = order,
-            Values = await ordered.Skip(filter.Index * pageSize).Take(pageSize).ToArrayAsync()
+            Order = filter.Order,
+            Values = values
         };
     }
 }

@@ -14,6 +14,7 @@ internal class RemoveReactionCommandHandler(IDbContextFactory<ApplicationDbConte
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
         var reactionToRemove = await context.Reactions
+            .Include(r => r.User)
             .FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
 
         if (reactionToRemove is null)

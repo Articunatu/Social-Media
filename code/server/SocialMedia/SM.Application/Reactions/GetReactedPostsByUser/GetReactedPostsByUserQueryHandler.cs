@@ -16,15 +16,14 @@ internal class GetReactedPostsByUserQueryHandler(IDbContextFactory<ApplicationDb
 
         var reactedPostsQuery = context.Reactions
             .AsNoTracking()
-            .Where(r => r.UserId == request.UserId && r.PostId != null && r.Post != null)
-            .Include(r => r.Post)
-                .ThenInclude(p => p.Author)
+            .Where(r => r.UserId == request.UserId && r.PostId != null)
             .Select(r => new ReactedProfilePost(r.Type)
             {
                 Content = r.Post!.Content,
                 TimeStamp = r.Post.TimeStamp,
-                CommentsCount = r.Post.Comments.Where(c => !c.IsDeleted && c.ParentCommentId == null).Count(),
-                ReactionCounts = r.Post.Reactions
+                CommentsCount = context.Comments.Count(c => c.ParentPostId == r.PostId && !c.IsDeleted && c.ParentCommentId == null),
+                ReactionCounts = context.Reactions
+                    .Where(x => x.PostId == r.PostId)
                     .GroupBy(x => x.Type)
                     .Select(g => new ReactionCount(g.Key, g.Count()))
             });

@@ -20,7 +20,8 @@ internal class SearchUserQueryHandler(IDbContextFactory<ApplicationDbContext> co
         if (!string.IsNullOrEmpty(search))
         {
             query = context.Users
-                .Where(u => u.FirstName.ToLower().Contains(search) || u.Tag.ToLower().Contains(search))
+                .Where(u => u.FirstName.Contains(search, StringComparison.CurrentCultureIgnoreCase) 
+                    || u.Tag.Contains(search, StringComparison.CurrentCultureIgnoreCase))
                 .Select(u => u.MapToProfile());
         }
 

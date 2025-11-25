@@ -23,8 +23,13 @@ internal class GetProfileQueryHandler(IDbContextFactory<ApplicationDbContext> co
                 Profile = u.MapToProfile(),
                 FollowersCount = u.Followers.Count,
                 FollowingCount = u.Following.Count,
-                BackgroundPhoto = u.Photos != null ? u.Photos.FirstOrDefault(p => p.Type == PhotoType.Background) : null,
-                AboutMe = u.AuthoredPosts != null ? u.AuthoredPosts.OrderBy(am => am.TimeStamp).Last().Content : string.Empty 
+                BackgroundPhoto = u.Photos.Where(p => p.Type == PhotoType.Background)
+                    .OrderByDescending(p => p.CreatedAt)
+                    .FirstOrDefault(),
+                AboutMe = u.AuthoredPosts
+                    .OrderByDescending(am => am.TimeStamp)
+                    .Select(am => am.Content)
+                    .FirstOrDefault() ?? string.Empty
             })
             .FirstOrDefaultAsync(cancellationToken);
 

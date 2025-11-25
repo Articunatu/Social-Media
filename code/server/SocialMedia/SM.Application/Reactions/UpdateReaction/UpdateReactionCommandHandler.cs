@@ -12,7 +12,7 @@ internal class UpdateReactionCommandHandler(IDbContextFactory<ApplicationDbConte
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var reactionToEdit = await context.Reactions.FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
+        var reactionToEdit = await context.Reactions.Include(r => r.User).FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
 
         if (reactionToEdit is null)
             return Result.Failure<ReactionResponse>(new Error("Reaction.NotFound"), HttpStatusCode.NotFound);
