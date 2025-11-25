@@ -1,5 +1,6 @@
 import { UUID } from "crypto";
 import { ProfileInfo } from "./user-models";
+import { ProfilePost } from "./post-models";
 
 export interface ReactionCount {
     type: ReactionType;
@@ -11,6 +12,21 @@ export interface ReactionResponse {
     type: ReactionType,
     profile: ProfileInfo
 };
+
+export interface ReactedProfilePost extends ProfilePost {
+    type: ReactionType;
+}
+
+export interface AddReactionCommand {
+    type: ReactionType;
+    userId: UUID;
+    messageId: UUID;
+}
+
+export interface UpdateReactionCommand {
+    id: UUID;
+    type: ReactionType;
+}
 
 export enum ReactionType {
     Flower = 0,

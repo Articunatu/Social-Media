@@ -15,10 +15,13 @@ internal class DeleteAccountCommandHandler(IDbContextFactory<ApplicationDbContex
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
+        var user = await context.Users
+            .Include(u => u.Photos)
+            .Include(u => u.AuthoredPosts)
+            .FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
 
         if (user is null)
-            return Result.Failure<UserCommandResponse>(UserErrors.NotFound, HttpStatusCode.NoContent);
+            return Result.Failure<UserCommandResponse>(UserErrors.NotFound, HttpStatusCode.NotFound);
 
         context.Users.Remove(user);
 

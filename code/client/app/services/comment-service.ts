@@ -1,24 +1,23 @@
+import { CommentDetails, CreateCommentCommand } from '../models/api/comment-models';
+import { PagedFeed, PageFilter } from '../models/paging-models';
 import api from './api';
-import {
-    CreateCommentCommand,
-    CommentDetails,
-} from '../models/api/comment-models';
-import { UUID } from 'crypto';
 
-const commentUri = '/users';
+const commentsUri = '/comments';
 
-const commentService = {
-    createComment: (command: CreateCommentCommand) =>
-        api.post(`${commentUri}/create`, command),
+export const commentsService = {
+    create: (cmd: CreateCommentCommand) =>
+        api.post<CommentDetails>(`${commentsUri}/create`, cmd),
 
-    deleteComment: (id: UUID) =>
-        api.post(`${commentUri}/delete/${id}`),
+    delete: (id: string) =>
+        api.delete(`${commentsUri}/delete/${id}`),
 
-    getComments: (postId: UUID) =>
-        api.get<CommentDetails[]>(`${commentUri}/get-by-post-id/${postId}`),
+    getByPost: (postId: string, filter: PageFilter) =>
+        api.get<PagedFeed<CommentDetails>>(
+        `${commentsUri}/get-by-post-id/${postId}?index=${filter.index}`
+        + (filter.order ? `&order=${encodeURIComponent(filter.order)}` : '')
+        + (filter.searchText ? `&searchText=${encodeURIComponent(filter.searchText)}` : '')
+    ),
 
-    getCommentById: (id : UUID) =>
-        api.get<CommentDetails>(`${commentUri}/get-by-id/${id}`)
+    getById: (id: string) =>
+        api.get<CommentDetails>(`${commentsUri}/${id}`)
 };
-
-export default commentService;

@@ -1,24 +1,34 @@
 import api from './api';
-import {
-    ReactionCount,
-    ReactionResponse,
-} from '../models/api/reaction-models';
 import { UUID } from 'crypto';
+import { AddReactionCommand, 
+    ReactedProfilePost, 
+    ReactionResponse, 
+    ReactionType, 
+    UpdateReactionCommand 
+} from '../models/api/reaction-models';
+import { PagedFeed } from '../models/paging-models';
 
-const reactionUri = '/users';
+const reactionUri = '/reactions';
 
 const reactionService = {
-    getReactionsByUser: (postId: UUID) =>
-        api.post(`${reactionUri}/get-by-post/${postId}`, command),
+    getReactionsByPost: (postId: UUID, pageNumber: number, type?: ReactionType) =>
+        api.get<PagedFeed<ReactionResponse>>(
+        `${reactionUri}/get-by-post/${postId}?pageNumber=${pageNumber}${type !== undefined ? `&type=${type}` : ''}`
+    ),
 
-    deleteComment: (id: UUID) =>
-        api.post(`${reactionUri}/delete/${id}`),
+    getReactedPostsByUser: (userId: UUID, pageIndex: number) =>
+        api.get<PagedFeed<ReactedProfilePost>>(
+        `${reactionUri}/users-reactions/${userId}?index=${pageIndex}`
+    ),
 
-    getComments: (postId: UUID) =>
-        api.get<CommentDetails[]>(`${reactionUri}/get-by-post-id/${postId}`),
+    addReaction: (command: AddReactionCommand) =>
+        api.post<ReactionResponse>(`${reactionUri}/react-to-post`, command),
 
-    getCommentById: (id : UUID) =>
-        api.get<CommentDetails>(`${reactionUri}/get-by-id/${id}`)
+    updateReaction: (command: UpdateReactionCommand) =>
+        api.patch<ReactionResponse>(`${reactionUri}/update-reaction`, command),
+
+    removeReaction: (id: UUID) =>
+        api.delete<ReactionResponse>(`${reactionUri}/delete/${id}`)
 };
 
 export default reactionService;

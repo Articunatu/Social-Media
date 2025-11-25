@@ -13,14 +13,18 @@ internal class SearchUserQueryHandler(IDbContextFactory<ApplicationDbContext> co
     {
         await using var context = await contextFactory.CreateDbContextAsync(ct);
 
-        var search = request.Filter.SearchText.ToLower();
+        var search = (request.Filter?.SearchText ?? string.Empty).Trim().ToLower();
 
-        var matchingUsers = await context.Users
-            .Where(u =>
-                u.FirstName.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
-                u.Tag.Contains(search, StringComparison.CurrentCultureIgnoreCase))
-            .Select(u => u.MapToProfile())
-            .ToPagedFeed(request.Filter);
+        IQueryable<ProfileInfo> query = context.Users.Select(u => u.MapToProfile());
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            query = context.Users
+                .Where(u => u.FirstName.ToLower().Contains(search) || u.Tag.ToLower().Contains(search))
+                .Select(u => u.MapToProfile());
+        }
+
+        var matchingUsers = await query.ToPagedFeed(request.Filter ?? new PageFilter());
 
         return Result.Success(matchingUsers.Values);
     }

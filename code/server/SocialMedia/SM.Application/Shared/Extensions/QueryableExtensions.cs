@@ -9,19 +9,34 @@ public static class QueryableExtensions
 {
     public static async Task<PagedFeed<T>> ToPagedFeed<T>(this IQueryable<T> source, PageFilter filter)
     {
-        var ordered = filter.Order.ToLower() switch
+        filter ??= new PageFilter();
+
+        var order = (filter.Order ?? string.Empty).Trim().ToLower();
+
+        IQueryable<T> ordered = source;
+
+        try
         {
-            "asc" => source.OrderBy(e => true),
-            "desc" => source.OrderByDescending(e => true),
-            _ => source
-        };
+            if (order == "asc")
+            {
+                ordered = source.OrderBy(e => true); 
+            }
+            else if (order == "desc")
+            {
+                ordered = source.OrderByDescending(e => true);
+            }
+        }
+        catch
+        {
+            ordered = source;
+        }
 
         int pageSize = Constants.PAGE_SIZE;
 
         return new PagedFeed<T>
         {
             Index = filter.Index,
-            Order = filter.Order,
+            Order = order,
             Values = await ordered.Skip(filter.Index * pageSize).Take(pageSize).ToArrayAsync()
         };
     }
