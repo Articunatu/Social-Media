@@ -22,5 +22,11 @@
 
 ## Technical Details
 
-The backend project is divided into 1 web API (Presentation) and 3 class libaries: Domain, Infrastructure and Application. Also  <br/>
+The backend project is divided into 1 web API (Presentation) and 3 class libaries: Domain, Infrastructure and Application.  <br/>
 There also a separate test folder which contain both unit and architechture tests.
+In comparison to how I would work in most modern projects there's no use of repository pattern here.
+Instead I'm trying out how far you can go with the argument that "EFCore is already a good enough abstraction on its own", having a contexts directly 
+injected into business logic classes. Currently this classes are tested with InMemoryDb instead of mocking, which might not be the optimal solution; you get to 
+somewhat test the queries in the function. However, this approach is known to have side-effects where the InMemoryDb won't fully reflect how a real database
+would behave, and a successful test can still result in the tested query breaking the application when run.
+The plan is too eventually complement it with more architechtural testing.
