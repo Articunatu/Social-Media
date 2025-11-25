@@ -6,7 +6,7 @@
 * Framework & language: .NET 9 / C#
 * Database: Microsoft SQL Server
 * Database driver: EntityFramework
-* Structure: Domain-driven design with CQRS using MediatR
+* Structure: Domain-driven design, clean architechture, with CQRS using MediatR
 * Endpoints: Minimal API
 * Authentication: JSON Web Token (No Identity package)
 * Object mapping: Simple custom extensions
