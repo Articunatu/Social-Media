@@ -24,7 +24,7 @@ internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config
         if (!jwtService.VerifyPasswordHash(request.Password, userAuth.PasswordHash, userAuth.PasswordSalt))
             return Failure("CredentialsInvalid", HttpStatusCode.Unauthorized);
 
-        var accessToken = jwtService.CreateToken(userAuth.Id.ToString(), config["AppSettings:Token"]!);
+        var accessToken = jwtService.CreateToken(userAuth.Id.ToString(), userAuth.Tag, config["AppSettings:Token"]!);
         var refreshToken = jwtService.GenerateRefreshToken();
 
         if (refreshToken is null)
@@ -41,7 +41,7 @@ internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config
     {
         return await context.Users
             .Where(u => u.Tag == tag)
-            .Select(u => new UserAuthDto(u.Id, u.PasswordHash, u.PasswordSalt))
+            .Select(u => new UserAuthDto(u.Id, u.Tag, u.PasswordHash, u.PasswordSalt))
             .FirstOrDefaultAsync(ct);
     }
 

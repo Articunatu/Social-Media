@@ -14,8 +14,8 @@ public static class CommentEndpoints
     {
         var group = routes.MapGroup("/api/comments/");
 
-        group.MapPost("create", CreateComment);
-        group.MapDelete("delete/{id}", DeleteComment);
+        group.MapPost("create", CreateComment).RequireAuthorization();
+        group.MapDelete("delete/{id}", DeleteComment).RequireAuthorization();
         group.MapGet("get-by-post-id/{postId}", GetComments);
         group.MapGet("{id}", GetCommentById);
 

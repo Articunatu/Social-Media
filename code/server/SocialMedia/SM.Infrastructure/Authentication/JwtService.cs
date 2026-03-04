@@ -14,12 +14,13 @@ internal class JwtService(IConfiguration configuration) : IJwtService
     private readonly string _tokenKey = configuration["JwtSettings:TokenKey"] 
         ?? throw new NotImplementedException("Token not registered!");
 
-    public string CreateToken(string tag, string tokenValue)
+    public string CreateToken(string id, string tag, string tokenValue)
     {
         List<Claim> claims =
         [
+            new Claim(ClaimTypes.NameIdentifier, id),
             new Claim(ClaimTypes.Name, tag),
-            new Claim(ClaimTypes.Role, "Admin")
+            new Claim(ClaimTypes.Role, "Creator")
         ];
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenKey));

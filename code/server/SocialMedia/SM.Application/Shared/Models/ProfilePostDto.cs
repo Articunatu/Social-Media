@@ -3,9 +3,9 @@ namespace SM.Application.Shared.Models;
 
 public record ProfilePostDto
 {
-    public string Content { get; set; } = string.Empty;
-    public DateTimeOffset TimeStamp { get; set; }
-    public int CommentsCount { get; set; }
-    public IEnumerable<ReactionCount>? ReactionCounts { get; set; }
+    public string Content { get; init; } = string.Empty;
+    public DateTimeOffset TimeStamp { get; init; }
+    public int CommentsCount { get; init; }
+    public IEnumerable<ReactionCount>? ReactionCounts { get; init; }
 }
 

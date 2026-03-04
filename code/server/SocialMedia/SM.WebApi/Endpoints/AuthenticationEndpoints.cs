@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SM.Application.Authentication.Authorize;
 using SM.Application.Authentication.Login;
 using SM.Application.Authentication.Logout;
 using SM.Application.Authentication.RefreshToken;
@@ -15,12 +16,19 @@ public static class AuthenticationEndpoints
     {
         var group = routes.MapGroup("/api/auth");
 
-        group.MapPost("/login", Login);
-        group.MapPost("/logout", Logout);
-        group.MapPost("/refresh-token", RefreshToken);
         group.MapPost("/signup", SignUp);
+        group.MapPost("/login", Login);
+        group.MapPost("/authorize", Authorize);
+        group.MapPost("/logout", Logout).RequireAuthorization();
+        group.MapPost("/refresh-token", RefreshToken);
 
         return group;
+    }
+
+    public static async Task<IResult> SignUp([FromBody] SignUpCommand command, ISender sender)
+    {
+        var result = await sender.Send(command);
+        return result.ToActionResult();
     }
 
     public static async Task<IResult> Login([FromBody] LoginCommand command, 
@@ -29,19 +37,54 @@ public static class AuthenticationEndpoints
     {
         var result = await sender.Send(command);
 
-        if (result.IsSuccess)
+        if (result.IsSuccess && result.Value != null)
             SetRefreshToken(accessor, result.Value.RefreshToken);
 
         return result.ToActionResult();
     }
 
-
-    public static async Task<IResult> SignUp([FromBody] SignUpCommand command, ISender sender)
+    public static async Task<IResult> Authorize(ISender sender, HttpContext httpContext)
     {
-        var result = await sender.Send(command);
-        return result.ToActionResult();
+        var authHeader = httpContext.Request.Headers.Authorization.FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(authHeader) || !authHeader.StartsWith("Bearer "))
+            return TypedResults.Unauthorized();
+
+        var accessToken = authHeader.Substring("Bearer ".Length).Trim();
+
+        var result = await sender.Send(new AuthorizeCommand(accessToken));
+        if (!result.IsSuccess || result.Value is null)
+            return TypedResults.Unauthorized();
+
+        return TypedResults.Ok(result.Value);
     }
 
+    //public static async Task<IResult> Authorize(HttpContext httpContext)
+    //{
+    //    var user = httpContext.User.;
+    //    if (user?.Identity?.IsAuthenticated != true)
+    //        return TypedResults.Unauthorized();
+
+    //    var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+    //    var email = user.FindFirstValue(ClaimTypes.Email) ?? "";
+    //    var roles = user.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToArray();
+
+    //    var response = new
+    //    {
+    //        IsAuthenticated = true,
+    //        UserId = userId,
+    //        Email = email,
+    //        Roles = roles
+    //        // Add other claims as needed
+    //    };
+
+    //    return TypedResults.Ok(response);
+    //}
+
+    public static async Task<IResult> Logout([FromBody] LogoutCommand command, ISender sender)
+    {
+        await sender.Send(command);
+        return TypedResults.Ok("Logged out.");
+    }
 
     public static async Task<IResult> RefreshToken([FromBody] RefreshTokenCommand command,
         ISender sender,
@@ -54,13 +97,6 @@ public static class AuthenticationEndpoints
         var result = await sender.Send(new RefreshTokenCommand(refreshToken));
 
         return result.ToActionResult(token => TypedResults.Ok(token.AccessToken));
-    }
-
-
-    public static async Task<IResult> Logout([FromBody] LogoutCommand command, ISender sender)
-    {
-        await sender.Send(command);
-        return TypedResults.Ok("Logged out.");
     }
 
     private static void SetRefreshToken(IHttpContextAccessor httpContextAccessor, Token newRefreshToken)

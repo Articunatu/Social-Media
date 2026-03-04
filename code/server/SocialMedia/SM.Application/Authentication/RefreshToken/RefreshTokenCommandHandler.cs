@@ -20,7 +20,7 @@ internal class RefreshTokenCommandHandler(IJwtService jwtService, IConfiguration
         if (existing == null || existing.Expires < DateTime.UtcNow)
             return Result.Failure<LoginResponse>(new Error("Invalid or expired refresh token"), HttpStatusCode.BadRequest);
 
-        string accessToken = jwtService.CreateToken(existing.UserId.ToString(), config["AppSettings:Token"]!);
+        string accessToken = jwtService.CreateToken(existing.UserId.ToString(), "", config["AppSettings:Token"]!);
         var refreshedToken = jwtService.GenerateRefreshToken();
         refreshedToken.UserId = existing.UserId;
 

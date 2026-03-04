@@ -18,9 +18,9 @@ public static class ReactionEndpoints
 
         group.MapGet("get-by-post/{postId}", GetReactionsByPost);
         group.MapGet("users-reactions/{userId}", GetReactionsByUser);
-        group.MapPost("react-to-post", ReactToPost);
-        group.MapDelete("delete/{id}", RemoveReaction);
-        group.MapPatch("update-reaction", UpdateReaction);
+        group.MapPost("react-to-post", ReactToPost).RequireAuthorization();
+        group.MapDelete("delete/{id}", RemoveReaction).RequireAuthorization();
+        group.MapPatch("update-reaction", UpdateReaction).RequireAuthorization();
 
         return group;
     }

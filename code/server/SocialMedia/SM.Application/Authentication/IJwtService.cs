@@ -4,7 +4,7 @@ namespace SM.Application.Authentication;
 
 public interface IJwtService
 {
-    public string CreateToken(string tag, string tokenValue);
+    public string CreateToken(string id, string tag, string tokenValue);
 
     public Token GenerateRefreshToken();
 
