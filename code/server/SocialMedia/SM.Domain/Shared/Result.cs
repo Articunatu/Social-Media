@@ -23,11 +23,13 @@ public class Result
     public Error Error { get; }
     public HttpStatusCode Status { get; }
 
-    public static Result Success() => new(true, Error.None, HttpStatusCode.OK);
+    public static Result Success(HttpStatusCode status = HttpStatusCode.OK) 
+        => new(true, Error.None, status);
 
     public static Result Failure(Error error, HttpStatusCode status) => new(false, error, status);
 
-    public static Result<T> Success<T>(T value) => new(value, true, Error.None, HttpStatusCode.OK);
+    public static Result<T> Success<T>(T value, HttpStatusCode status = HttpStatusCode.OK) 
+        => new(value, true, Error.None, status);
 
     public static Result<T> Failure<T>(Error error, HttpStatusCode status) => new(default!, false, error, status);
 
