@@ -20,10 +20,11 @@ internal class GetCommentsQueryHandler(IDbContextFactory<ApplicationDbContext> c
             .OrderByDescending(p => p.TimeStamp)
             .Select(p => new CommentQuery
             {
-                ParentPostId = request.ParentPostId,
+                PostId = p.Id,
                 Content = p.Content,
                 TimeStamp = p.TimeStamp,
-                CommentsCount = p.Replies.Where(r => !r.IsDeleted).Count(),
+                ParentPostId = request.ParentPostId,
+                CommentsCount = p.Replies.Count(r => !r.IsDeleted),
                 ReactionCounts = p.Reactions
                     .GroupBy(r => r.Type)
                     .Select(rt => new ReactionCount(rt.Key, rt.Count()))

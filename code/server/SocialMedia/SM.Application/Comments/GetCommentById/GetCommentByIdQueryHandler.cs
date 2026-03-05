@@ -23,11 +23,9 @@ internal class GetCommentByIdQueryHandler(IDbContextFactory<ApplicationDbContext
                 Content = c.Content,
                 TimeStamp = c.TimeStamp,
                 CommentsCount = c.Replies != null ? c.Replies.Count() : 0,
-                ReactionCounts = c.Reactions != null
-                    ? c.Reactions
+                ReactionCounts = c.Reactions
                         .GroupBy(r => r.Type)
                         .Select(rt => new ReactionCount(rt.Key, rt.Count()))
-                    : new List<ReactionCount>()
             })
             .FirstOrDefaultAsync(ct);
 
