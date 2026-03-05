@@ -1,20 +1,9 @@
-﻿using SM.Domain.Photos;
-
+﻿
 namespace SM.Application.Photos;
 
-public class PhotoResponse
+public record PhotoResponse
 {
-    public string FileName { get; set; } = string.Empty;
-    public string ContentType { get; set; } = "image/jpg";
-    public string Base64Data { get; set; } = string.Empty;
-
-    public static PhotoResponse MapToResponse(Photo photo)
-    {
-        return new PhotoResponse
-        {
-            FileName = photo.FileName,
-            ContentType = photo.ContentType,
-            Base64Data = Convert.ToBase64String(photo.Data)
-        };
-    }
+    public string FileName { get; init; } = string.Empty;
+    public string ContentType { get; init; } = "image/jpg";
+    public string Base64Data { get; init; } = string.Empty;
 }
