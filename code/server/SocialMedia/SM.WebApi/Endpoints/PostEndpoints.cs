@@ -25,14 +25,22 @@ public static class PostEndpoints
         return group;
     }
 
-    public static async Task<IResult> CreatePost([FromBody] CreatePostCommand command, ISender sender)
+    public static async Task<IResult> CreatePost([FromBody] CreatePostCommand command, ISender sender, HttpContext httpContext)
     {
+        Guid userId = httpContext.User.GetUserId();
+        if (userId == Guid.Empty)
+            return TypedResults.Unauthorized();
+
         var createdPost = await sender.Send(command);
         return TypedResults.Ok(createdPost);
     }
 
-    public static async Task<IResult> DeletePost(Guid id, ISender sender)
+    public static async Task<IResult> DeletePost(Guid id, ISender sender, HttpContext httpContext)
     {
+        Guid userId = httpContext.User.GetUserId();
+        if (userId == Guid.Empty)
+            return TypedResults.Unauthorized();
+
         var deletedPost = await sender.Send(new DeletePostCommand(id));
         return TypedResults.Ok(deletedPost);
     }
@@ -40,12 +48,8 @@ public static class PostEndpoints
     public static async Task<IResult> GetPostById(Guid id, int pageNumber,
         ISender sender, HttpContext httpContext)
     {
-        var userId = httpContext.GetLoggedInUserId();
-        if (userId == Guid.Empty)
-            return TypedResults.Unauthorized();
-
         var filter = new PageFilter { Index = pageNumber };
-        var query = new GetPostByIdQuery(id, userId, filter);
+        var query = new GetPostByIdQuery(id, filter);
         var post = await sender.Send(query);
 
         return post.IsSuccess

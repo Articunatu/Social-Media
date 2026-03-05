@@ -7,6 +7,7 @@ using SM.Application.Reactions.RemoveReaction;
 using SM.Application.Reactions.UpdateReaction;
 using SM.Application.Shared.Models;
 using SM.Domain.Reactions;
+using SM.WebApi.Extensions;
 
 namespace SM.WebApi.Endpoints;
 
@@ -48,20 +49,33 @@ public static class ReactionEndpoints
         return TypedResults.Ok(reactedPosts);
     }
 
-    public static async Task<IResult> ReactToPost([FromBody] AddReactionCommand command, ISender sender)
+    public static async Task<IResult> ReactToPost([FromBody] AddReactionCommand command, ISender sender, HttpContext httpContext)
     {
+        var userId = httpContext.GetLoggedInUserId();
+        if (userId == Guid.Empty)
+            return TypedResults.Unauthorized();
+
+        command = command with { UserId = userId };
         var reactedPost = await sender.Send(command);
         return TypedResults.Ok(reactedPost);
     }
     
-    public static async Task<IResult> RemoveReaction(Guid id, ISender sender)
+    public static async Task<IResult> RemoveReaction(Guid id, ISender sender, HttpContext httpContext)
     {
+        var userId = httpContext.GetLoggedInUserId();
+        if (userId == Guid.Empty)
+            return TypedResults.Unauthorized();
+
         var removedReaction = await sender.Send(new RemoveReactionCommand(id));
         return TypedResults.Ok(removedReaction);
     }
 
-    public static async Task<IResult> UpdateReaction([FromBody] UpdateReactionCommand command, ISender sender)
+    public static async Task<IResult> UpdateReaction([FromBody] UpdateReactionCommand command, ISender sender, HttpContext httpContext)
     {
+        var userId = httpContext.GetLoggedInUserId();
+        if (userId == Guid.Empty)
+            return TypedResults.Unauthorized();
+
         var updatedReaction = await sender.Send(command);
         return TypedResults.Ok(updatedReaction);
     }

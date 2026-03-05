@@ -5,6 +5,7 @@ using SM.Application.Photos.GetPhotoById;
 using SM.Application.Photos.GetPhotosByUserId;
 using SM.Application.Photos.SetProfilePhoto;
 using SM.Application.Photos.UploadPhoto;
+using SM.WebApi.Extensions;
 
 namespace SM.WebApi.Endpoints;
 
@@ -49,12 +50,21 @@ public static class PhotoEndpoints
     //    var uploadResponse = await sender.Send(command);
 
     //    File.Delete(tempFilePath);
-     
+
     //    return TypedResults.Ok(uploadResponse);
     //}
 
-    public static async Task<IResult> SetProfilePictureByPhotoAndUserId([FromBody] SetProfilePhotoCommand command, ISender sender)
+    public static async Task<IResult> SetProfilePictureByPhotoAndUserId(
+        [FromBody] SetProfilePhotoCommand command,
+        ISender sender,
+        HttpContext httpContext)
     {
+        Guid userId = httpContext.User.GetUserId();
+        if (userId == Guid.Empty)
+            return TypedResults.Unauthorized();
+
+        command = command with { UserId = userId };
+
         var isUpdated = await sender.Send(command);
         return TypedResults.Ok(isUpdated);
     }

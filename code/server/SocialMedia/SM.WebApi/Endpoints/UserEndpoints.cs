@@ -5,6 +5,7 @@ using SM.Application.Users.Follow;
 using SM.Application.Users.GetProfile;
 using SM.Application.Users.SearchUsers;
 using SM.Application.Users.Unfollow;
+using SM.WebApi.Extensions;
 
 namespace SM.WebApi.Endpoints;
 
@@ -25,16 +26,26 @@ public static class UserEndpoints
 
     public static async Task<IResult> DeleteAccount(
         [FromBody] DeleteAccountCommand command,
-        ISender sender)
+        ISender sender, HttpContext httpContext)
     {
+        var userId = httpContext.GetLoggedInUserId();
+        if (userId == Guid.Empty)
+            return TypedResults.Unauthorized();
+
         var deletedAccount = await sender.Send(command);
         return TypedResults.Ok(deletedAccount);
     }
 
     public static async Task<IResult> Follow(
         [FromBody] FollowCommand command,
-        ISender sender)
+        ISender sender, HttpContext httpContext)
     {
+        var userId = httpContext.GetLoggedInUserId();
+        if (userId == Guid.Empty)
+            return TypedResults.Unauthorized();
+
+        command = command with { FollowerId = userId };
+
         var followPair = await sender.Send(command);
         return TypedResults.Ok(followPair);
     }
@@ -58,8 +69,14 @@ public static class UserEndpoints
 
     public static async Task<IResult> Unfollow(
         [FromBody] UnfollowCommand command,
-        ISender sender)
+        ISender sender, HttpContext httpContext)
     {
+        var userId = httpContext.GetLoggedInUserId();
+        if (userId == Guid.Empty)
+            return TypedResults.Unauthorized();
+
+        command = command with { FollowerId = userId };
+
         var unfollowPair = await sender.Send(command);
         return TypedResults.Ok(unfollowPair);
     }

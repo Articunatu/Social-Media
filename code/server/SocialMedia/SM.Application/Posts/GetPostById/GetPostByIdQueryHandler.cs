@@ -16,9 +16,15 @@ internal class GetPostByIdQueryHandler(IDbContextFactory<ApplicationDbContext> c
 
         if (request.Profile is null)
         {
+            Guid authorId = await context.Posts
+                .AsNoTracking()
+                .Where(p => p.Id == request.Id && !p.IsDeleted)
+                .Select(p => p.AuthorId)
+                .FirstOrDefaultAsync(cancellationToken);
+
             var userProfile = await context.Users
                 .AsNoTracking()
-                .Where(u => u.Id == request.UserId)
+                .Where(u => u.Id == authorId)
                 .Select(u => u.MapToProfile())
                 .FirstOrDefaultAsync(cancellationToken);
 

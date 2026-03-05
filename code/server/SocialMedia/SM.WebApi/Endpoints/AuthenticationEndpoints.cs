@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SM.Application.Authentication.Authorize;
+using SM.Application.Authentication.ChangePassword;
 using SM.Application.Authentication.Login;
 using SM.Application.Authentication.Logout;
 using SM.Application.Authentication.RefreshToken;
@@ -21,6 +22,7 @@ public static class AuthenticationEndpoints
         group.MapGet("/authorize", Authorize);
         group.MapPost("/logout", Logout).RequireAuthorization();
         group.MapPost("/refresh-token", RefreshToken);
+        group.MapPost("/change-password", ChangePassword);
 
         return group;
     }
@@ -31,8 +33,8 @@ public static class AuthenticationEndpoints
         return result.ToActionResult();
     }
 
-    public static async Task<IResult> Login([FromBody] LoginCommand command, 
-        ISender sender, 
+    public static async Task<IResult> Login([FromBody] LoginCommand command,
+        ISender sender,
         IHttpContextAccessor accessor)
     {
         var result = await sender.Send(command);
@@ -85,5 +87,17 @@ public static class AuthenticationEndpoints
             Expires = DateTime.Now.AddDays(7)
         };
         httpContextAccessor.HttpContext?.Response.Cookies.Append("refreshToken", newRefreshToken.Text, cookieOptions);
+    }
+
+    private static async Task<IResult> ChangePassword([FromBody] ChangePasswordCommand command,
+        ISender sender, HttpContext httpContext)
+    {
+        Guid userId = httpContext.User.GetUserId();
+        if (userId == Guid.Empty)
+            return TypedResults.Unauthorized();
+
+        command = command with { UserId = userId };
+        var result = await sender.Send(command);
+        return TypedResults.Ok(result.Value);
     }
 }
