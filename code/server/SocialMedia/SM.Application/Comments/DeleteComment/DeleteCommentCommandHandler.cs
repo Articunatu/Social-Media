@@ -25,11 +25,11 @@ internal class DeleteCommentCommandHandler(IDbContextFactory<ApplicationDbContex
         commentToDelete.IsDeleted = true;
         commentToDelete.TimeOfDelete = DateTime.UtcNow;
 
-        foreach (var reply in commentToDelete.Replies)
-        {
-            reply.IsDeleted = true;
-            reply.TimeOfDelete = DateTime.UtcNow;
-        }
+        await context.Comments
+            .Where(c => c.ParentCommentId == commentToDelete.Id)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(c => c.IsDeleted, true)
+                .SetProperty(c => c.TimeOfDelete, DateTime.UtcNow), ct);
 
         await context.SaveChangesAsync(ct);
 

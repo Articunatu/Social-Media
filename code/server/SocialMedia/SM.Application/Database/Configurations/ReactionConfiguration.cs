@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SM.Domain.Reactions;
-using SM.Domain.Messages;
 
 namespace SM.Application.Database.Configurations;
 
