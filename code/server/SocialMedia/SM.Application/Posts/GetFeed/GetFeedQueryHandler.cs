@@ -15,15 +15,19 @@ internal class GetFeedQueryHandler(IDbContextFactory<ApplicationDbContext> conte
 
         var followingIds = await context.Users
             .Where(u => u.Id == request.UserId)
-            .SelectMany(u => u.Following != null ? u.Following.Select(f => f.Id) : default!)
+            .SelectMany(u => u.Following.Select(f => f.Id))
             .ToArrayAsync(cancellationToken: cancellationToken);
+
+        if (followingIds.Length == 0)
+            return Result.Success(new PagedFeed<FeedResponse> { Values = [] });
+
+        IEnumerable<ReactionCount> emptyReactionCounts = [];
 
         var postsWithProfile = context.Posts
             .Where(p => followingIds.Contains(p.AuthorId))
             .Include(p => p.Author)
             .Select(p => new FeedResponse(
-                new ProfileInfo(p.Author.Id, p.Author.Tag, p.Author.FirstName + " " + p.Author.LastName, p.Author.GetProfilePhoto())
-                ,
+                new ProfileInfo(p.Author.Id, p.Author.Tag, p.Author.FirstName + " " + p.Author.LastName, p.Author.GetProfilePhoto()),
                 new ProfilePostDto
                 {
                     Content = p.Content,
@@ -33,7 +37,8 @@ internal class GetFeedQueryHandler(IDbContextFactory<ApplicationDbContext> conte
                         ? p.Reactions
                             .GroupBy(r => r.Type)
                             .Select(rt => new ReactionCount(rt.Key, rt.Count()))
-                        : new List<ReactionCount>()
+                            .ToList()
+                        : emptyReactionCounts
                 }
             ))
             .AsQueryable();

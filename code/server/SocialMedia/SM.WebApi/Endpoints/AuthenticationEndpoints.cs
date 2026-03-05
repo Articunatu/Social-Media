@@ -18,7 +18,7 @@ public static class AuthenticationEndpoints
 
         group.MapPost("/signup", SignUp);
         group.MapPost("/login", Login);
-        group.MapPost("/authorize", Authorize);
+        group.MapGet("/authorize", Authorize);
         group.MapPost("/logout", Logout).RequireAuthorization();
         group.MapPost("/refresh-token", RefreshToken);
 
@@ -57,28 +57,6 @@ public static class AuthenticationEndpoints
 
         return TypedResults.Ok(result.Value);
     }
-
-    //public static async Task<IResult> Authorize(HttpContext httpContext)
-    //{
-    //    var user = httpContext.User.;
-    //    if (user?.Identity?.IsAuthenticated != true)
-    //        return TypedResults.Unauthorized();
-
-    //    var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
-    //    var email = user.FindFirstValue(ClaimTypes.Email) ?? "";
-    //    var roles = user.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToArray();
-
-    //    var response = new
-    //    {
-    //        IsAuthenticated = true,
-    //        UserId = userId,
-    //        Email = email,
-    //        Roles = roles
-    //        // Add other claims as needed
-    //    };
-
-    //    return TypedResults.Ok(response);
-    //}
 
     public static async Task<IResult> Logout([FromBody] LogoutCommand command, ISender sender)
     {
