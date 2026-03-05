@@ -19,9 +19,12 @@ internal class SearchUserQueryHandler(IDbContextFactory<ApplicationDbContext> co
 
         if (!string.IsNullOrEmpty(search))
         {
+            var pattern = $"%{search}%";
             query = context.Users
-                .Where(u => u.FirstName.Contains(search, StringComparison.CurrentCultureIgnoreCase) 
-                    || u.Tag.Contains(search, StringComparison.CurrentCultureIgnoreCase))
+                .Where(u =>
+                    EF.Functions.Like(u.Tag, pattern) ||
+                    EF.Functions.Like(u.FirstName, pattern) ||
+                    EF.Functions.Like(u.LastName, pattern))
                 .Select(u => u.MapToProfile());
         }
 
