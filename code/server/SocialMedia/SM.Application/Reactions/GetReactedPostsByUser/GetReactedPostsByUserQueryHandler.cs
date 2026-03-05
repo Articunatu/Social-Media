@@ -17,17 +17,19 @@ internal class GetReactedPostsByUserQueryHandler(IDbContextFactory<ApplicationDb
         var reactedPostsQuery = context.Reactions
             .AsNoTracking()
             .Where(r => r.UserId == request.UserId && r.PostId != null)
-            .Select(r => new ReactedProfilePost(r.Type)
+            .Select(r => new ReactedProfilePost(r.Id, r.Type)
             {
+                PostId = r.PostId!.Value,
                 Content = r.Post!.Content,
                 TimeStamp = r.Post.TimeStamp,
-                CommentsCount = context.Comments.Count(c => c.ParentPostId == r.PostId && !c.IsDeleted && c.ParentCommentId == null),
+                CommentsCount = context.Comments.Count(c => c.ParentPostId == r.PostId && c.ParentCommentId == null),
                 ReactionCounts = context.Reactions
                     .Where(x => x.PostId == r.PostId)
                     .GroupBy(x => x.Type)
                     .Select(g => new ReactionCount(g.Key, g.Count()))
+                    .ToList()
             });
-
+        
         var filter = new PageFilter { Index = request.PagingIndex };
 
         var pagedReactions = await reactedPostsQuery.ToPagedFeed(filter);

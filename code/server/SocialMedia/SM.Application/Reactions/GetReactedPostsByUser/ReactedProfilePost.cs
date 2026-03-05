@@ -3,4 +3,4 @@ using SM.Domain.Reactions;
 
 namespace SM.Application.Reactions.GetReactedPostsByUser;
 
-public record ReactedProfilePost(ReactionType Type) : ProfilePostDto;
+public record ReactedProfilePost(Guid ReactionId, ReactionType Type) : ProfilePostDto;

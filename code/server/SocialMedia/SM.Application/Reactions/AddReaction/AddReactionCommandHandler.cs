@@ -17,14 +17,18 @@ internal class AddReactionCommandHandler(IDbContextFactory<ApplicationDbContext>
         if (!userExists)
             return Result.Failure<ReactionResponse>(new Error("User.NotFound", "User not found"), HttpStatusCode.NotFound);
 
+
         var postExists = await context.Posts.AnyAsync(p => p.Id == request.MessageId, cancellationToken);
         var commentExists = await context.Comments.AnyAsync(c => c.Id == request.MessageId, cancellationToken);
 
         if (!postExists && !commentExists)
             return Result.Failure<ReactionResponse>(new Error("Target.NotFound", "The target post or comment was not found"), HttpStatusCode.NotFound);
 
-        Guid postId = postExists ? request.MessageId : Guid.Empty;
-        Guid commentId = commentExists ? request.MessageId : Guid.Empty;
+        if (postExists && commentExists)
+            return Result.Failure<ReactionResponse>(new Error("Target.Ambiguous", "MessageId matches both a post and a comment. Cannot determine reaction target."), HttpStatusCode.BadRequest);
+
+        Guid? postId = postExists ? request.MessageId : null;
+        Guid? commentId = commentExists ? request.MessageId : null;
 
         var existingReaction = await context.Reactions.FirstOrDefaultAsync(r =>
             r.UserId == request.UserId && r.PostId == postId && r.CommentId == commentId, cancellationToken);
@@ -45,6 +49,7 @@ internal class AddReactionCommandHandler(IDbContextFactory<ApplicationDbContext>
         await context.SaveChangesAsync(cancellationToken);
 
         var reaction = await context.Reactions
+            .AsNoTracking()
             .Include(r => r.User)
             .FirstOrDefaultAsync(r => r.Id == reactionToAdd.Id, cancellationToken);
 
