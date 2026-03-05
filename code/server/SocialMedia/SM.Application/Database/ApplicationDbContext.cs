@@ -19,13 +19,22 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        NameTablesByEntities(builder);
+        ApplySoftDeleteFilter(builder);
+        builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+    }
 
-        // Ignore abstract base so only concrete tables exist
+    private static void NameTablesByEntities(ModelBuilder builder)
+    {
         builder.Ignore<Message>();
-
         builder.Entity<Post>().ToTable(nameof(Posts));
         builder.Entity<Comment>().ToTable(nameof(Comments));
+    }
 
-        builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+    private static void ApplySoftDeleteFilter(ModelBuilder builder)
+    {
+        builder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
+        builder.Entity<Post>().HasQueryFilter(m => !m.IsDeleted);
+        builder.Entity<Comment>().HasQueryFilter(m => !m.IsDeleted);
     }
 }
