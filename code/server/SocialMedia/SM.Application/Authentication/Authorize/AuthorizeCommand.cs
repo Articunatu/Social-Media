@@ -1,9 +1,8 @@
 using SM.Application.Abstractions;
-
-namespace SM.Application.Authentication.Authorize;
-
 using SM.Application.Authentication.Authorize.Models;
 using SM.Domain.Shared;
+
+namespace SM.Application.Authentication.Authorize;
 
 public class AuthorizeCommand(string accessToken) : ICommand<Result<AuthorizeResponse>>
 {
