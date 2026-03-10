@@ -1,13 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SM.Application.Abstractions;
+using SM.Application.Behaviors;
 using SM.Application.Database;
 using SM.Domain.Shared;
 using System.Net;
 
 namespace SM.Application.Authentication.RefreshToken;
 
-internal class RefreshTokenCommandHandler(IJwtService jwtService, IConfiguration config, IDbContextFactory<ApplicationDbContext> contextFactory) 
+internal class RefreshTokenCommandHandler(IJwtService jwtService, IConfiguration config, IDbContextFactory<ApplicationDbContext> contextFactory, ILoggingBehaviour logging) 
     : ICommandHandler<RefreshTokenCommand, LoginResponse>
 {
     public async Task<Result<LoginResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
@@ -28,6 +29,7 @@ internal class RefreshTokenCommandHandler(IJwtService jwtService, IConfiguration
         context.Tokens.Add(refreshedToken);
         await context.SaveChangesAsync(cancellationToken);
 
+        logging.LogInformation($"Refreshed token for user {existing.UserId}");
         return Result.Success(new LoginResponse(accessToken, refreshedToken));
     }
 }

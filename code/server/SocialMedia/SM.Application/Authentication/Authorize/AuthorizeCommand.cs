@@ -4,7 +4,4 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Authentication.Authorize;
 
-public class AuthorizeCommand(string accessToken) : ICommand<Result<AuthorizeResponse>>
-{
-    public string AccessToken { get; set; } = accessToken;
-}
+public record AuthorizeCommand(string AccessToken) : ICommand<Result<AuthorizeResponse>>;

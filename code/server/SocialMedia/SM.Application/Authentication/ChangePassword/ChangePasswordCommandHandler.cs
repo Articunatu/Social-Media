@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SM.Application.Abstractions;
+using SM.Application.Behaviors;
 using SM.Application.Database;
 using SM.Domain.Shared;
 using System.Net;
 
 namespace SM.Application.Authentication.ChangePassword;
 
-internal class ChangePasswordCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory, IJwtService jwt) 
+internal class ChangePasswordCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory, IJwtService jwt, ILoggingBehaviour logging) 
     : ICommandHandler<ChangePasswordCommand, string>
 {
     public async Task<Result<string>> Handle(ChangePasswordCommand command, CancellationToken ct)
@@ -30,10 +31,9 @@ internal class ChangePasswordCommandHandler(IDbContextFactory<ApplicationDbConte
                 ct);
 
         if (updated <= 0)
-        {
             return Result.Failure<string>(new Error("Updating password failed"), HttpStatusCode.BadRequest);
-        }
 
+        logging.LogInformation($"Password updated for user with id {command.UserId}");
         return Result.Success("PasswordChangeSuccess");
     }
 }

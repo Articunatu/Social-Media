@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using SM.Application.Abstractions;
 using SM.Application.Authentication.Login.Models;
+using SM.Application.Behaviors;
 using SM.Application.Database;
 using SM.Domain.Authentication;
 using SM.Domain.Shared;
@@ -10,7 +11,7 @@ using System.Net;
 
 namespace SM.Application.Authentication.Login;
 
-internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config, IDbContextFactory<ApplicationDbContext> contextFactory)
+internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config, IDbContextFactory<ApplicationDbContext> contextFactory, ILoggingBehaviour logging)
     : ICommandHandler<LoginCommand, LoginResponse>
 {
     public async Task<Result<LoginResponse>> Handle(LoginCommand request, CancellationToken ct)
@@ -22,7 +23,9 @@ internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config
             return Failure(UserErrors.NotFound, HttpStatusCode.NotFound);
 
         if (!jwtService.VerifyPasswordHash(request.Password, userAuth.PasswordHash, userAuth.PasswordSalt))
-            return Failure("CredentialsInvalid", HttpStatusCode.Unauthorized);
+        {
+            logging.LogWarning($"Failed login attempt for user with tag {request.Tag}");
+        }
 
         var accessToken = jwtService.CreateToken(userAuth.Id.ToString(), userAuth.Tag, config["AppSettings:Token"]!);
         var refreshToken = jwtService.GenerateRefreshToken();
@@ -32,6 +35,7 @@ internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config
 
         refreshToken.UserId = userAuth.Id;
         await UpsertRefreshTokenAsync(context, refreshToken, ct);
+        logging.LogInformation($"User with tag {request.Tag} logged in successfully");
 
         var loginResponse = new LoginResponse(accessToken, refreshToken);
         return Result.Success(loginResponse);

@@ -2,6 +2,7 @@
 using SM.Application.Abstractions;
 using SM.Application.Authentication.SignUp.Extensions;
 using SM.Application.Authentication.SignUp.Models;
+using SM.Application.Behaviors;
 using SM.Application.Database;
 using SM.Domain.Shared;
 using SM.Domain.Users;
@@ -9,7 +10,7 @@ using System.Net;
 
 namespace SM.Application.Authentication.SignUp;
 
-internal class SignUpCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory, IJwtService jwtService)
+internal class SignUpCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory, IJwtService jwtService, ILoggingBehaviour logging)
     : ICommandHandler<SignUpCommand, SignUpResponse>
 {
     public async Task<Result<SignUpResponse>> Handle(SignUpCommand dto, CancellationToken cancellationToken)
@@ -33,6 +34,8 @@ internal class SignUpCommandHandler(IDbContextFactory<ApplicationDbContext> cont
 
         context.Users.Add(user);
         await context.SaveChangesAsync(cancellationToken);
+
+        logging.LogInformation($"New user created with id {user.Id} and email {user.Email}");
 
         var response = user.MapToSignUpResponse();
 

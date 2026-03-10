@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SM.Application.Abstractions;
+using SM.Application.Behaviors;
 using SM.Application.Database;
 using SM.Application.Shared.Extensions;
 using SM.Domain.Shared;
@@ -8,7 +9,7 @@ using System.Net;
 
 namespace SM.Application.Users.DeleteAccount;
 
-internal class DeleteAccountCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory) 
+internal class DeleteAccountCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory, ILoggingBehaviour logging) 
     : ICommandHandler<DeleteAccountCommand, UserCommandResponse>
 {
     public async Task<Result<UserCommandResponse>> Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
@@ -27,6 +28,7 @@ internal class DeleteAccountCommandHandler(IDbContextFactory<ApplicationDbContex
         context.Users.Remove(user);
 
         await context.SaveChangesAsync(cancellationToken);
+        logging.LogInformation($"Deleted user with id {user.Id}");
 
         return Result.Success(user.MapToCommandResponse());
     }

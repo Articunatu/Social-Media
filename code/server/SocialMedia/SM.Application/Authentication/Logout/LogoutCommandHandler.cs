@@ -13,7 +13,7 @@ internal class LogoutCommandHandler(IDbContextFactory<ApplicationDbContext> cont
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
         var token = await context.Tokens.FirstOrDefaultAsync(t => t.Text == request.RefreshToken, cancellationToken);
-        if (token is not null)
+        if (token != null)
         {
             context.Tokens.Remove(token);
             await context.SaveChangesAsync(cancellationToken);

@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SM.Application.Abstractions;
+using SM.Application.Behaviors;
 using SM.Application.Database;
 using SM.Domain.Shared;
 using System.Net;
 
 namespace SM.Application.Posts.DeletePost;
 
-internal class DeletePostCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : ICommandHandler<DeletePostCommand, PostResponse>
+internal class DeletePostCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory, ILoggingBehaviour logging) : ICommandHandler<DeletePostCommand, PostResponse>
 {
     public async Task<Result<PostResponse>> Handle(DeletePostCommand request, CancellationToken cancellationToken)
     {
@@ -22,6 +23,7 @@ internal class DeletePostCommandHandler(IDbContextFactory<ApplicationDbContext> 
         postToDelete.TimeOfDelete = DateTime.UtcNow;
 
         await context.SaveChangesAsync(cancellationToken);
+        logging.LogInformation($"Post with id {request.Id} from author with id {postToDelete.AuthorId} marked as deleted.");
 
         return Result.Success(postToDelete.MapToResponse());
     }

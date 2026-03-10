@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SM.Application.Abstractions;
+using SM.Application.Behaviors;
 using SM.Application.Database;
 using SM.Application.Shared.Extensions;
 using SM.Domain.Shared;
@@ -8,7 +9,7 @@ using System.Net;
 
 namespace SM.Application.Users.Unfollow;
 
-internal class UnfollowCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+internal class UnfollowCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory, ILoggingBehaviour logging)
     : ICommandHandler<UnfollowCommand, IEnumerable<UserCommandResponse>>
 {
     public async Task<Result<IEnumerable<UserCommandResponse>>> Handle(UnfollowCommand request, CancellationToken cancellationToken)
@@ -30,12 +31,20 @@ internal class UnfollowCommandHandler(IDbContextFactory<ApplicationDbContext> co
         follower.Following.Remove(following);
         following.Followers.Remove(follower);
 
-        await context.SaveChangesAsync(cancellationToken);
-
-        return Result.Success<IEnumerable<UserCommandResponse>>(new[]
+        try
         {
-            follower.MapToCommandResponse(),
-            following.MapToCommandResponse()
-        });
+            await context.SaveChangesAsync(cancellationToken);
+
+            return Result.Success<IEnumerable<UserCommandResponse>>(
+            [
+                follower.MapToCommandResponse(),
+                following.MapToCommandResponse()
+            ]);
+        }
+        catch (Exception ex)
+        {
+            logging.LogError($"An error occurred while saving changes to the database during unfollow operation. FollowerId: {request.FollowerId}, FollowingId: {request.FollowingId}", ex);
+            return Result.Failure<IEnumerable<UserCommandResponse>>(new Error("DatabaseError", "An error occurred while saving changes to the database."), HttpStatusCode.InternalServerError);
+        }
     }
 }

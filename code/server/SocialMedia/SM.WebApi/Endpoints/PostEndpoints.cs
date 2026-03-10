@@ -27,7 +27,7 @@ public static class PostEndpoints
 
     public static async Task<IResult> CreatePost([FromBody] CreatePostCommand command, ISender sender, HttpContext httpContext)
     {
-        Guid userId = httpContext.User.GetUserId();
+        Guid userId = httpContext.GetLoggedInUserId();
         if (userId == Guid.Empty)
             return TypedResults.Unauthorized();
 
@@ -37,7 +37,7 @@ public static class PostEndpoints
 
     public static async Task<IResult> DeletePost(Guid id, ISender sender, HttpContext httpContext)
     {
-        Guid userId = httpContext.User.GetUserId();
+        Guid userId = httpContext.GetLoggedInUserId();
         if (userId == Guid.Empty)
             return TypedResults.Unauthorized();
 

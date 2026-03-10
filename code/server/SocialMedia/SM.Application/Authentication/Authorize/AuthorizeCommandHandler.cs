@@ -1,5 +1,6 @@
 using SM.Application.Abstractions;
 using SM.Application.Authentication.Authorize.Models;
+using SM.Application.Behaviors;
 using SM.Domain.Shared;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
@@ -7,7 +8,7 @@ using System.Security.Claims;
 
 namespace SM.Application.Authentication.Authorize;
 
-public class AuthorizeCommandHandler : ICommandHandler<AuthorizeCommand, Result<AuthorizeResponse>>
+internal class AuthorizeCommandHandler(ILoggingBehaviour logging) : ICommandHandler<AuthorizeCommand, Result<AuthorizeResponse>>
 {
     public async Task<Result<Result<AuthorizeResponse>>> Handle(AuthorizeCommand request, CancellationToken cancellationToken)
     {
@@ -25,6 +26,7 @@ public class AuthorizeCommandHandler : ICommandHandler<AuthorizeCommand, Result<
         }
         catch
         {
+            logging.LogError($"Token validation failed for token: {request.AccessToken}");
             return Result.Success(Result.Failure<AuthorizeResponse>(new Error("Unauthorized", "Token validation failed"), HttpStatusCode.Unauthorized));
         }
     }

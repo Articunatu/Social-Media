@@ -19,7 +19,7 @@ public static class DependencyInjection
         services.AddMediatR(configuration =>
         {
             configuration.RegisterServicesFromAssembly(assembly);
-            configuration.AddOpenBehavior(typeof(UnitOfWorkBehavior<,>));
+            //configuration.AddOpenBehavior(typeof(UnitOfWorkBehavior<,>));
             configuration.AddOpenBehavior(typeof(ValidationPipelineBehavior<,>));
         });
 

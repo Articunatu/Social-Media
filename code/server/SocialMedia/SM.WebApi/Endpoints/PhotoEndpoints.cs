@@ -59,7 +59,7 @@ public static class PhotoEndpoints
         ISender sender,
         HttpContext httpContext)
     {
-        Guid userId = httpContext.User.GetUserId();
+        Guid userId = httpContext.GetLoggedInUserId();
         if (userId == Guid.Empty)
             return TypedResults.Unauthorized();
 
