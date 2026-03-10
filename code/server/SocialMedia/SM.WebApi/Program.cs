@@ -1,19 +1,16 @@
 using Microsoft.AspNetCore.Diagnostics;
 using SM.Application;
-using SM.Application.Behaviors;
 using SM.Infrastructure;
-using SM.Infrastructure.Behaviors;
 using SM.WebApi;
 using SM.WebApi.Extensions;
 using SM.WebApi.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 builder.Services.AddApplicationServices(builder.Configuration);
-
-builder.Services.AddTransient(typeof(ICachingBehavior<,>), typeof(CachingBehavior<,>));
-
 builder.Services.AddInfrastructureServices();
+builder.Services.AddCustomBehaviors();
 
 builder.Services.AddProblemDetails();
 builder.Services.AddValidationProblems();

@@ -1,7 +1,6 @@
-﻿
-namespace SM.WebApi.Middlewares;
+﻿namespace SM.WebApi.Middlewares;
 
-public class RequestLoggingMiddleware(RequestDelegate next, ILogger logger)
+public class RequestLoggingMiddleware(RequestDelegate next, ILogger<RequestLoggingMiddleware> logger)
 {
     public async Task Invoke(HttpContext context)
     {

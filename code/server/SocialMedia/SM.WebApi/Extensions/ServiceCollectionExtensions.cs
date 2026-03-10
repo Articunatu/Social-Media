@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Autofac.Core;
+using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SM.Application.Behaviors;
+using SM.Infrastructure.Behaviors;
 using System.Text;
 
 namespace SM.WebApi.Extensions;
@@ -69,6 +73,17 @@ public static class ServiceCollectionExtensions
 
                 return new BadRequestObjectResult(problemDetails);
             };
+        });
+    }
+
+    public static void AddCustomBehaviors(this IServiceCollection services)
+    {
+        services.AddTransient(typeof(ICachingBehavior<,>), typeof(CachingBehavior<,>));
+        services.AddTransient<ILoggingBehaviour, LoggingBehaviour>();
+        services.AddMediatR(configuration =>
+        {
+            configuration.RegisterServicesFromAssembly(typeof(SM.Application.DependencyInjection).Assembly);
+            configuration.AddOpenBehavior(typeof(CachingBehavior<,>));
         });
     }
 }
