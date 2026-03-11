@@ -19,18 +19,18 @@ internal class GetProfilePostsQueryHandler(IDbContextFactory<ApplicationDbContex
             .Where(p => p.AuthorId == request.UserId)
             .Select(p => new
             {
+                p.Id,
                 p.Content,
                 p.TimeStamp,
                 CommentsCount = p.Comments != null ? p.Comments.Count() : 0,
-                ReactionCounts = p.Reactions != null
-                    ? p.Reactions.GroupBy(r => r.Type)
-                        .Select(rt => new { Type = rt.Key, Count = rt.Count() })
-                    : null
+                ReactionCounts = p.Reactions.GroupBy(r => r.Type)
+                    .Select(rt => new { Type = rt.Key, Count = rt.Count() })
             })
             .ToPagedFeed(request.Filter);
 
         var mapped = posts.Values.Select(p => new ProfilePostDto
         {
+            PostId = p.Id,
             Content = p.Content,
             TimeStamp = p.TimeStamp,
             CommentsCount = p.CommentsCount,
