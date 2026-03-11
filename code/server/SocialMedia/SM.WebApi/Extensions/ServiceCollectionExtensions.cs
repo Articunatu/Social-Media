@@ -1,6 +1,4 @@
-﻿using Autofac.Core;
-using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -80,10 +78,9 @@ public static class ServiceCollectionExtensions
     {
         services.AddTransient(typeof(ICachingBehavior<,>), typeof(CachingBehavior<,>));
         services.AddTransient<ILoggingBehaviour, LoggingBehaviour>();
-        services.AddMediatR(configuration =>
-        {
+        services.AddMediatR(configuration => {
             configuration.RegisterServicesFromAssembly(typeof(SM.Application.DependencyInjection).Assembly);
-            configuration.AddOpenBehavior(typeof(CachingBehavior<,>));
-        });
+                configuration.AddOpenBehavior(typeof(CachingBehavior<,>));
+            });
     }
 }
