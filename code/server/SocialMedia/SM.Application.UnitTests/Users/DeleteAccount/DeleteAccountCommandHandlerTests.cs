@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NSubstitute;
+using SM.Application.Behaviors;
 using SM.Application.Database;
 using SM.Application.UnitTests.Helpers;
 using SM.Application.Users.DeleteAccount;
@@ -25,7 +26,8 @@ public class DeleteAccountCommandHandlerTests
         var factory = Substitute.For<IDbContextFactory<ApplicationDbContext>>();
         factory.CreateDbContextAsync(Arg.Any<CancellationToken>())
                .Returns(ci => new ApplicationDbContext(options));
-        var handler = new DeleteAccountCommandHandler(factory);
+        var logging = Substitute.For<ILoggingBehaviour>();
+        var handler = new DeleteAccountCommandHandler(factory, logging);
         Guid userId;
         await using (var checkContext = new ApplicationDbContext(options))
         {
@@ -53,7 +55,8 @@ public class DeleteAccountCommandHandlerTests
             .Options;
         var context = new ApplicationDbContext(options);
         var factory = context.CreateSubstituteFactory();
-        var handler = new DeleteAccountCommandHandler(factory);
+        var logging = Substitute.For<ILoggingBehaviour>();
+        var handler = new DeleteAccountCommandHandler(factory, logging);
         var command = new DeleteAccountCommand(Guid.NewGuid());
 
         var result = await handler.Handle(command, CancellationToken.None);

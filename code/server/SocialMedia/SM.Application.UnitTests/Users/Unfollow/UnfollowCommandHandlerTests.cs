@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NSubstitute;
 using SM.Application.Database;
 using SM.Application.UnitTests.Helpers;
 using SM.Application.Users.Unfollow;
@@ -11,17 +12,10 @@ public class UnfollowCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldRemoveFollowRelation_WhenUsersExist()
     {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase("UnfollowUserTest").Options;
-        var context = new ApplicationDbContext(options);
-        var follower = User.Create("bkc_nr1", "Heinrich", "Lunge", "lunge@bkc.de");
-        var following = User.Create("rose_duelist", "Utena", "Tenjou", "revolutionary@shoujo.jp");
-        follower.Following.Add(following);
-        following.Followers.Add(follower);
-        context.Users.AddRange(follower, following);
-        await context.SaveChangesAsync();
+        (ApplicationDbContext context, User follower, User following) = await ArrangeUnfollowSuccess();
         var factory = context.CreateSubstituteFactory();
-        var handler = new UnfollowCommandHandler(factory);
+        var logging = Substitute.For<Behaviors.ILoggingBehaviour>();
+        var handler = new UnfollowCommandHandler(factory, logging);
         var command = new UnfollowCommand(follower.Id, following.Id);
 
         var unfollow = await handler.Handle(command, CancellationToken.None);
@@ -37,14 +31,10 @@ public class UnfollowCommandHandlerTests
     [Fact]
     public async Task Handle_ShouldReturnFailure_WhenUserNotFound()
     {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase("UnfollowFail").Options;
-        var context = new ApplicationDbContext(options);
-        var follower = User.Create("solid_warrior", "Reinar", "Braunn", "reinar_braunn@atk.ttn");
-        context.Users.Add(follower);
-        await context.SaveChangesAsync();
+        (ApplicationDbContext context, User follower) = await ArrangeUnfollowFailure();
         var factory = context.CreateSubstituteFactory();
-        var handler = new UnfollowCommandHandler(factory);
+        var logging = Substitute.For<Behaviors.ILoggingBehaviour>();
+        var handler = new UnfollowCommandHandler(factory, logging);
         var command = new UnfollowCommand(follower.Id, Guid.NewGuid());
 
         var unfollow = await handler.Handle(command, CancellationToken.None);
@@ -54,5 +44,30 @@ public class UnfollowCommandHandlerTests
             unfollow.IsSuccess.Should().BeFalse();
             unfollow.Error.Should().Be(UserErrors.NotFound);
         }
+    }
+
+    private static async Task<(ApplicationDbContext context, User follower, User following)> ArrangeUnfollowSuccess()
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase("UnfollowUserTest").Options;
+        var context = new ApplicationDbContext(options);
+        var follower = User.Create("bkc_nr1", "Heinrich", "Lunge", "lunge@bkc.de");
+        var following = User.Create("rose_duelist", "Utena", "Tenjou", "revolutionary@shoujo.jp");
+        follower.Following.Add(following);
+        following.Followers.Add(follower);
+        context.Users.AddRange(follower, following);
+        await context.SaveChangesAsync();
+        return (context, follower, following);
+    }
+
+    private static async Task<(ApplicationDbContext context, User follower)> ArrangeUnfollowFailure()
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase("UnfollowFail").Options;
+        var context = new ApplicationDbContext(options);
+        var follower = User.Create("solid_warrior", "Reinar", "Braunn", "reinar_braunn@atk.ttn");
+        context.Users.Add(follower);
+        await context.SaveChangesAsync();
+        return (context, follower);
     }
 }

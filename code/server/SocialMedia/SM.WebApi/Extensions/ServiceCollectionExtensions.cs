@@ -76,11 +76,14 @@ public static class ServiceCollectionExtensions
 
     public static void AddCustomBehaviors(this IServiceCollection services)
     {
+        services.AddMemoryCache();
         services.AddTransient(typeof(ICachingBehavior<,>), typeof(CachingBehavior<,>));
         services.AddTransient<ILoggingBehaviour, LoggingBehaviour>();
+
         services.AddMediatR(configuration => {
-            configuration.RegisterServicesFromAssembly(typeof(SM.Application.DependencyInjection).Assembly);
-                configuration.AddOpenBehavior(typeof(CachingBehavior<,>));
-            });
+            configuration.RegisterServicesFromAssembly(typeof(Application.DependencyInjection).Assembly);
+            configuration.AddOpenBehavior(typeof(CachingBehavior<,>));
+            configuration.AddOpenBehavior(typeof(ValidationPipelineBehavior<,>));
+        });
     }
 }

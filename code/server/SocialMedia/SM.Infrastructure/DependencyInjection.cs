@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SM.Application.Authentication;
-using SM.Application.Behaviors;
 using SM.Infrastructure.Authentication;
-using SM.Infrastructure.Behaviors;
 
 namespace SM.Infrastructure;
 
