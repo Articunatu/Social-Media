@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.Extensions.Options;
 using SM.Application;
 using SM.Infrastructure;
 using SM.WebApi;
@@ -52,6 +53,7 @@ if (app.Environment.IsDevelopment())
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Social Media V1");
         c.RoutePrefix = "swagger";
+        c.DisplayRequestDuration();
     });
 }
 

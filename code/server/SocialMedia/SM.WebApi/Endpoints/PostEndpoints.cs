@@ -45,8 +45,8 @@ public static class PostEndpoints
         return TypedResults.Ok(deletedPost);
     }
 
-    public static async Task<IResult> GetPostById(Guid id, int pageNumber,
-        ISender sender, HttpContext httpContext)
+    public static async Task<IResult> GetPostById(Guid id,
+        ISender sender, HttpContext httpContext, int pageNumber)
     {
         var filter = new PageFilter { Index = pageNumber };
         var query = new GetPostByIdQuery(id, filter);
@@ -57,7 +57,7 @@ public static class PostEndpoints
             : TypedResults.BadRequest(post.Error);
     }
 
-    public static async Task<IResult> GetFeed(int pageNumber, ISender sender, HttpContext httpContext)
+    public static async Task<IResult> GetFeed(ISender sender, HttpContext httpContext, int pageNumber = 0)
     {
         var userId = httpContext.GetLoggedInUserId();
         if (userId == Guid.Empty)
@@ -69,7 +69,7 @@ public static class PostEndpoints
         return TypedResults.Ok(feed);
     }
 
-    public static async Task<IResult> GetProfilePosts(Guid userId, int pageNumber, ISender sender)
+    public static async Task<IResult> GetProfilePosts(Guid userId, ISender sender, int pageNumber = 0)
     {
         var filter = new PageFilter { Index = pageNumber };
         var query = new GetProfilePostsQuery(userId, filter);

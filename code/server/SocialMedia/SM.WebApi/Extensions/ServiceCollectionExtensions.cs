@@ -80,7 +80,8 @@ public static class ServiceCollectionExtensions
         services.AddTransient(typeof(ICachingBehavior<,>), typeof(CachingBehavior<,>));
         services.AddTransient<ILoggingBehaviour, LoggingBehaviour>();
 
-        services.AddMediatR(configuration => {
+        services.AddMediatR(configuration =>
+        {
             configuration.RegisterServicesFromAssembly(typeof(Application.DependencyInjection).Assembly);
             configuration.AddOpenBehavior(typeof(CachingBehavior<,>));
             configuration.AddOpenBehavior(typeof(ValidationPipelineBehavior<,>));
