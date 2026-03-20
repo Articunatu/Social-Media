@@ -6,9 +6,9 @@ namespace SM.Application.Authentication.SignUp;
 
 public record SignUpCommand : ICommand<SignUpResponse>, IUser
 {
-    public string Tag { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-    public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
+    public string Tag { get; init; } = string.Empty;
+    public string Email { get; init; } = string.Empty;
+    public string FirstName { get; init; } = string.Empty;
+    public string LastName { get; init; } = string.Empty;
+    public string Password { get; init; } = string.Empty;
 }

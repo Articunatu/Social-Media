@@ -7,7 +7,9 @@ using SM.Application.Database;
 using SM.Domain.Authentication;
 using SM.Domain.Shared;
 using SM.Domain.Users;
+using SM.Domain.Users.ValueObjects;
 using System.Net;
+using System.Text.RegularExpressions;
 
 namespace SM.Application.Authentication.Login;
 
@@ -43,8 +45,12 @@ internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config
 
     private static async Task<UserAuthDto?> GetUserAuthAsync(ApplicationDbContext context, string tag, CancellationToken ct)
     {
+        bool isTagEmail = Regex.IsMatch(tag, Email.Pattern);
+
         return await context.Users
-            .Where(u => u.Tag == tag)
+            .Where(isTagEmail 
+                ? u => u.Email == tag 
+                : u => u.Tag == tag)
             .Select(u => new UserAuthDto(u.Id, u.Tag, u.PasswordHash, u.PasswordSalt))
             .FirstOrDefaultAsync(ct);
     }

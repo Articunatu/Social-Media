@@ -13,13 +13,11 @@ namespace SM.Application.Authentication.SignUp;
 internal class SignUpCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory, IJwtService jwtService, ILoggingBehaviour logging)
     : ICommandHandler<SignUpCommand, SignUpResponse>
 {
-    public async Task<Result<SignUpResponse>> Handle(SignUpCommand dto, CancellationToken cancellationToken)
+    public async Task<Result<SignUpResponse>> Handle(SignUpCommand dto, CancellationToken ct)
     {
-        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var context = await contextFactory.CreateDbContextAsync(ct);
 
-        var existingUser = await context.Users
-            .Where(u => u.Email == dto.Email || u.Tag == dto.Tag)
-            .FirstOrDefaultAsync(cancellationToken);
+        var existingUser = await context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email || u.Tag == dto.Tag, ct);
 
         if (existingUser is not null)
         {
@@ -33,7 +31,7 @@ internal class SignUpCommandHandler(IDbContextFactory<ApplicationDbContext> cont
         user.SetLogin(passwordHash, passwordSalt);
 
         context.Users.Add(user);
-        await context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(ct);
 
         logging.LogInformation($"New user created with id {user.Id} and email {user.Email}");
 

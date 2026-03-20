@@ -3,7 +3,6 @@ using SM.Domain.Authentication;
 using SM.Domain.Messages;
 using SM.Domain.Photos;
 using SM.Domain.Users.Events;
-using SM.Domain.Users.ValueObjects;
 using SM.Domain.Reactions;
 
 namespace SM.Domain.Users;
@@ -65,9 +64,9 @@ public class User(Guid id, string tag, string firstName, string lastName)
 
     public interface IUser
     {
-        string Tag { get; set; }
-        string FirstName { get; set; }
-        string LastName { get; set; }
-        string Email { get; set; }
+        string Tag { get; init; }
+        string FirstName { get; init; }
+        string LastName { get; init; }
+        string Email { get; init; }
     }
 }
