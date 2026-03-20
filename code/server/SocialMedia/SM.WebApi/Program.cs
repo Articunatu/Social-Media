@@ -1,18 +1,11 @@
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.Extensions.Options;
-using SM.Application;
-using SM.Infrastructure;
 using SM.WebApi;
 using SM.WebApi.Extensions;
 using SM.WebApi.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-builder.Services.AddApplicationServices(builder.Configuration);
-builder.Services.AddInfrastructureServices();
-builder.Services.AddCustomBehaviors();
-
+builder.Services.AddServices(builder.Configuration);
 builder.Services.AddProblemDetails();
 builder.Services.AddValidationProblems();
 builder.Services.AddSingleton<IExceptionHandler, GlobalExceptionHandler>();

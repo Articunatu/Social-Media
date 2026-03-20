@@ -1,15 +1,41 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SM.Application.Behaviors;
 using SM.Infrastructure.Behaviors;
+using SM.Application.Database;
+using SM.Application.Authentication;
+using SM.Infrastructure.Authentication;
 using System.Text;
 
 namespace SM.WebApi.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration config)
+    {
+        services.AddDbContextFactory<ApplicationDbContext>(options =>
+            options.UseSqlServer(config.GetConnectionString("EfcoreSocials")));
+
+        services.AddValidatorsFromAssembly(typeof(ServiceCollectionExtensions).Assembly, includeInternalTypes: true);
+
+        services.AddTransient<IJwtService, JwtService>();
+
+        services.AddMemoryCache();
+        services.AddTransient(typeof(ICachingBehavior<,>), typeof(CachingBehavior<,>));
+        services.AddTransient<ILoggingBehaviour, LoggingBehaviour>();
+        services.AddMediatR(configuration =>
+        {
+            configuration.RegisterServicesFromAssembly(typeof(SM.Application.Posts.GetProfilePosts.GetProfilePostsQuery).Assembly);
+            configuration.AddOpenBehavior(typeof(CachingBehavior<,>));
+            configuration.AddOpenBehavior(typeof(ValidationPipelineBehavior<,>));
+        });
+
+        return services;
+    }
     public static void AddAuthenticationServices(this IServiceCollection services, string jwtSettingsTokenKey)
     {
         services.AddAuthentication(options =>
@@ -71,20 +97,6 @@ public static class ServiceCollectionExtensions
 
                 return new BadRequestObjectResult(problemDetails);
             };
-        });
-    }
-
-    public static void AddCustomBehaviors(this IServiceCollection services)
-    {
-        services.AddMemoryCache();
-        services.AddTransient(typeof(ICachingBehavior<,>), typeof(CachingBehavior<,>));
-        services.AddTransient<ILoggingBehaviour, LoggingBehaviour>();
-
-        services.AddMediatR(configuration =>
-        {
-            configuration.RegisterServicesFromAssembly(typeof(Application.DependencyInjection).Assembly);
-            configuration.AddOpenBehavior(typeof(CachingBehavior<,>));
-            configuration.AddOpenBehavior(typeof(ValidationPipelineBehavior<,>));
         });
     }
 }

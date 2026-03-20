@@ -9,7 +9,7 @@ using System.Text;
 
 namespace SM.Infrastructure.Authentication;
 
-internal class JwtService(IConfiguration configuration) : IJwtService
+public class JwtService(IConfiguration configuration) : IJwtService
 {
     private readonly string _tokenKey = configuration["JwtSettings:TokenKey"] 
         ?? throw new NotImplementedException("Token not registered!");
