@@ -18,9 +18,11 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddSwaggerGen();
 
+string CorsPolicy = nameof(CorsPolicy);
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("MyCorsPolicy", policy =>
+    options.AddPolicy(CorsPolicy, policy =>
     {
         policy.WithOrigins("http://localhost:3000")
               .AllowAnyHeader()
@@ -36,7 +38,7 @@ app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.UseStatusCodePages();
 
-app.UseCors("MyCorsPolicy");
+app.UseCors(CorsPolicy);
 app.UseAuthentication();
 app.UseAuthorization();
 

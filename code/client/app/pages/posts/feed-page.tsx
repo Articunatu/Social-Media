@@ -1,24 +1,19 @@
+
 import React from 'react';
 import PostCard from '../../components/post-card';
+import { useFeed } from '../../hooks/use-feed';
+import { FeedPost } from '@/app/models/api/post-models';
 
 const FeedPage: React.FC = () => {
+    const { data: posts, isLoading, isError } = useFeed(1);
+
     return (
         <div className="flex flex-col items-center gap-4 p-4">
-        <PostCard
-            profileImage={null}
-            displayName="Heinrich Lunge"
-            username="polizei_nr1"
-            content="Someone was here, and nobody can do anything without leaving some sort of trace of themselves. If there were such a person, he could hardly be considered human."
-        />
-        <PostCard
-            profileImage={null}
-            displayName="Tenjou Utena"
-            username="roseduelist"
-            content="I don’t want the power to revolutionize the world, but Himemiya needs me!"
-        />
-        <button className="btn btn-primary">Primary</button>
-        <p className="text-foreground">Normal text</p>
-        <div className="bg-background">Panel</div>
+            {isLoading && <div>Loading...</div>}
+            {isError && <div>Failed to load feed.</div>}
+            {posts && posts.map((post: FeedPost) => (
+                <PostCard key={post.createdAt + post.authorId} post={post} />
+            ))}
         </div>
     );
 };

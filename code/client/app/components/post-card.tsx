@@ -1,13 +1,13 @@
+
 import Image from 'next/image';
+import { FeedPost } from '../models/api/post-models';
 
 interface PostCardProps {
-  profileImage: string | null;
-  displayName: string;
-  username: string;
-  content: string;
+  post: FeedPost;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ profileImage, displayName, username, content }) => {
+const PostCard: React.FC<PostCardProps> = ({ post }) => {
+  const { profile, content, createdAt } = post;
   return (
     <li className="list-none w-full max-w-xl px-4 py-3">
       <div
@@ -23,10 +23,10 @@ const PostCard: React.FC<PostCardProps> = ({ profileImage, displayName, username
           {/* Avatar */}
           <div className="avatar">
             <div className="w-12 h-12 rounded-full border-2 border-black pokeshadow">
-              {profileImage && (
+              {profile.profilePhoto && (
                 <Image
-                  src={profileImage}
-                  alt={`${displayName}'s profile`}
+                  src={profile.profilePhoto}
+                  alt={`${profile.fullName}'s profile`}
                   width={48}
                   height={48}
                 />
@@ -37,8 +37,9 @@ const PostCard: React.FC<PostCardProps> = ({ profileImage, displayName, username
           {/* Content */}
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-black">{displayName}</span>
-              <span className="text-sm text-gray-700">@{username}</span>
+              <span className="font-bold text-black">{profile.fullName}</span>
+              <span className="text-sm text-gray-700">@{profile.tag}</span>
+              <span className="text-xs text-gray-500 ml-2">{new Date(createdAt).toLocaleString()}</span>
             </div>
             <p className="mt-1 text-black">{content}</p>
 
@@ -57,6 +58,5 @@ const PostCard: React.FC<PostCardProps> = ({ profileImage, displayName, username
     </li>
   );
 };
-
 
 export default PostCard;

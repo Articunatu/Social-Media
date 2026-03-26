@@ -2,19 +2,23 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import authenticationService from "../services/authentication-service";
 import { AuthorizeResponse, LoginCommand } from "../models/api/authentication-models";
+import { useLogin } from "../hooks/use-login";
 
 interface AuthContextType {
     token: string | null;
     user: AuthorizeResponse | null;
     login: (credentials: LoginCommand) => Promise<boolean>;
     logout: () => Promise<void>;
+    loading: boolean;
+    error: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const [token, setToken] = useState<string | null>(null);    
+    const [token, setToken] = useState<string | null>(null);
     const [user, setUser] = useState<AuthorizeResponse | null>(null);
+    const { login: loginHook, loading, error } = useLogin();
 
     useEffect(() => {
         const storedToken = localStorage.getItem("jwt");
@@ -28,20 +32,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         try {
             const response = await authenticationService.authorize(jwt);
             setUser(response.data);
-        } catch (error) {
+        } catch {
             setUser(null);
         }
     };
 
-    const login = async (credentials : LoginCommand) => {
-        try {
-            const response = await authenticationService.login(credentials);
-            const jwt = response.data.accessToken;
-            setToken(jwt);
-            localStorage.setItem("jwt", jwt);
-            fetchUser(jwt);
+    const login = async (credentials: LoginCommand) => {
+        const result = await loginHook(credentials);
+        if (result.success) {
+            // After successful login, get the new token and user
+            const storedToken = localStorage.getItem("jwt");
+            if (storedToken) {
+                setToken(storedToken);
+                await fetchUser(storedToken);
+            }
             return true;
-        } catch (error) {
+        } else {
             setToken(null);
             setUser(null);
             return false;
@@ -50,8 +56,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const logout = async () => {
         try {
-            await authenticationService.logout({ userId: user?.userId ?? "" }); 
-        } catch (error) {
+            await authenticationService.logout({ userId: user?.userId ?? "" });
+        } catch {
             // Handle error if needed
         }
         setToken(null);
@@ -60,7 +66,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ token, user, login, logout }}>
+        <AuthContext.Provider value={{ token, user, login, logout, loading, error }}>
             {children}
         </AuthContext.Provider>
     );
