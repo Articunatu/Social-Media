@@ -18,15 +18,15 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddSwaggerGen();
 
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("MyCorsPolicy", policy =>
-//    {
-//        policy.WithOrigins("http://localhost:3000")
-//              .AllowAnyHeader()
-//              .AllowAnyMethod();
-//    });
-//});
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("MyCorsPolicy", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
@@ -36,6 +36,7 @@ app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.UseStatusCodePages();
 
+app.UseCors("MyCorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 
