@@ -7,7 +7,7 @@ export const LoginPage: React.FC = () => {
     const [password, setPassword] = useState("");
     const { login, loading, error } = useLogin();
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault();
         await login({ username, password });
     };
