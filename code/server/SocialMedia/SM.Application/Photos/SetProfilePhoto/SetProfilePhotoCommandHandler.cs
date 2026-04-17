@@ -13,10 +13,13 @@ internal class SetProfilePhotoCommandHandler(IDbContextFactory<ApplicationDbCont
     {
         await using var context = await contextFactory.CreateDbContextAsync(ct);
 
+        await context.Photos
+            .Where(p => p.UserId == request.UserId && p.Type == PhotoType.Profile)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(p => p.Type, PhotoType.Regular), ct);
+
         var affectedRows = await context.Photos
             .Where(p => p.Id == request.PhotoId && p.UserId == request.UserId)
-            .ExecuteUpdateAsync(setters => setters
-                .SetProperty(p => p.Type, PhotoType.Profile), ct);
+            .ExecuteUpdateAsync(setters => setters.SetProperty(p => p.Type, PhotoType.Profile), ct);
 
         if (affectedRows == 0)
             return Result.Failure<bool>(new Error("Photo.NotFound"), HttpStatusCode.NotFound);

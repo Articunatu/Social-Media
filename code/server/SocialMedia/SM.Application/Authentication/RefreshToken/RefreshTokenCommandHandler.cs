@@ -11,12 +11,11 @@ namespace SM.Application.Authentication.RefreshToken;
 internal class RefreshTokenCommandHandler(IJwtService jwtService, IConfiguration config, IDbContextFactory<ApplicationDbContext> contextFactory, ILoggingBehaviour logging) 
     : ICommandHandler<RefreshTokenCommand, LoginResponse>
 {
-    public async Task<Result<LoginResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
+    public async Task<Result<LoginResponse>> Handle(RefreshTokenCommand request, CancellationToken ct)
     {
-        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var context = await contextFactory.CreateDbContextAsync(ct);
 
-        var existing = await context.Tokens
-            .FirstOrDefaultAsync(t => t.Text == request.RefreshToken, cancellationToken);
+        var existing = await context.Tokens.FirstOrDefaultAsync(t => t.Text == request.RefreshToken, ct);
 
         if (existing == null || existing.Expires < DateTime.UtcNow)
             return Result.Failure<LoginResponse>(new Error("Invalid or expired refresh token"), HttpStatusCode.BadRequest);
@@ -25,9 +24,9 @@ internal class RefreshTokenCommandHandler(IJwtService jwtService, IConfiguration
         var refreshedToken = jwtService.GenerateRefreshToken();
         refreshedToken.UserId = existing.UserId;
 
-        context.Tokens.Remove(existing);
-        context.Tokens.Add(refreshedToken);
-        await context.SaveChangesAsync(cancellationToken);
+        existing.Text = refreshedToken.Text;
+        existing.Expires = refreshedToken.Expires;
+        await context.SaveChangesAsync(ct);
 
         logging.LogInformation($"Refreshed token for user {existing.UserId}");
         return Result.Success(new LoginResponse(accessToken, refreshedToken));
