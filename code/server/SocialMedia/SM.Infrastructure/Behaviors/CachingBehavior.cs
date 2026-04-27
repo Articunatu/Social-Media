@@ -9,16 +9,22 @@ using System.Text.Json;
 namespace SM.Infrastructure.Behaviors;
 
 public class CachingBehavior<TRequest, TResponse>(IMemoryCache cache, ILogger<CachingBehavior<TRequest, TResponse>> logger) : ICachingBehavior<TRequest, TResponse>
-    where TRequest : IQuery<TResponse>
+    where TRequest : IRequest<TResponse>
+    where TResponse : Result
 {
-    public async Task<Result<TResponse>> Handle(
+    public async Task<TResponse> Handle(
         TRequest request,
-        RequestHandlerDelegate<Result<TResponse>> next,
+        RequestHandlerDelegate<TResponse> next,
         CancellationToken ct)
     {
+        if (!IsQueryRequest())
+        {
+            return await next(ct);
+        }
+
         var cacheKey = $"{typeof(TRequest).FullName}:{JsonSerializer.Serialize(request)}";
 
-        if (cache.TryGetValue(cacheKey, out Result<TResponse>? cachedResult) 
+        if (cache.TryGetValue(cacheKey, out TResponse? cachedResult) 
                 && cachedResult != null)
         {
             logger.LogInformation("Cache hit for key: {CacheKey}", cacheKey);
@@ -36,4 +42,9 @@ public class CachingBehavior<TRequest, TResponse>(IMemoryCache cache, ILogger<Ca
 
         return result;
     }
+
+    private static bool IsQueryRequest()
+        => typeof(TRequest)
+            .GetInterfaces()
+            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQuery<>));
 }
