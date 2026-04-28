@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using FluentValidation.TestHelper;
+﻿using FluentValidation.TestHelper;
 using SM.Application.Authentication.SignUp;
 using SM.Application.Authentication.SignUp.Validators;
 
