@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Diagnostics;
+using SM.Application;
 using SM.WebApi;
 using SM.WebApi.Extensions;
 using SM.WebApi.Middlewares;
@@ -31,6 +32,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+app.Services.SeedDatabase();
 
 app.MapApiEndpoints();
 app.UseExceptionHandler();

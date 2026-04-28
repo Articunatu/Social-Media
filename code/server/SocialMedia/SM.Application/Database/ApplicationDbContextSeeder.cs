@@ -22,18 +22,30 @@ public static class ApplicationDbContextSeeder
         Randomizer.Seed = new Random(73425);
         var faker = new Faker();
 
+        // Create and persist users first so that relationships can reference existing rows
         var users = CreateUsers(faker);
-        var posts = CreatePosts(faker, users);
-        var comments = CreateComments(faker, posts, users);
-        var reactions = CreateReactions(faker, posts, comments, users);
-        var photos = CreatePhotos(faker, users);
-        var tokens = CreateTokens(faker, users);
-
-        AddFollowRelationships(faker, users);
-
         context.Users.AddRange(users);
+        context.SaveChanges();
+
+        // Create follow relationships after users are persisted
+        AddFollowRelationships(faker, users);
+        context.SaveChanges();
+
+        // Create and persist posts
+        var posts = CreatePosts(faker, users);
         context.Posts.AddRange(posts);
+        context.SaveChanges();
+
+        // Create and persist comments
+        var comments = CreateComments(faker, posts, users);
         context.Comments.AddRange(comments);
+        context.SaveChanges();
+
+        // Create reactions, photos and tokens and persist
+        var reactions = CreateReactions(faker, posts, comments, users);
+        var photos = CreatePhotos(faker, users).ToList();
+        var tokens = CreateTokens(faker, users).ToList();
+
         context.Reactions.AddRange(reactions);
         context.Photos.AddRange(photos);
         context.Tokens.AddRange(tokens);
@@ -51,18 +63,27 @@ public static class ApplicationDbContextSeeder
         await Task.CompletedTask;
     }
 
+    private static string Truncate(string value, int max)
+    {
+        if (string.IsNullOrEmpty(value)) return value;
+        return value.Length <= max ? value : value.Substring(0, max);
+    }
+
     private static List<User> CreateUsers(Faker faker)
     {
         return Enumerable.Range(1, 12)
             .Select(index =>
             {
-                var firstName = faker.Name.FirstName();
-                var lastName = faker.Name.LastName();
-                var user = User.Create(
-                    $"user{index}_{firstName}{lastName}".ToLowerInvariant(),
-                    firstName,
-                    lastName,
-                    $"user{index}@socialmedia.local");
+                var firstName = Truncate(faker.Name.FirstName(), 25);
+                var lastName = Truncate(faker.Name.LastName(), 40);
+
+                // Tag column has a max length of 20
+                var baseTag = $"user{index}_{firstName}{lastName}".ToLowerInvariant();
+                var tag = Truncate(baseTag, 20);
+
+                var email = Truncate($"user{index}@socialmedia.local", 100);
+
+                var user = User.Create(tag, firstName, lastName, email);
 
                 user.SetLogin(
                     SHA256.HashData(Encoding.UTF8.GetBytes($"password-{index}")),
@@ -79,7 +100,10 @@ public static class ApplicationDbContextSeeder
             .SelectMany(user => Enumerable.Range(0, faker.Random.Int(1, 3))
                 .Select(_ =>
                 {
-                    var post = Post.Create(faker.Lorem.Paragraph(), user.Id);
+                    var content = faker.Lorem.Paragraph();
+                    content = Truncate(content, 280);
+
+                    var post = Post.Create(content, user.Id);
                     post.TimeStamp = faker.Date.RecentOffset(20);
                     return post;
                 }))
@@ -88,12 +112,18 @@ public static class ApplicationDbContextSeeder
 
     private static List<Comment> CreateComments(Faker faker, IReadOnlyList<Post> posts, IReadOnlyList<User> users)
     {
+        var postList = posts.ToList();
+        var userList = users.ToList();
+
         var comments = Enumerable.Range(0, 24)
             .Select(_ =>
             {
-                var post = faker.Random.ListItem(posts);
-                var author = faker.Random.ListItem(users);
-                var comment = Comment.Create(post.Id, faker.Lorem.Sentence(), author.Id);
+                var post = faker.Random.ListItem(postList);
+                var author = faker.Random.ListItem(userList);
+                var content = faker.Lorem.Sentence();
+                content = Truncate(content, 280);
+
+                var comment = Comment.Create(post.Id, content, author.Id);
                 comment.TimeStamp = faker.Date.RecentOffset(10);
                 return comment;
             })
@@ -103,8 +133,11 @@ public static class ApplicationDbContextSeeder
             .Take(8)
             .Select(parent =>
             {
-                var author = faker.Random.ListItem(users);
-                var reply = Comment.Create(parent.ParentPostId, faker.Lorem.Sentence(), author.Id, parent.Id);
+                var author = faker.Random.ListItem(userList);
+                var content = faker.Lorem.Sentence();
+                content = Truncate(content, 280);
+
+                var reply = Comment.Create(parent.ParentPostId, content, author.Id, parent.Id);
                 reply.TimeStamp = faker.Date.RecentOffset(5);
                 return reply;
             });
@@ -119,46 +152,60 @@ public static class ApplicationDbContextSeeder
         var reactedPosts = new HashSet<(Guid PostId, Guid UserId)>();
         var reactedComments = new HashSet<(Guid CommentId, Guid UserId)>();
 
-        while (reactedPosts.Count < 20)
+        var postList = posts.ToList();
+        var commentList = comments.ToList();
+        var userList = users.ToList();
+
+        // Defensive: Only proceed if posts and users are not empty
+        if (postList.Count > 0 && userList.Count > 0)
         {
-            var post = faker.Random.ListItem(posts);
-            var user = faker.Random.ListItem(users);
-
-            if (!reactedPosts.Add((post.Id, user.Id)))
+            int maxPostReactions = Math.Min(20, postList.Count * userList.Count);
+            while (reactedPosts.Count < maxPostReactions)
             {
-                continue;
+                var post = faker.Random.ListItem(postList);
+                var user = faker.Random.ListItem(userList);
+
+                if (!reactedPosts.Add((post.Id, user.Id)))
+                {
+                    continue;
+                }
+
+                reactions.Add(new Reaction(Guid.CreateVersion7())
+                {
+                    Type = faker.Random.Enum<ReactionType>(),
+                    UserId = user.Id,
+                    PostId = post.Id
+                });
             }
-
-            reactions.Add(new Reaction(Guid.CreateVersion7())
-            {
-                Type = faker.Random.Enum<ReactionType>(),
-                UserId = user.Id,
-                PostId = post.Id
-            });
         }
 
-        while (reactedComments.Count < 20)
+        // Defensive: Only proceed if comments and users are not empty
+        if (commentList.Count > 0 && userList.Count > 0)
         {
-            var comment = faker.Random.ListItem(comments);
-            var user = faker.Random.ListItem(users);
-
-            if (!reactedComments.Add((comment.Id, user.Id)))
+            int maxCommentReactions = Math.Min(20, commentList.Count * userList.Count);
+            while (reactedComments.Count < maxCommentReactions)
             {
-                continue;
+                var comment = faker.Random.ListItem(commentList);
+                var user = faker.Random.ListItem(userList);
+
+                if (!reactedComments.Add((comment.Id, user.Id)))
+                {
+                    continue;
+                }
+
+                reactions.Add(new Reaction(Guid.CreateVersion7())
+                {
+                    Type = faker.Random.Enum<ReactionType>(),
+                    UserId = user.Id,
+                    CommentId = comment.Id
+                });
             }
-
-            reactions.Add(new Reaction(Guid.CreateVersion7())
-            {
-                Type = faker.Random.Enum<ReactionType>(),
-                UserId = user.Id,
-                CommentId = comment.Id
-            });
         }
 
         return reactions;
     }
 
-    private static List<Photo> CreatePhotos(Faker faker, IReadOnlyList<User> users)
+    private static IEnumerable<Photo> CreatePhotos(Faker faker, IReadOnlyList<User> users)
     {
         return users
             .SelectMany(user => new[]
@@ -167,7 +214,7 @@ public static class ApplicationDbContextSeeder
                 {
                     UserId = user.Id,
                     Type = PhotoType.Profile,
-                    FileName = $"{user.Tag}-profile.jpg",
+                    FileName = Truncate($"{user.Tag}-profile.jpg", 200), // keep reasonable length
                     ContentType = "image/jpeg",
                     Data = Encoding.UTF8.GetBytes(faker.System.FileName("jpg")),
                     CreatedAt = faker.Date.Recent(30)
@@ -176,16 +223,15 @@ public static class ApplicationDbContextSeeder
                 {
                     UserId = user.Id,
                     Type = PhotoType.Background,
-                    FileName = $"{user.Tag}-background.jpg",
+                    FileName = Truncate($"{user.Tag}-background.jpg", 200),
                     ContentType = "image/jpeg",
                     Data = Encoding.UTF8.GetBytes(faker.System.FileName("jpg")),
                     CreatedAt = faker.Date.Recent(30)
                 }
-            })
-            .ToList();
+            });
     }
 
-    private static List<Token> CreateTokens(Faker faker, IReadOnlyList<User> users)
+    private static IEnumerable<Token> CreateTokens(Faker faker, IReadOnlyList<User> users)
     {
         return users
             .Take(6)
@@ -195,15 +241,16 @@ public static class ApplicationDbContextSeeder
                 Text = faker.Random.Guid().ToString("N"),
                 Created = faker.Date.RecentOffset(2),
                 Expires = faker.Date.SoonOffset(14)
-            })
-            .ToList();
+            });
     }
 
     private static void AddFollowRelationships(Faker faker, IReadOnlyList<User> users)
     {
-        foreach (var user in users)
+        var userList = users.ToList();
+
+        foreach (var user in userList)
         {
-            var targets = users
+            var targets = userList
                 .Where(candidate => candidate.Id != user.Id)
                 .OrderBy(_ => faker.Random.Int())
                 .Take(3)
@@ -211,7 +258,11 @@ public static class ApplicationDbContextSeeder
 
             foreach (var target in targets)
             {
-                user.Following.Add(target);
+                // Ensure we don't add duplicates
+                if (!user.Following.Any(f => f.Id == target.Id))
+                {
+                    user.Following.Add(target);
+                }
             }
         }
     }
