@@ -34,6 +34,7 @@
 
 
 	<ItemGroup>
+		<ProjectReference Include="..\Bogus\Bogus.csproj" />
 		<ProjectReference Include="..\SM.Domain\SM.Domain.csproj" />
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
 			<_Parameter1>SM.Application.UnitTests</_Parameter1>
