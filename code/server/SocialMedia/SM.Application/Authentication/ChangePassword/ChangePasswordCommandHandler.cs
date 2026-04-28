@@ -17,9 +17,7 @@ internal class ChangePasswordCommandHandler(IDbContextFactory<ApplicationDbConte
         jwt.GeneratePasswordHash(command.OldPassword, out byte[] oldPasswordHash, out byte[] oldPasswordSalt);
 
         if (!jwt.VerifyPasswordHash(command.OldPassword, oldPasswordHash, oldPasswordSalt))
-        {
             return Result.Failure<string>(new Error("Credentials invalid"), HttpStatusCode.BadRequest);
-        }
 
         jwt.GeneratePasswordHash(command.NewPassword, out byte[] newPasswordHash, out byte[] newPasswordSalt);
 
