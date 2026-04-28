@@ -11,7 +11,7 @@ public static class QueryableExtensions
     {
         filter ??= new PageFilter();
         if (filter.Index < 0) 
-            filter.Index = 0;
+            filter = filter with { Index = 0 };
 
         int pageSize = Constants.PAGE_SIZE;
         var values = await source.Skip(filter.Index * pageSize).Take(pageSize).ToArrayAsync();

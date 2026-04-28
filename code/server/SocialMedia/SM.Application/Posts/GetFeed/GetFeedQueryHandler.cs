@@ -9,15 +9,15 @@ namespace SM.Application.Posts.GetFeed;
 
 internal class GetFeedQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : IQueryHandler<GetFeedQuery, PagedFeed<FeedResponse>>
 {
-    public async Task<Result<PagedFeed<FeedResponse>>> Handle(GetFeedQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PagedFeed<FeedResponse>>> Handle(GetFeedQuery request, CancellationToken ct)
     {
-        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var context = await contextFactory.CreateDbContextAsync(ct);
 
         var followingIds = await context.Users
             .AsNoTracking()
             .Where(u => u.Id == request.UserId)
             .SelectMany(u => u.Following.Select(f => f.Id))
-            .ToArrayAsync(cancellationToken: cancellationToken);
+            .ToArrayAsync(cancellationToken: ct);
 
         if (followingIds.Length == 0)
             return Result.Success(new PagedFeed<FeedResponse> { Values = [] });
@@ -40,9 +40,9 @@ internal class GetFeedQueryHandler(IDbContextFactory<ApplicationDbContext> conte
             ))
             .AsQueryable();
 
-        request.Filter.Order = "TimeStamp desc";
+        var filter = request.Filter with { Order = "TimeStamp desc" };
 
-        var feed = await postsWithProfile.ToPagedFeed(request.Filter);
+        var feed = await postsWithProfile.ToPagedFeed(filter);
 
         return Result.Success(feed);
     }
