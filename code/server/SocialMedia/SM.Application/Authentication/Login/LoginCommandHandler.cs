@@ -20,6 +20,9 @@ internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config
     {
         await using var context = await contextFactory.CreateDbContextAsync(ct);
 
+        if (string.IsNullOrWhiteSpace(request.Tag))
+            return Failure(UserErrors.InvalidTag, HttpStatusCode.BadRequest);
+
         var userAuth = await GetUserAuthAsync(context, request.Tag, ct);
         if (userAuth is null)
             return Failure(UserErrors.NotFound, HttpStatusCode.NotFound);
@@ -27,6 +30,7 @@ internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config
         if (!jwtService.VerifyPasswordHash(request.Password, userAuth.PasswordHash, userAuth.PasswordSalt))
         {
             logging.LogWarning($"Failed login attempt for user with tag {request.Tag}");
+            return Failure(UserErrors.InvalidCredentials, HttpStatusCode.Unauthorized);
         }
 
         var accessToken = jwtService.CreateToken(userAuth.Id.ToString(), userAuth.Tag, config["AppSettings:Token"]!);

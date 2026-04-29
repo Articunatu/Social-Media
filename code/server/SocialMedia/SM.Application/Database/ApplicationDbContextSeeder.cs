@@ -7,6 +7,7 @@ using SM.Domain.Reactions;
 using SM.Domain.Users;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 namespace SM.Application.Database;
 
@@ -50,6 +51,9 @@ public static class ApplicationDbContextSeeder
         context.Photos.AddRange(photos);
         context.Tokens.AddRange(tokens);
         context.SaveChanges();
+
+        // Persist mapping of user tags -> plaintext passwords for developer convenience
+        WritePasswordsToFile(users);
     }
 
     public static async Task SeedAsync(ApplicationDbContext context, CancellationToken cancellationToken = default)
@@ -69,9 +73,14 @@ public static class ApplicationDbContextSeeder
         return value.Length <= max ? value : value.Substring(0, max);
     }
 
+    private static readonly string[] PredefinedPasswords =
+    [
+        "Password!1",
+    ];
+
     private static List<User> CreateUsers(Faker faker)
     {
-        return Enumerable.Range(1, 12)
+        var users = Enumerable.Range(1, 12)
             .Select(index =>
             {
                 var firstName = Truncate(faker.Name.FirstName(), 25);
@@ -85,13 +94,38 @@ public static class ApplicationDbContextSeeder
 
                 var user = User.Create(tag, firstName, lastName, email);
 
-                user.SetLogin(
-                    SHA256.HashData(Encoding.UTF8.GetBytes($"password-{index}")),
-                    SHA256.HashData(Encoding.UTF8.GetBytes($"salt-{index}")));
+                var password = PredefinedPasswords.First();
+                var (hash, salt) = HashPassword(password);
+                user.SetLogin(hash, salt);
 
                 return user;
             })
             .ToList();
+
+        return users;
+    }
+
+    private static (byte[] Hash, byte[] Salt) HashPassword(string password)
+    {
+        var salt = RandomNumberGenerator.GetBytes(16);
+        using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 100_000, HashAlgorithmName.SHA256);
+        var hash = pbkdf2.GetBytes(32);
+        return (hash, salt);
+    }
+
+    private static void WritePasswordsToFile(IReadOnlyList<User> users)
+    {
+        try
+        {
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "seed-passwords.json");
+            var mappings = users.Select((u, i) => new { Tag = u.Tag, Password = PredefinedPasswords[i % PredefinedPasswords.Length] }).ToList();
+            var json = JsonSerializer.Serialize(mappings, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(path, json, Encoding.UTF8);
+        }
+        catch
+        {
+            // Swallow any errors writing the developer file - seeding itself should not fail because of this
+        }
     }
 
     private static List<Post> CreatePosts(Faker faker, IReadOnlyList<User> users)

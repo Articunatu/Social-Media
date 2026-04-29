@@ -3,13 +3,13 @@ import React, { useState } from "react";
 import { useLogin } from "../../hooks/use-login";
 
 export const LoginPage: React.FC = () => {
-    const [username, setUsername] = useState("");
+    const [tag, setTag] = useState("");
     const [password, setPassword] = useState("");
     const { login, loading, error } = useLogin();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await login({ username, password });
+        await login({ tag, password });
     };
 
     return (
@@ -17,14 +17,14 @@ export const LoginPage: React.FC = () => {
             <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-80">
                 <h2 className="text-xl font-bold mb-4">Login</h2>
                 <div className="mb-4">
-                    <label htmlFor="username" className="block mb-1 font-medium">
-                        Username or Email
+                    <label htmlFor="tag" className="block mb-1 font-medium">
+                        Tag
                     </label>
                     <input
-                        id="username"
+                        id="tag"
                         type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        value={tag}
+                        onChange={(e) => setTag(e.target.value)}
                         className="w-full border px-3 py-2 rounded"
                         required
                         autoComplete="username"

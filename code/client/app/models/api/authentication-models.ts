@@ -1,5 +1,5 @@
 export interface LoginCommand {
-    username: string;
+    tag: string;
     password: string;
 }
 
