@@ -1,15 +1,21 @@
 "use client";
 import React, { useState } from "react";
-import { useLogin } from "../../hooks/use-login";
+import { useAuth } from "../../components/auth-provider";
 
 export const LoginPage: React.FC = () => {
     const [tag, setTag] = useState("");
     const [password, setPassword] = useState("");
-    const { login, loading, error } = useLogin();
+    const auth = useAuth();
+    const [localError, setLocalError] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await login({ tag, password });
+        setLocalError(null);
+        if (!auth) return;
+        const success = await auth.login({ tag, password });
+        if (!success) {
+            setLocalError(auth.error || "Login failed");
+        }
     };
 
     return (
@@ -44,13 +50,15 @@ export const LoginPage: React.FC = () => {
                         autoComplete="current-password"
                     />
                 </div>
-                {error && <div className="text-red-500 mb-2">{error}</div>}
+                {(localError || (auth && auth.error)) && (
+                    <div className="text-red-500 mb-2">{localError || auth?.error}</div>
+                )}
                 <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded font-semibold"
-                disabled={loading}
+                    type="submit"
+                    className="w-full bg-blue-600 text-white py-2 rounded font-semibold"
+                    disabled={auth?.loading}
                 >
-                {loading ? "Logging in..." : "Login"}
+                    {auth?.loading ? "Logging in..." : "Login"}
                 </button>
             </form>
         </div>
