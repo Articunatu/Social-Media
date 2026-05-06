@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../../components/auth-provider";
 
 export const LoginPage: React.FC = () => {
@@ -7,15 +8,18 @@ export const LoginPage: React.FC = () => {
     const [password, setPassword] = useState("");
     const auth = useAuth();
     const [localError, setLocalError] = useState<string | null>(null);
+    const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLocalError(null);
         if (!auth) return;
         const success = await auth.login({ tag, password });
-        if (!success) {
-            setLocalError(auth.error || "Login failed");
-        }
+        if (success) {
+            router.push("/");
+            return;
+        } 
+        setLocalError(auth.error || "Login failed");
     };
 
     return (

@@ -21,6 +21,9 @@ export function useLogin() {
             if (response.status === 401 || response.data?.error === "Unauthorized") 
                 return { success: false, error: "Unauthorized: Invalid username or password" };
 
+            if (response.data && response.data.accessToken) 
+                localStorage.setItem("jwt", response.data.accessToken);
+
             return { success: true };
         } catch (err: unknown) {
             let errorMessage = "Something went wrong. Please try again.";

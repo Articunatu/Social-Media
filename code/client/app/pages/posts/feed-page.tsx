@@ -5,7 +5,7 @@ import { useFeed } from '../../hooks/use-feed';
 import { FeedPost } from '@/app/models/api/post-models';
 
 const FeedPage: React.FC = () => {
-    const { data: posts, isLoading, isError } = useFeed(1);
+    const { data: posts, isLoading, isError } = useFeed(0);
 
     return (
         <div className="flex flex-col items-center gap-4 p-4">

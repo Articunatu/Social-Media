@@ -10,4 +10,14 @@ const api = axios.create({
     withCredentials: true, 
 });
 
+// Attach JWT from localStorage to every request if available
+api.interceptors.request.use((config) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('jwt') : null;
+    if (token) {
+        config.headers = config.headers || {};
+        config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+});
+
 export default api;
