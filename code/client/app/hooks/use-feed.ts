@@ -12,8 +12,14 @@ export function useFeed(pageNumber: number = 1) {
         queryKey: ['feed', pageNumber],
         queryFn: async () => {
             const response = await postService.getFeed(pageNumber);
-            // Expecting response.data.Values to be the array
-            return (response.data as PagedFeed<FeedPost>).Values;
+                const data = response.data;
+                if (Array.isArray(data)) {
+                    return data;
+                } 
+                if (data && Array.isArray((data as PagedFeed<FeedPost>).Values)) {
+                    return (data as PagedFeed<FeedPost>).Values;
+                } 
+                return [];
         },
         staleTime: 1000 * 60,
     });

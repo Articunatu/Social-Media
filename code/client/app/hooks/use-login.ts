@@ -18,13 +18,18 @@ export function useLogin() {
             const response = await authenticationService.login(credentials);
             setLoading(false);
 
-            if (response.status === 401 || response.data?.error === "Unauthorized") 
+            if (response.status === 401 || response.data?.error === "Unauthorized") {
+                localStorage.removeItem("jwt");
                 return { success: false, error: "Unauthorized: Invalid username or password" };
+            }
 
-            if (response.data && response.data.accessToken) 
+            if (response.data && response.data.accessToken) {
                 localStorage.setItem("jwt", response.data.accessToken);
-
-            return { success: true };
+                return { success: true };
+            } else {
+                localStorage.removeItem("jwt");
+                return { success: false, error: "No access token returned" };
+            }
         } catch (err: unknown) {
             let errorMessage = "Something went wrong. Please try again.";
             if (err instanceof Error) 

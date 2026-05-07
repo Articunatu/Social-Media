@@ -15,46 +15,63 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [token, setToken] = useState<string | null>(null);
     const [user, setUser] = useState<AuthorizeResponse | null>(null);
-    const { login: loginHook, loading, error } = useLogin();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const { login: loginHook } = useLogin();
 
     useEffect(() => {
         const storedToken = localStorage.getItem("jwt");
         if (storedToken) {
             setToken(storedToken);
             fetchUser(storedToken);
+        } else {
+            setLoading(false);
         }
     }, []);
 
     const fetchUser = async (jwt: string) => {
+        setLoading(true);
         try {
             const response = await authenticationService.authorize(jwt);
             setUser(response.data);
+            setLoading(false);
         } catch {
             setUser(null);
+            setToken(null);
+            localStorage.removeItem("jwt");
+            setLoading(false);
+            setError("Failed to fetch user info");
         }
     };
 
     const login = async (credentials: LoginCommand) => {
+        setLoading(true);
+        setError(null);
         const result = await loginHook(credentials);
         if (result.success) {
-            // After successful login, get the new token and user
             const storedToken = localStorage.getItem("jwt");
             if (storedToken) {
                 setToken(storedToken);
                 await fetchUser(storedToken);
+            } else {
+                setLoading(false);
             }
             return true;
         } else {
             setToken(null);
             setUser(null);
+            setLoading(false);
+            setError(result.error || "Login failed");
             return false;
         }
     };
 
     const logout = async () => {
+        setLoading(true);
         try {
             await authenticationService.logout({ userId: user?.userId ?? "" });
         } catch {
@@ -63,6 +80,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setToken(null);
         setUser(null);
         localStorage.removeItem("jwt");
+        setLoading(false);
     };
 
     return (
