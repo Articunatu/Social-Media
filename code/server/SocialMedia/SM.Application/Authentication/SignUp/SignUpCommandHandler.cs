@@ -20,10 +20,8 @@ internal class SignUpCommandHandler(IDbContextFactory<ApplicationDbContext> cont
         var existingUser = await context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email || u.Tag == dto.Tag, ct);
 
         if (existingUser is not null)
-        {
             return Result.Failure<SignUpResponse>(
                 new Error("A user with this email or tag already exists"), HttpStatusCode.Conflict);
-        }
 
         jwtService.GeneratePasswordHash(dto.Password, out var passwordHash, out var passwordSalt);
 

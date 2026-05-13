@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SM.Application.Behaviors;
+using SM.Application.Posts.GetProfilePosts;
 using SM.Infrastructure.Behaviors;
 using SM.Application.Database;
 using SM.Application.Authentication;
@@ -33,7 +34,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<ILoggingBehaviour, LoggingBehaviour>();
         services.AddMediatR(configuration =>
         {
-            configuration.RegisterServicesFromAssembly(typeof(SM.Application.Posts.GetProfilePosts.GetProfilePostsQuery).Assembly);
+            configuration.RegisterServicesFromAssembly(typeof(GetProfilePostsQuery).Assembly);
             configuration.AddOpenBehavior(typeof(CachingBehavior<,>));
             configuration.AddOpenBehavior(typeof(ValidationPipelineBehavior<,>));
         });

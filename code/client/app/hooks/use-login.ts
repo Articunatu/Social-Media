@@ -26,10 +26,10 @@ export function useLogin() {
             if (response.data && response.data.accessToken) {
                 localStorage.setItem("jwt", response.data.accessToken);
                 return { success: true };
-            } else {
-                localStorage.removeItem("jwt");
-                return { success: false, error: "No access token returned" };
-            }
+            } 
+            localStorage.removeItem("jwt");
+            return { success: false, error: "No access token returned" };
+            
         } catch (err: unknown) {
             let errorMessage = "Something went wrong. Please try again.";
             if (err instanceof Error) 

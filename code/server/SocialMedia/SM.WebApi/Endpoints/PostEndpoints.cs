@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SM.Application.Posts.CreatePost;
 using SM.Application.Posts.DeletePost;
+using SM.Application.Posts.GetExploredPosts;
 using SM.Application.Posts.GetFeed;
 using SM.Application.Posts.GetPostById;
 using SM.Application.Posts.GetProfilePosts;
@@ -21,6 +22,7 @@ public static class PostEndpoints
         group.MapGet("get-feed", GetFeed).RequireAuthorization();
         group.MapGet("{id}", GetPostById);
         group.MapGet("get-posts-by-user/{userId}", GetProfilePosts);
+        group.MapGet("get-explored-posts", GetExploredPosts);
 
         return group;
     }
@@ -75,5 +77,11 @@ public static class PostEndpoints
         var query = new GetProfilePostsQuery(userId, filter);
         var posts = await sender.Send(query);
         return TypedResults.Ok(posts);
+    }
+
+    public static async Task<IResult> GetExploredPosts(ISender sender)
+    {
+        var exploredPosts = await sender.Send(new GetExploredPostsQuery());
+        return TypedResults.Ok(exploredPosts);
     }
 }

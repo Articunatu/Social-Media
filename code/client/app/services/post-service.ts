@@ -23,6 +23,9 @@ const postService = {
 
   getProfilePosts: (userId: UUID, pageNumber: number) =>
     api.get<ProfilePost[]>(`${postUri}/get-posts-by-user/${userId}?pageNumber=${pageNumber}`),
+
+  getExploredPosts: () =>
+    api.get<FeedPost[]>(`${postUri}/get-explored-posts`),
 };
 
 export default postService;

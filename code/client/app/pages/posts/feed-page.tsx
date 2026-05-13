@@ -1,19 +1,47 @@
 
-import React from 'react';
+
+import React, { useState } from 'react';
 import PostCard from '../../components/post-card';
 import { useFeed } from '../../hooks/use-feed';
+import { useExploredPosts } from '../../hooks/use-explored-posts';
 import { FeedPost } from '@/app/models/api/post-models';
 
+
 const FeedPage: React.FC = () => {
-    const { data: posts, isLoading, isError } = useFeed(0);
+    const { data: posts, isLoading, isError } = useFeed();
+    const [showExplored, setShowExplored] = useState(false);
+    const { data: exploredPosts, isLoading: isLoadingExplored, isError: isErrorExplored } = useExploredPosts(showExplored);
+
+    const handleLoadExplored = () => setShowExplored(true);
 
     return (
         <div className="flex flex-col items-center gap-4 p-4">
             {isLoading && <div>Loading...</div>}
             {isError && <div>Failed to load feed.</div>}
-            {posts && posts.map((post: FeedPost) => (
+
+            {posts && posts.length > 0 && posts.map((post: FeedPost) => (
                 <PostCard key={post.createdAt + post.authorId} post={post} />
             ))}
+
+            {posts && posts.length === 0 && !showExplored && (
+                <button
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    onClick={handleLoadExplored}
+                >
+                    Load Explored Posts
+                </button>
+            )}
+
+            {showExplored && (
+                <>
+                    {isLoadingExplored && <div>Loading explored posts...</div>}
+                    {isErrorExplored && <div>Failed to load explored posts.</div>}
+                    {exploredPosts && exploredPosts.length === 0 && <div>No explored posts found.</div>}
+                    {exploredPosts && exploredPosts.length > 0 && exploredPosts.map((post: FeedPost) => (
+                        <PostCard key={post.createdAt + post.authorId} post={post} />
+                    ))}
+                </>
+            )}
         </div>
     );
 };

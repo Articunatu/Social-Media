@@ -19,7 +19,7 @@ export interface LoginResponse {
 }
 
 export interface RefreshTokenCommand {
-  // If needed, add properties
+    refreshToken: string;
 }
 
 export interface ChangePasswordCommand {
