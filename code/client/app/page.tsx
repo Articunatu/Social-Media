@@ -10,9 +10,6 @@ const HomePage: React.FC = () => {
   if (!auth || !auth.token) {
     return <LoginPage />;
   }
-
-  const { user, token } = auth;
-
   return <FeedPage />;
 };
 

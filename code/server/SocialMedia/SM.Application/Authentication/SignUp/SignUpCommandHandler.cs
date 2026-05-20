@@ -10,7 +10,7 @@ using System.Net;
 
 namespace SM.Application.Authentication.SignUp;
 
-internal class SignUpCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory, IJwtService jwtService, ILoggingBehaviour logging)
+internal class SignUpCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory, IJwtService jwt, ILoggingBehaviour log)
     : ICommandHandler<SignUpCommand, SignUpResponse>
 {
     public async Task<Result<SignUpResponse>> Handle(SignUpCommand dto, CancellationToken ct)
@@ -23,7 +23,7 @@ internal class SignUpCommandHandler(IDbContextFactory<ApplicationDbContext> cont
             return Result.Failure<SignUpResponse>(
                 new Error("A user with this email or tag already exists"), HttpStatusCode.Conflict);
 
-        jwtService.GeneratePasswordHash(dto.Password, out var passwordHash, out var passwordSalt);
+        jwt.GeneratePasswordHash(dto.Password, out var passwordHash, out var passwordSalt);
 
         var user = User.Create(dto);
         user.SetLogin(passwordHash, passwordSalt);
@@ -31,7 +31,7 @@ internal class SignUpCommandHandler(IDbContextFactory<ApplicationDbContext> cont
         context.Users.Add(user);
         await context.SaveChangesAsync(ct);
 
-        logging.LogInformation($"New user created with id {user.Id} and email {user.Email}");
+        log.LogInformation($"New user created with id {user.Id} and email {user.Email}");
 
         var response = user.MapToSignUpResponse();
 

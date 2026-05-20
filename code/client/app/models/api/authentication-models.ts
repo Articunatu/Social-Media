@@ -4,9 +4,11 @@ export interface LoginCommand {
 }
 
 export interface SignUpCommand {
-    username: string;
-    password: string;
+    tag: string;
     email: string;
+    firstName?: string;
+    lastName?: string;
+    password: string;
 }
 
 export interface LogoutCommand {

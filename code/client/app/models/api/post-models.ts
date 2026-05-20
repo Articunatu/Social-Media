@@ -1,3 +1,4 @@
+import { UUID } from "crypto";
 import { ReactionCount } from "./reaction-models";
 import { ProfileInfo } from "./user-models";
 
@@ -10,7 +11,7 @@ export interface CreatePostCommand {
 export interface FeedPost {
     profile: ProfileInfo;
     content: string;
-    authorId: string;
+    authorId: UUID;
     createdAt: string;
 }
 
@@ -28,5 +29,33 @@ export interface PostDetails {
 }
 
 export interface DeletePostCommand {
-    id: string;
+    id: UUID;
+}
+
+// Server DTOs for paged/profile feed responses
+export interface ProfilePostDto {
+    postId: UUID;
+    content: string;
+    timeStamp: string;
+    commentsCount: number;
+    reactionCounts: { type: number; amount: number }[];
+}
+
+export interface PagedFeed<T> {
+    values: T[];
+    index?: number;
+    order?: string;
+    searchText?: string;
+}
+
+export interface ProfileFeedResponseServer {
+    profileFeed: PagedFeed<ProfilePostDto>;
+}
+
+export interface ServerResult<T> {
+    value: T;
+    isSuccess: boolean;
+    isFailure: boolean;
+    error: { header: string; message: string } | null;
+    status: number;
 }

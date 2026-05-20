@@ -36,7 +36,8 @@ const FeedPage: React.FC = () => {
                 <>
                     {isLoadingExplored && <div>Loading explored posts...</div>}
                     {isErrorExplored && <div>Failed to load explored posts.</div>}
-                    {exploredPosts && exploredPosts.length === 0 && <div>No explored posts found.</div>}
+                    {!exploredPosts && <div>No explored posts found.</div>}
+                    {exploredPosts?.length === 0 && <div>No explored posts found.</div>}
                     {exploredPosts && exploredPosts.length > 0 && exploredPosts.map((post: FeedPost) => (
                         <PostCard key={post.createdAt + post.authorId} post={post} />
                     ))}

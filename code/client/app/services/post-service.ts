@@ -2,7 +2,9 @@ import api from './api';
 import {
   CreatePostCommand,
   FeedPost,
-  ProfilePost
+  ProfilePost,
+  ProfileFeedResponseServer,
+  ServerResult,
 } from '../models/api/post-models';
 import { UUID } from 'crypto';
 
@@ -25,7 +27,7 @@ const postService = {
     api.get<ProfilePost[]>(`${postUri}/get-posts-by-user/${userId}?pageNumber=${pageNumber}`),
 
   getExploredPosts: () =>
-    api.get<FeedPost[]>(`${postUri}/get-explored-posts`),
+    api.get<ServerResult<ProfileFeedResponseServer>>(`${postUri}/get-explored-posts`),
 };
 
 export default postService;

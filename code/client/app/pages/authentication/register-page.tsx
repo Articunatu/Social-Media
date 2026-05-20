@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../components/auth-provider";
+import authenticationService from '../../services/authentication-service';
+import type { SignUpCommand, LoginCommand } from '../../models/api/authentication-models';
 
 export const RegisterPage: React.FC = () => {
     const [tag, setTag] = useState("");
@@ -14,12 +16,22 @@ export const RegisterPage: React.FC = () => {
         e.preventDefault();
         setLocalError(null);
         if (!auth) return;
-        const success = await auth.({ tag, password });
-        if (success) {
-            router.push("/");
-            return;
-        } 
-        setLocalError(auth.error || "Registration failed");
+        try {
+            const cmd: SignUpCommand = { tag, password, email: '' };
+            const signUpResp = await authenticationService.signUp(cmd);
+            if (signUpResp.status >= 200 && signUpResp.status < 300) {
+                // auto-login after successful sign up
+                const loginCmd: LoginCommand = { tag, password };
+                const loggedIn = await auth.login(loginCmd);
+                if (loggedIn) {
+                    router.push("/");
+                    return;
+                }
+            }
+            setLocalError(signUpResp.data?.error ?? auth.error ?? "Registration failed");
+        } catch (err) {
+            setLocalError((err as Error).message ?? "Registration failed");
+        }
     };
 
     return (
