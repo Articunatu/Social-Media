@@ -18,11 +18,11 @@ public sealed class UserTestData(IDbContextFactory<ApplicationDbContext> context
 
     public async Task<Guid> CreateProfileUserAsync(string aboutMe, bool withBackgroundPhoto)
     {
-        var user = User.Create(
-            tag: $"user_{Guid.NewGuid():N}",
-            firstName: "Test",
-            lastName: "User",
-            email: $"{Guid.NewGuid():N}@example.com");
+        var user = User.Create(new UserDto(
+            $"user_{Guid.NewGuid():N}",
+            "Test",
+            "User",
+            $"{Guid.NewGuid():N}@example.com"));
 
         user.AuthoredPosts.Add(Post.Create(aboutMe, user.Id));
 

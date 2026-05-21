@@ -92,7 +92,7 @@ public static class ApplicationDbContextSeeder
 
                 var email = Truncate($"user{index}@socialmedia.local", 100);
 
-                var user = User.Create(tag, firstName, lastName, email);
+                var user = User.Create(new UserDto(tag, firstName, lastName, email));
 
                 var password = PredefinedPasswords.First();
                 var (hash, salt) = HashPassword(password);

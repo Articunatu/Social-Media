@@ -10,7 +10,7 @@ public class DeleteAccountTests(IntegrationTestFixture fixture) : BaseIntegratio
     [Fact]
     public async Task Handle_UserExists_ShouldDeleteUser()
     {
-        var user = User.Create("bkc_nr1", "Heinrich", "Lunge", "lunge@bkc.de");
+        var user = User.Create(new UserDto("bkc_nr1", "Heinrich", "Lunge", "lunge@bkc.de"));
         await Users.AddAsync(user);
 
         var result = await Sender.Send(new DeleteAccountCommand(user.Id));

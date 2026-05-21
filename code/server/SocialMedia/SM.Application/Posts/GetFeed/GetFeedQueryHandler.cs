@@ -4,6 +4,7 @@ using SM.Application.Database;
 using SM.Application.Shared.Extensions;
 using SM.Application.Shared.Models;
 using SM.Domain.Shared;
+using SM.Domain.Users.Extensions;
 
 namespace SM.Application.Posts.GetFeed;
 
@@ -26,7 +27,7 @@ internal class GetFeedQueryHandler(IDbContextFactory<ApplicationDbContext> conte
             .Where(p => followingIds.Contains(p.AuthorId))
             .Include(p => p.Author)
             .Select(p => new FeedResponse(
-                new ProfileInfo(p.Author.Id, p.Author.Tag, p.Author.FirstName + " " + p.Author.LastName, p.Author.GetProfilePhoto()),
+                new ProfileInfo(p.Author.Id, p.Author.Tag, p.Author.GetFullName(), p.Author.GetProfilePhoto()),
                 new ProfilePostDto
                 {
                     PostId = p.Id,

@@ -3,7 +3,7 @@ using SM.Domain.Users;
 
 namespace SM.Domain.Messages;
 
-public class Comment : Message
+public class Comment(Guid id) : Message(id)
 {
     public Guid ParentPostId { get; private set; }
     public virtual Post ParentPost { get; private set; } = default!;
@@ -15,9 +15,8 @@ public class Comment : Message
 
     public static Comment Create(Guid postId, string content, Guid authorId, Guid? parentCommentId = null)
     {
-        return new Comment()
+        return new Comment(Guid.CreateVersion7())
         {
-            Id = Guid.CreateVersion7(),
             Content = content,
             TimeStamp = DateTimeOffset.UtcNow,
             AuthorId = authorId,

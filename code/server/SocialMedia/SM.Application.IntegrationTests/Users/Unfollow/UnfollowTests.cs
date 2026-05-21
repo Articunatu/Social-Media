@@ -10,8 +10,8 @@ public class UnfollowTests(IntegrationTestFixture fixture) : BaseIntegrationTest
     [Fact]
     public async Task Handle_ShouldRemoveFollowRelation_WhenUsersExist()
     {
-        var follower = User.Create("bkc_nr1", "Heinrich", "Lunge", "lunge@bkc.de");
-        var following = User.Create("rose_duelist", "Utena", "Tenjou", "revolutionary@shoujo.jp");
+        var follower = User.Create(new UserDto("bkc_nr1", "Heinrich", "Lunge", "lunge@bkc.de"));
+        var following = User.Create(new UserDto("rose_duelist", "Utena", "Tenjou", "revolutionary@shoujo.jp"));
         follower.Following.Add(following);
         following.Followers.Add(follower);
         await Users.AddAsync(follower, following);
@@ -33,7 +33,7 @@ public class UnfollowTests(IntegrationTestFixture fixture) : BaseIntegrationTest
     [Fact]
     public async Task Handle_ShouldReturnFailure_WhenUserNotFound()
     {
-        var follower = User.Create("solid_warrior", "Reinar", "Braunn", "reinar_braunn@atk.ttn");
+        var follower = User.Create(new UserDto("solid_warrior", "Reinar", "Braunn", "reinar_braunn@atk.ttn"));
         await Users.AddAsync(follower);
 
         var result = await Sender.Send(new UnfollowCommand(follower.Id, Guid.NewGuid()));

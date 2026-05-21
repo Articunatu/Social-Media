@@ -10,8 +10,8 @@ public class FollowTests(IntegrationTestFixture fixture) : BaseIntegrationTest(f
     [Fact]
     public async Task Handle_ShouldAddFollowRelation_WhenUsersExist()
     {
-        var follower = User.Create("bkc_nr1", "Heinrich", "Lunge", "lunge@bkc.de");
-        var following = User.Create("rose_duelist", "Utena", "Tenjou", "revolutionary@shoujo.jp");
+        var follower = User.Create(new UserDto("bkc_nr1", "Heinrich", "Lunge", "lunge@bkc.de"));
+        var following = User.Create(new UserDto("rose_duelist", "Utena", "Tenjou", "revolutionary@shoujo.jp"));
 
         await Users.AddAsync(follower, following);
 
@@ -32,12 +32,12 @@ public class FollowTests(IntegrationTestFixture fixture) : BaseIntegrationTest(f
     [Fact]
     public async Task Handle_ShouldReturnFailure_WhenAnyUserNotFound()
     {
-        var follower = User.Create("solid_warrior", "Reinar", "Braunn", "reinar_braunn@atk.ttn");
+        var follower = User.Create(new UserDto("solid_warrior", "Reinar", "Braunn", "reinar_braunn@atk.ttn"));
         await Users.AddAsync(follower);
 
         var result = await Sender.Send(new FollowCommand(follower.Id, Guid.NewGuid()));
 
-        using (new FluentAssertions.Execution.AssertionScope())
+        using (new AssertionScope())
         {
             result.IsSuccess.Should().BeFalse();
             result.Error.Should().Be(UserErrors.NotFound);

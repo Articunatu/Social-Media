@@ -22,8 +22,7 @@ internal class DeleteCommentCommandHandler(IDbContextFactory<ApplicationDbContex
         if (commentToDelete is null)
             return Result.Failure<CommentCommand>(new Error("Comment.NotFound"), HttpStatusCode.NotFound);
 
-        commentToDelete.IsDeleted = true;
-        commentToDelete.TimeOfDelete = DateTime.UtcNow;
+        commentToDelete.SoftDelete();
 
         await context.Comments
             .Where(c => c.ParentCommentId == commentToDelete.Id)

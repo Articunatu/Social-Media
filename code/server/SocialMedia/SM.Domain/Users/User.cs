@@ -7,19 +7,16 @@ using SM.Domain.Reactions;
 
 namespace SM.Domain.Users;
 
-public class User(Guid id, string tag, string firstName, string lastName)
-    : Entity<Guid>(id), ISoftDeletable, IFullName
+public class User(Guid id, string tag, string firstName, string lastName, string email)
+    : SoftDeletableEntity<Guid>(id), IFullName
 {
-    public string Tag { get; set; } = tag;
-    public string FirstName { get; set; } = firstName;
-    public string LastName { get; set; } = lastName;
-    public string Email { get; set; } = default!;
+    public string Tag { get; } = tag;
+    public string FirstName { get; private set; } = firstName;
+    public string LastName { get; private set; } = lastName;
+    public string Email { get; private set; } = email;
 
-    public virtual bool IsDeleted { get; set; }
-    public virtual DateTime? TimeOfDelete { get; set; }
-
-    public virtual byte[] PasswordHash { get; set; } = [];
-    public virtual byte[] PasswordSalt { get; set; } = [];
+    public virtual byte[] PasswordHash { get; private set; } = [];
+    public virtual byte[] PasswordSalt { get; private set; } = [];
     public virtual Token? Token { get; set; }
 
     public virtual ICollection<Post> AuthoredPosts { get; set; } = [];
@@ -31,25 +28,12 @@ public class User(Guid id, string tag, string firstName, string lastName)
 
     public static User Create(IUser request)
     {
-        var userId = Guid.CreateVersion7();
-
-        var user = new User(userId, request.Tag, request.FirstName, request.LastName)
-        {
-            Email = request.Email
-        };
-        user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
-
-        return user;
-    }
-
-    public static User Create(string tag, string firstName, string lastName, string email)
-    {
-        var userId = Guid.CreateVersion7();
-
-        var user = new User(userId, tag, firstName, lastName)
-        {
-            Email = email
-        };
+        var user = new User(
+            Guid.CreateVersion7(),
+            request.Tag, 
+            request.FirstName, 
+            request.LastName,
+            request.Email);
 
         user.RaiseDomainEvent(new UserCreatedDomainEvent(user.Id));
 

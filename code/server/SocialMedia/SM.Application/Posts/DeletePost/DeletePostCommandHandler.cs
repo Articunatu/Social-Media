@@ -19,8 +19,7 @@ internal class DeletePostCommandHandler(IDbContextFactory<ApplicationDbContext> 
         if (postToDelete is null)
             return Result.Failure<PostResponse>(new Error("Post.NotFound"), HttpStatusCode.NotFound);
 
-        postToDelete.IsDeleted = true;
-        postToDelete.TimeOfDelete = DateTime.UtcNow;
+        postToDelete.SoftDelete();
 
         await context.SaveChangesAsync(cancellationToken);
         logging.LogInformation($"Post with id {request.Id} from author with id {postToDelete.AuthorId} marked as deleted.");

@@ -4,6 +4,7 @@ using SM.Application.Database;
 using SM.Application.Shared.Extensions;
 using SM.Application.Shared.Models;
 using SM.Domain.Shared;
+using SM.Domain.Users.Extensions;
 
 namespace SM.Application.Reactions.GetReactionsByPost;
 
@@ -21,7 +22,7 @@ internal class GetReactionsByPostQueryHandler(IDbContextFactory<ApplicationDbCon
             (
                 r.Id,
                 r.Type,
-                new ProfileInfo(r.UserId, r.User.Tag, r.User.FirstName + " " + r.User.LastName, r.User.GetProfilePhoto())
+                new ProfileInfo(r.UserId, r.User.Tag, r.User.GetFullName(), r.User.GetProfilePhoto())
             )).AsQueryable();
 
         var pagedReactions = await reactionsQuery.ToPagedFeed(request.Filter);
