@@ -10,9 +10,7 @@ public class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerable<IValida
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         if (!validators.Any())
-        {
             return await next(cancellationToken);
-        }
 
         var validationResults = await Task.WhenAll(
             validators.Select(v => v.ValidateAsync(request, cancellationToken)));
@@ -25,28 +23,26 @@ public class ValidationPipelineBehavior<TRequest, TResponse>(IEnumerable<IValida
             .ToArray();
 
         if (errors.Length > 0)
-        {
             return CreateValidationResult<TResponse>(errors);
-        }
 
         return await next(cancellationToken);
     }
 
-    private static TResponse CreateValidationResult<TResponse>(Error[] errors)
-        where TResponse : Result
+    private static TResp CreateValidationResult<TResp>(Error[] errors)
+        where TResp : Result
     {
-        if (typeof(TResponse) == typeof(Result))
+        if (typeof(TResp) == typeof(Result))
         {
-            return (ValidationResult.WithErrors(errors) as TResponse)!;
+            return (ValidationResult.WithErrors(errors) as TResp)!;
         }
 
-        var genericType = typeof(TResponse).GetGenericArguments().First();
+        var genericType = typeof(TResp).GetGenericArguments().First();
         var method = typeof(ValidationResult<>)
             .MakeGenericType(genericType)
             .GetMethod(nameof(ValidationResult<object>.WithErrors))!;
 
         var validationResult = method.Invoke(null, [errors])!;
 
-        return (TResponse)validationResult;
+        return (TResp)validationResult;
     }
 }

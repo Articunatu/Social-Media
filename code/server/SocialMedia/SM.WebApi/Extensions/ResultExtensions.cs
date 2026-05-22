@@ -7,7 +7,7 @@ public static class ResultExtensions
     public static IResult ToActionResult<T>(this Result<T> result)
     {
         if (result.IsSuccess)
-            return TypedResults.Ok(result.Value);
+            return TypedResults.Ok(result.Value!);
 
         var status = result.Status;
 
@@ -22,7 +22,7 @@ public static class ResultExtensions
     public static IResult ToActionResult<T>(this Result<T> result, Func<T, IResult> onSuccess)
     {
         if (result.IsSuccess)
-            return onSuccess(result.Value);
+            return onSuccess(result.Value!);
 
         var status = result.Status;
 
