@@ -39,6 +39,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
             <div className="flex flex-col items-center gap-4 p-4">
                 {isLoading && <div>Loading...</div>}
                 {isError && <div>Failed to load feed.</div>}
+                
                 {posts && posts.map((post: FeedPost) => (
                     <PostCard key={post.createdAt + post.authorId} post={post} />
                 ))}

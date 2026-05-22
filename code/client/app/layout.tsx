@@ -19,8 +19,9 @@ export default function RootLayout({
       <AuthProvider>
         <html lang="en" data-theme="mytheme">
           <head>
+            {/* eslint-disable-next-line @next/next/no-page-custom-font */}
             <link
-              href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+              href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=optional"
               rel="stylesheet"
             />
           </head>

@@ -4,6 +4,7 @@ import { ProfileInfo } from "./user-models";
 
 export interface CreatePostCommand {
     content: string;
+    authorId: UUID;
     mediaUrls?: string[];
     tags?: string[];
 }
