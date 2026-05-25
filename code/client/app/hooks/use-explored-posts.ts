@@ -5,7 +5,10 @@ import {
   ProfileFeedResponseServer,
   ProfilePostDto,
 } from '../models/api/post-models';
+import { UUID } from 'crypto';
 import postService from '../services/post-service';
+
+const EMPTY_UUID = '00000000-0000-0000-0000-000000000000' as unknown as UUID;
 
 export function useExploredPosts(enabled: boolean = false) {
   return useQuery<FeedPost[], Error>({
@@ -41,15 +44,18 @@ export function useExploredPosts(enabled: boolean = false) {
       }
 
       return values.map<FeedPost>((p) => ({
+        postId: p.postId,
         profile: {
-          id: p.postId,
+          id: EMPTY_UUID,
           tag: '',
           fullName: '',
           profilePhoto: '',
         },
         content: p.content,
-        authorId: p.postId,
+        authorId: EMPTY_UUID,
         createdAt: p.timeStamp,
+        commentsCount: p.commentsCount,
+        reactionCounts: p.reactionCounts ?? [],
       }));
     },
     enabled,

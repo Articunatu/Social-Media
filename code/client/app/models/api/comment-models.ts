@@ -1,16 +1,25 @@
 import { UUID } from "crypto";
+import { ReactionCount } from "./reaction-models";
 
 export interface CommentDetails {
+    postId: UUID;
+    commentsCount: number;
+    reactionCounts: ReactionCount[];
+    parentPostId: UUID;
+    timeStamp: string;
+    content: string;
+}
+
+export interface CreatedCommentResponse {
     id: UUID;
     content: string;
     userId: UUID;
-    timestamp: Date;
+    timeStamp: string;
     parentPostId: UUID;
 }
 
 export interface CreateCommentCommand {
     content: string;
-    authorId: UUID;
     parentPostId: UUID;
     parentCommentId?: UUID;
 }

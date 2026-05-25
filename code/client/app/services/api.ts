@@ -19,13 +19,11 @@ api.interceptors.request.use((config) => {
     }
     // Debug: log whether a token was attached and the request target
     try {
-        // eslint-disable-next-line no-console
         console.debug('[api] request', { method: config.method, url: config.url, hasToken: !!token });
     } catch {}
     return config;
 });
 
-// Response interceptor to log errors (helpful for 401 debugging)
 api.interceptors.response.use(
     (response) => response,
     (error) => {

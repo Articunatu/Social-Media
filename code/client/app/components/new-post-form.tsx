@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { useAuth } from './auth-provider';
 import { useCreatePost } from '../hooks/use-create-post';
 import { CreatePostCommand } from '../models/api/post-models';
-import { UUID } from 'crypto';
 
 const NewPostForm: React.FC = () => {
     const auth = useAuth();
@@ -23,7 +22,6 @@ const NewPostForm: React.FC = () => {
 
         const cmd: CreatePostCommand = {
         content,
-        authorId: auth.user.userId as unknown as UUID,
         };
 
         try {

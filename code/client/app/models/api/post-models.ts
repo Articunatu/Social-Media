@@ -4,16 +4,23 @@ import { ProfileInfo } from "./user-models";
 
 export interface CreatePostCommand {
     content: string;
-    authorId: UUID;
-    mediaUrls?: string[];
-    tags?: string[];
+}
+
+export interface CreatePostResponse {
+    id: UUID;
+    content: string;
+    timeStamp: string;
+    userId: UUID;
 }
 
 export interface FeedPost {
+    postId: UUID;
     profile: ProfileInfo;
     content: string;
     authorId: UUID;
     createdAt: string;
+    commentsCount: number;
+    reactionCounts: ReactionCount[];
 }
 
 export interface ProfilePost {
@@ -51,6 +58,11 @@ export interface PagedFeed<T> {
 
 export interface ProfileFeedResponseServer {
     profileFeed: PagedFeed<ProfilePostDto>;
+}
+
+export interface FeedResponseServer {
+    profile: ProfileInfo;
+    post: ProfilePostDto;
 }
 
 export interface ServerResult<T> {

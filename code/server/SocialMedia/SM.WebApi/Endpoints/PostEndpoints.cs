@@ -33,6 +33,7 @@ public static class PostEndpoints
         if (userId == Guid.Empty)
             return TypedResults.Unauthorized();
 
+        command = command with { AuthorId = userId };
         var createdPost = await sender.Send(command);
         return TypedResults.Ok(createdPost);
     }

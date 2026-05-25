@@ -1,24 +1,27 @@
 import api from './api';
 import {
   CreatePostCommand,
+  CreatePostResponse,
   FeedPost,
+  FeedResponseServer,
   ProfilePost,
   ProfileFeedResponseServer,
   ServerResult,
 } from '../models/api/post-models';
+import { PagedFeed } from '../models/paging-models';
 import { UUID } from 'crypto';
 
 const postUri = '/posts';
 
 const postService = {
   createPost: (command: CreatePostCommand) =>
-    api.post<ProfilePost>(`${postUri}/create`, command),
+    api.post<CreatePostResponse>(`${postUri}/create`, command),
 
   deletePost: (postId: UUID) =>
     api.delete(`${postUri}/delete/${postId}`),
 
   getFeed: (pageNumber: number) =>
-    api.get<FeedPost[]>(`${postUri}/get-feed?pageNumber=${pageNumber}`),
+    api.get<PagedFeed<FeedResponseServer> | FeedPost[]>(`${postUri}/get-feed?pageNumber=${pageNumber}`),
 
   getPostById: (postId: UUID, pageNumber: number) =>
     api.get<ProfilePost>(`${postUri}/${postId}?pageNumber=${pageNumber}`),

@@ -41,7 +41,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
                 {isError && <div>Failed to load feed.</div>}
                 
                 {posts && posts.map((post: FeedPost) => (
-                    <PostCard key={post.createdAt + post.authorId} post={post} />
+                    <PostCard key={post.postId} post={post} />
                 ))}
             </div>
         </div>

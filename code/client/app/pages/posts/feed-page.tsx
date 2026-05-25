@@ -26,7 +26,7 @@ const FeedPage: React.FC = () => {
             {isError && <div>Failed to load feed.</div>}
 
             {posts && posts.length > 0 && posts.map((post: FeedPost) => (
-                <PostCard key={post.createdAt + post.authorId} post={post} />
+                <PostCard key={post.postId} post={post} />
             ))}
 
             {posts && posts.length === 0 && !showExplored && (
@@ -45,7 +45,7 @@ const FeedPage: React.FC = () => {
                     {!exploredPosts && <div>No explored posts found.</div>}
                     {exploredPosts?.length === 0 && <div>No explored posts found.</div>}
                     {exploredPosts && exploredPosts.length > 0 && exploredPosts.map((post: FeedPost) => (
-                        <PostCard key={post.createdAt + post.authorId} post={post} />
+                        <PostCard key={post.postId} post={post} />
                     ))}
                 </>
             )}
