@@ -1,6 +1,6 @@
 ﻿using SM.Application.Abstractions;
 using SM.Application.Authentication.SignUp.Models;
-using static SM.Domain.Users.User;
+using SM.Domain.Users;
 
 namespace SM.Application.Authentication.SignUp;
 

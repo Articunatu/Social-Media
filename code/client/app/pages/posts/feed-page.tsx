@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import PostCard from '../../components/post-card';
 import NewPostForm from '../../components/new-post-form';
@@ -7,7 +5,6 @@ import { useAuth } from '../../components/auth-provider';
 import { useFeed } from '../../hooks/use-feed';
 import { useExploredPosts } from '../../hooks/use-explored-posts';
 import { FeedPost } from '@/app/models/api/post-models';
-
 
 const FeedPage: React.FC = () => {
     const { data: posts, isLoading, isError } = useFeed();

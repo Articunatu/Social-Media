@@ -46,11 +46,4 @@ public class User(Guid id, string tag, string firstName, string lastName, string
         PasswordSalt = passwordSalt;
     }
 
-    public interface IUser
-    {
-        string Tag { get; init; }
-        string FirstName { get; init; }
-        string LastName { get; init; }
-        string Email { get; init; }
-    }
 }

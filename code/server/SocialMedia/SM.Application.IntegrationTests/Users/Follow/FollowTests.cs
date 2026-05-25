@@ -12,7 +12,6 @@ public class FollowTests(IntegrationTestFixture fixture) : BaseIntegrationTest(f
     {
         var follower = User.Create(new UserDto("bkc_nr1", "Heinrich", "Lunge", "lunge@bkc.de"));
         var following = User.Create(new UserDto("rose_duelist", "Utena", "Tenjou", "revolutionary@shoujo.jp"));
-
         await Users.AddAsync(follower, following);
 
         var result = await Sender.Send(new FollowCommand(follower.Id, following.Id));
