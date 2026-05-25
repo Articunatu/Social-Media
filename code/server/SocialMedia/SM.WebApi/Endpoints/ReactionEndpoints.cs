@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SM.Application.Reactions.AddReaction;
+using SM.Application.Reactions.GetMyReactionByPost;
 using SM.Application.Reactions.GetReactedPostsByUser;
 using SM.Application.Reactions.GetReactionsByPost;
 using SM.Application.Reactions.RemoveReaction;
@@ -18,6 +19,7 @@ public static class ReactionEndpoints
         var group = routes.MapGroup("/api/reactions/");
 
         group.MapGet("get-by-post/{postId}", GetReactionsByPost);
+        group.MapGet("my-reaction/{postId}", GetMyReactionByPost).RequireAuthorization();
         group.MapGet("users-reactions/{userId}", GetReactionsByUser);
         group.MapPost("react-to-post", ReactToPost).RequireAuthorization();
         group.MapDelete("delete/{id}", RemoveReaction).RequireAuthorization();
@@ -46,7 +48,22 @@ public static class ReactionEndpoints
         var authenticatedQuery = new GetReactedPostsByUserQuery(userId, filter.Index);
 
         var reactedPosts = await sender.Send(authenticatedQuery);
-        return TypedResults.Ok(reactedPosts);
+        return reactedPosts.ToActionResult();
+    }
+
+    public static async Task<IResult> GetMyReactionByPost(Guid postId, ISender sender, HttpContext httpContext)
+    {
+        var userId = httpContext.GetLoggedInUserId();
+        if (userId == Guid.Empty)
+            return TypedResults.Unauthorized();
+
+        var result = await sender.Send(new GetMyReactionByPostQuery(userId, postId));
+        if (result.IsSuccess)
+            return TypedResults.Ok(result.Value);
+
+        return result.Status == System.Net.HttpStatusCode.NotFound
+            ? TypedResults.NoContent()
+            : TypedResults.BadRequest(result.Error);
     }
 
     public static async Task<IResult> ReactToPost([FromBody] AddReactionCommand command, ISender sender, HttpContext httpContext)
@@ -57,7 +74,7 @@ public static class ReactionEndpoints
 
         command = command with { UserId = userId };
         var reactedPost = await sender.Send(command);
-        return TypedResults.Ok(reactedPost);
+        return reactedPost.ToActionResult();
     }
     
     public static async Task<IResult> RemoveReaction(Guid id, ISender sender, HttpContext httpContext)
@@ -67,7 +84,7 @@ public static class ReactionEndpoints
             return TypedResults.Unauthorized();
 
         var removedReaction = await sender.Send(new RemoveReactionCommand(id));
-        return TypedResults.Ok(removedReaction);
+        return removedReaction.ToActionResult();
     }
 
     public static async Task<IResult> UpdateReaction([FromBody] UpdateReactionCommand command, ISender sender, HttpContext httpContext)
@@ -77,6 +94,6 @@ public static class ReactionEndpoints
             return TypedResults.Unauthorized();
 
         var updatedReaction = await sender.Send(command);
-        return TypedResults.Ok(updatedReaction);
+        return updatedReaction.ToActionResult();
     }
 }

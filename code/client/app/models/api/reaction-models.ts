@@ -19,13 +19,18 @@ export interface ReactedProfilePost extends ProfilePost {
 
 export interface AddReactionCommand {
     type: ReactionType;
-    userId: UUID;
+    userId?: UUID;
     messageId: UUID;
 }
 
 export interface UpdateReactionCommand {
     id: UUID;
     type: ReactionType;
+}
+
+export interface ReactToPostInput {
+    type: ReactionType;
+    currentReaction: ReactionResponse | null;
 }
 
 export enum ReactionType {

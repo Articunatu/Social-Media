@@ -11,6 +11,9 @@ import { PagedFeed } from '../models/paging-models';
 const reactionUri = '/reactions';
 
 const reactionService = {
+    getMyReaction: (postId: UUID) =>
+        api.get<ReactionResponse>(`${reactionUri}/my-reaction/${postId}`),
+
     getReactionsByPost: (postId: UUID, pageNumber: number, type?: ReactionType) =>
         api.get<PagedFeed<ReactionResponse>>(
         `${reactionUri}/get-by-post/${postId}?pageNumber=${pageNumber}${type !== undefined ? `&type=${type}` : ''}`
