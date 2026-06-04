@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using SM.Application.Abstractions;
 using SM.Application.Authentication.Login.Models;
 using SM.Application.Behaviors;
@@ -13,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace SM.Application.Authentication.Login;
 
-internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config, IDbContextFactory<ApplicationDbContext> contextFactory, ILoggingBehaviour logging)
+internal class LoginCommandHandler(IJwtService jwtService, IDbContextFactory<ApplicationDbContext> contextFactory, ILoggingBehaviour logging)
     : ICommandHandler<LoginCommand, LoginResponse>
 {
     public async Task<Result<LoginResponse>> Handle(LoginCommand request, CancellationToken ct)
@@ -33,7 +32,7 @@ internal class LoginCommandHandler(IJwtService jwtService, IConfiguration config
             return Failure(UserErrors.InvalidCredentials, HttpStatusCode.Unauthorized);
         }
 
-        var accessToken = jwtService.CreateToken(userAuth.Id.ToString(), userAuth.Tag, config["AppSettings:Token"]!);
+        var accessToken = jwtService.CreateToken(userAuth.Id.ToString(), userAuth.Tag);
         var refreshToken = jwtService.GenerateRefreshToken();
 
         if (refreshToken is null)

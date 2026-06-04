@@ -1,10 +1,13 @@
-﻿using SM.Domain.Authentication;
+using SM.Domain.Authentication;
+using System.Security.Claims;
 
 namespace SM.Application.Authentication;
 
 public interface IJwtService
 {
-    public string CreateToken(string id, string tag, string tokenValue);
+    public string CreateToken(string id, string tag);
+
+    public ClaimsPrincipal? ValidateToken(string token);
 
     public Token GenerateRefreshToken();
 

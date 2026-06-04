@@ -14,7 +14,7 @@ public class JwtService(IConfiguration configuration) : IJwtService
     private readonly string _tokenKey = configuration["JwtSettings:TokenKey"] 
         ?? throw new NotImplementedException("Token not registered!");
 
-    public string CreateToken(string id, string tag, string tokenValue)
+    public string CreateToken(string id, string tag)
     {
         List<Claim> claims =
         [
@@ -35,6 +35,28 @@ public class JwtService(IConfiguration configuration) : IJwtService
         var jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
         return jwt;
+    }
+
+    public ClaimsPrincipal? ValidateToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.UTF8.GetBytes(_tokenKey);
+
+        try
+        {
+            return tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ClockSkew = TimeSpan.Zero
+            }, out _);
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public Token GenerateRefreshToken()

@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using SM.Application.Abstractions;
 using SM.Application.Behaviors;
 using SM.Application.Database;
@@ -8,7 +7,7 @@ using System.Net;
 
 namespace SM.Application.Authentication.RefreshToken;
 
-internal class RefreshTokenCommandHandler(IJwtService jwtService, IConfiguration config, IDbContextFactory<ApplicationDbContext> contextFactory, ILoggingBehaviour logging) 
+internal class RefreshTokenCommandHandler(IJwtService jwtService, IDbContextFactory<ApplicationDbContext> contextFactory, ILoggingBehaviour logging) 
     : ICommandHandler<RefreshTokenCommand, LoginResponse>
 {
     public async Task<Result<LoginResponse>> Handle(RefreshTokenCommand request, CancellationToken ct)
@@ -20,7 +19,7 @@ internal class RefreshTokenCommandHandler(IJwtService jwtService, IConfiguration
         if (existing == null || existing.Expires < DateTime.UtcNow)
             return Result.Failure<LoginResponse>(new Error("Invalid or expired refresh token"), HttpStatusCode.BadRequest);
 
-        string accessToken = jwtService.CreateToken(existing.UserId.ToString(), "", config["AppSettings:Token"]!);
+        string accessToken = jwtService.CreateToken(existing.UserId.ToString(), "");
         var refreshedToken = jwtService.GenerateRefreshToken();
         refreshedToken.UserId = existing.UserId;
 
