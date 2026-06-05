@@ -72,15 +72,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const logout = async () => {
         setLoading(true);
+        setError(null);
+
         try {
-            await authenticationService.logout({ userId: user?.userId ?? "" });
-        } catch {
-            // Handle error if needed
+            if (user?.userId) {
+                await authenticationService.logout({ userId: user.userId });
+            }
+        } catch (error) {
+            setError("Logout failed on the server. Your local session was cleared.");
+            console.error(error);
+        } finally {
+            setToken(null);
+            setUser(null);
+            localStorage.removeItem("jwt");
+            setLoading(false);
         }
-        setToken(null);
-        setUser(null);
-        localStorage.removeItem("jwt");
-        setLoading(false);
     };
 
     return (

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../components/auth-provider";
 
@@ -26,6 +27,9 @@ export const LoginPage: React.FC = () => {
         <div className="flex flex-col items-center justify-center min-h-screen">
             <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-80">
                 <h2 className="text-xl font-bold mb-4">Login</h2>
+                <p className="mb-4 text-sm text-gray-600">
+                    Need an account? <Link href="/signup" className="font-semibold text-blue-700 hover:text-blue-900">Sign up</Link>
+                </p>
                 <div className="mb-4">
                     <label htmlFor="tag" className="block mb-1 font-medium">
                         Tag

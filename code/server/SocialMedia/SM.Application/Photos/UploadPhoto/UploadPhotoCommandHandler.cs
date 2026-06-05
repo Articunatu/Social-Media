@@ -39,7 +39,6 @@ internal class UploadPhotoCommandHandler(IDbContextFactory<ApplicationDbContext>
             Data = data,
             UserId = request.UserId,
             Type = PhotoType.Regular
-           
         };
 
         await using var context = await contextFactory.CreateDbContextAsync(ct);

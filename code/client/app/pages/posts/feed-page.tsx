@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import PostCard from '../../components/post-card';
 import NewPostForm from '../../components/new-post-form';
 import { useAuth } from '../../components/auth-provider';
+import { LogoutButton } from '../../components/logout-button';
 import { useFeed } from '../../hooks/use-feed';
 import { useExploredPosts } from '../../hooks/use-explored-posts';
 import { FeedPost } from '@/app/models/api/post-models';
@@ -16,6 +17,16 @@ const FeedPage: React.FC = () => {
 
     return (
         <div className="flex flex-col items-center gap-4 p-4">
+            {auth?.user && (
+                <div className="flex w-full max-w-2xl items-center justify-between gap-4">
+                    <div className="min-w-0">
+                        <p className="truncate text-sm text-gray-600">Signed in as</p>
+                        <p className="truncate text-base font-semibold text-black">{auth.user.username}</p>
+                    </div>
+                    <LogoutButton />
+                </div>
+            )}
+
             {isLoading && <div>Loading...</div>}
 
             {auth && auth.user && (
