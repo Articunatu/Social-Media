@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthProvider } from "./components/auth-provider";
+import { AuthProvider } from "./authentication/auth-provider";
 import React from 'react';
 import ReactQueryProvider from './components/ui/react-query-provider';
 

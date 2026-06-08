@@ -1,8 +1,8 @@
 "use client";
 import React, { createContext, useState, useEffect, useContext } from "react";
 import authenticationService from "../services/authentication-service";
-import { AuthorizeResponse, LoginCommand } from "../models/api/authentication-models";
-import { useLogin } from "../hooks/use-login";
+import type { AuthorizeResponse, LoginCommand } from "../models/api/authentication-models";
+import { useLogin } from "./hooks/use-login";
 
 interface AuthContextType {
     token: string | null;

@@ -1,4 +1,4 @@
-import type { SignUpCommand } from "../models/api/authentication-models";
+import type { SignUpCommand } from "../../../models/api/authentication-models";
 
 export type SignUpFormValues = Omit<SignUpCommand, "firstName" | "lastName"> & {
     firstName: string;

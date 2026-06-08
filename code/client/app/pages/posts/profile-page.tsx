@@ -1,11 +1,11 @@
 
 import React from 'react';
 import Image from 'next/image';
-import PostCard from '../../components/post-card';
-import { useFeed } from '../../hooks/use-feed';
-import { useProfile } from '../../hooks/use-profile';
-import { FeedPost } from '@/app/models/api/post-models';
-import { UUID } from 'crypto';
+import PostCard from './components/post-card';
+import { useFeed } from './hooks/use-feed';
+import { useProfile } from './hooks/use-profile';
+import type { FeedPost } from '@/app/models/api/post-models';
+import type { UUID } from 'crypto';
 
 interface ProfilePageProps {
     userId: UUID;

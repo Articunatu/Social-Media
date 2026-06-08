@@ -1,9 +1,9 @@
 "use client";
 import { useQuery } from '@tanstack/react-query';
-import { UUID } from 'crypto';
-import { CommentDetails } from '../models/api/comment-models';
-import { PagedFeed } from '../models/paging-models';
-import { commentsService } from '../services/comment-service';
+import type { UUID } from 'crypto';
+import type { CommentDetails } from '../../../models/api/comment-models';
+import type { PagedFeed } from '../../../models/paging-models';
+import { commentsService } from '../../../services/comment-service';
 
 export function useCommentsByPost(postId: UUID, page: number = 0, enabled: boolean = true) {
     return useQuery<CommentDetails[], Error>({

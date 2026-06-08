@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../../components/auth-provider";
+import { useAuth } from "../../authentication/auth-provider";
 
 export const LoginPage: React.FC = () => {
     const [tag, setTag] = useState("");

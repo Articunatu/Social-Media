@@ -1,6 +1,6 @@
 import { useState } from "react";
-import authenticationService from "../services/authentication-service";
-import { LoginCommand } from "../models/api/authentication-models";
+import authenticationService from "../../services/authentication-service";
+import type { LoginCommand } from "../../models/api/authentication-models";
 
 export interface LoginResult {
     success: boolean;

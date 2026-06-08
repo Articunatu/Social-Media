@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import {
+import type {
   FeedPost,
   ServerResult,
   ProfileFeedResponseServer,
   ProfilePostDto,
-} from '../models/api/post-models';
-import { UUID } from 'crypto';
-import postService from '../services/post-service';
+} from '../../../models/api/post-models';
+import type { UUID } from 'crypto';
+import postService from '../../../services/post-service';
 
 const EMPTY_UUID = '00000000-0000-0000-0000-000000000000' as unknown as UUID;
 

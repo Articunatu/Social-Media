@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import PostCard from '../../components/post-card';
-import NewPostForm from '../../components/new-post-form';
-import { useAuth } from '../../components/auth-provider';
-import { LogoutButton } from '../../components/logout-button';
-import { useFeed } from '../../hooks/use-feed';
-import { useExploredPosts } from '../../hooks/use-explored-posts';
-import { FeedPost } from '@/app/models/api/post-models';
+import PostCard from './components/post-card';
+import NewPostForm from './components/new-post-form';
+import { useAuth } from '../../authentication/auth-provider';
+import { LogoutButton } from '../../authentication/logout-button';
+import { useFeed } from './hooks/use-feed';
+import { useExploredPosts } from './hooks/use-explored-posts';
+import type { FeedPost } from '@/app/models/api/post-models';
 
 const FeedPage: React.FC = () => {
     const { data: posts, isLoading, isError } = useFeed();

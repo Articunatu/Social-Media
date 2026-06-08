@@ -1,9 +1,9 @@
 "use client";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { UUID } from 'crypto';
-import { AxiosResponse } from 'axios';
-import { ReactionResponse, ReactToPostInput } from '../models/api/reaction-models';
-import reactionService from '../services/reaction-service';
+import type { UUID } from 'crypto';
+import type { AxiosResponse } from 'axios';
+import type { ReactionResponse, ReactToPostInput } from '../../../models/api/reaction-models';
+import reactionService from '../../../services/reaction-service';
 
 export function useReactToPost(postId: UUID) {
     const qc = useQueryClient();

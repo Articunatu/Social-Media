@@ -2,18 +2,17 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../../components/auth-provider";
+import { useAuth } from "../../authentication/auth-provider";
 import authenticationService from '../../services/authentication-service';
 import type { LoginCommand } from '../../models/api/authentication-models';
+import { SignUpField } from "./components/sign-up-field";
 import {
     hasSignUpErrors,
     signUpLimits,
-    SignUpErrors,
-    SignUpField,
-    SignUpFormValues,
     toSignUpCommand,
     validateSignUp,
-} from "../../utils/sign-up-validation";
+} from "./utils/sign-up-validation";
+import type { SignUpErrors, SignUpField as SignUpFieldName, SignUpFormValues } from "./utils/sign-up-validation";
 
 const initialValues: SignUpFormValues = {
     tag: "",
@@ -33,7 +32,7 @@ export const RegisterPage: React.FC = () => {
     const canSubmit = useMemo(() => !auth?.loading, [auth?.loading]);
 
     const handleChange =
-        (field: SignUpField) =>
+        (field: SignUpFieldName) =>
         (event: React.ChangeEvent<HTMLInputElement>) => {
             const nextValues = { ...values, [field]: event.target.value };
             setValues(nextValues);
@@ -92,7 +91,7 @@ export const RegisterPage: React.FC = () => {
                         </div>
 
                         <div className="grid gap-4 sm:grid-cols-2">
-                            <Field
+                            <SignUpField
                                 id="firstName"
                                 label="First name"
                                 value={values.firstName}
@@ -101,7 +100,7 @@ export const RegisterPage: React.FC = () => {
                                 maxLength={signUpLimits.firstNameMaxLength}
                                 autoComplete="given-name"
                             />
-                            <Field
+                            <SignUpField
                                 id="lastName"
                                 label="Last name"
                                 value={values.lastName}
@@ -113,7 +112,7 @@ export const RegisterPage: React.FC = () => {
                         </div>
 
                         <div className="mt-4 grid gap-4">
-                            <Field
+                            <SignUpField
                                 id="tag"
                                 label="Tag"
                                 value={values.tag}
@@ -122,7 +121,7 @@ export const RegisterPage: React.FC = () => {
                                 maxLength={signUpLimits.tagMaxLength}
                                 autoComplete="username"
                             />
-                            <Field
+                            <SignUpField
                                 id="email"
                                 label="Email"
                                 type="email"
@@ -132,7 +131,7 @@ export const RegisterPage: React.FC = () => {
                                 maxLength={signUpLimits.emailMaxLength}
                                 autoComplete="email"
                             />
-                            <Field
+                            <SignUpField
                                 id="password"
                                 label="Password"
                                 type="password"
@@ -142,7 +141,7 @@ export const RegisterPage: React.FC = () => {
                                 maxLength={signUpLimits.passwordMaxLength}
                                 autoComplete="new-password"
                             />
-                            <Field
+                            <SignUpField
                                 id="confirmPassword"
                                 label="Confirm password"
                                 type="password"
@@ -171,40 +170,3 @@ export const RegisterPage: React.FC = () => {
         </div>
     );
 };
-
-type FieldProps = {
-    id: SignUpField;
-    label: string;
-    value: string;
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    error?: string;
-    type?: string;
-    maxLength?: number;
-    autoComplete?: string;
-};
-
-const Field = ({ id, label, value, onChange, error, type = "text", maxLength, autoComplete }: FieldProps) => (
-    <div>
-        <label htmlFor={id} className="mb-1 block text-sm font-semibold text-gray-800">
-            {label}
-        </label>
-        <input
-            id={id}
-            name={id}
-            type={type}
-            value={value}
-            onChange={onChange}
-            maxLength={maxLength}
-            autoComplete={autoComplete}
-            aria-invalid={!!error}
-            aria-describedby={error ? `${id}-error` : undefined}
-            className="w-full rounded border border-gray-300 px-3 py-2 text-base outline-none transition focus:border-blue-700 focus:ring-2 focus:ring-blue-100"
-            required
-        />
-        {error && (
-            <p id={`${id}-error`} className="mt-1 text-sm text-red-600">
-                {error}
-            </p>
-        )}
-    </div>
-);

@@ -1,8 +1,8 @@
 "use client";
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { CreateCommentCommand, CreatedCommentResponse } from '../models/api/comment-models';
-import { commentsService } from '../services/comment-service';
-import { AxiosResponse } from 'axios';
+import type { CreateCommentCommand, CreatedCommentResponse } from '../../../models/api/comment-models';
+import { commentsService } from '../../../services/comment-service';
+import type { AxiosResponse } from 'axios';
 
 export function useCreateComment() {
     const qc = useQueryClient();

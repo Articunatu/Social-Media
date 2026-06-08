@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from 'react';
-import { useAuth } from './auth-provider';
+import { useAuth } from '../../../authentication/auth-provider';
 import { useCreatePost } from '../hooks/use-create-post';
-import { CreatePostCommand } from '../models/api/post-models';
+import type { CreatePostCommand } from '../../../models/api/post-models';
 
 const NewPostForm: React.FC = () => {
     const auth = useAuth();
@@ -36,7 +36,7 @@ const NewPostForm: React.FC = () => {
         <form onSubmit={handleSubmit} className="w-full max-w-xl">
         <div className="mb-2">
             <textarea
-            className="w-full border rounded p-2"
+            className="textarea textarea-bordered w-full"
             placeholder="What's on your mind?"
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -44,11 +44,11 @@ const NewPostForm: React.FC = () => {
             required
             />
         </div>
-        {error && <div className="text-red-500 mb-2">{error}</div>}
+        {error && <div className="mb-2 text-error">{error}</div>}
         <div className="flex justify-end">
             <button
             type="submit"
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            className="btn btn-success"
             disabled={isLoading}
             >
             {isLoading ? 'Posting...' : 'Post'}

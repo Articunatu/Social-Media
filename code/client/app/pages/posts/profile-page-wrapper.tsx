@@ -1,7 +1,7 @@
 import React from 'react';
 import ProfilePage from './profile-page';
 import { useRouter } from 'next/router';
-import { UUID } from 'crypto';
+import type { UUID } from 'crypto';
 
 const ProfilePageWrapper: React.FC = () => {
     const router = useRouter();

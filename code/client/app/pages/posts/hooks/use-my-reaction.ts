@@ -1,9 +1,9 @@
 "use client";
 import { useQuery } from '@tanstack/react-query';
-import { AxiosError } from 'axios';
-import { UUID } from 'crypto';
-import { ReactionResponse } from '../models/api/reaction-models';
-import reactionService from '../services/reaction-service';
+import type { AxiosError } from 'axios';
+import type { UUID } from 'crypto';
+import type { ReactionResponse } from '../../../models/api/reaction-models';
+import reactionService from '../../../services/reaction-service';
 
 export function useMyReaction(postId: UUID, enabled: boolean = true) {
     return useQuery<ReactionResponse | null, Error>({

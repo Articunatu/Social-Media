@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import userService from '../services/user-service';
-import { ProfileDetails } from '../models/api/user-models';
-import { UUID } from 'crypto';
+import userService from '../../../services/user-service';
+import type { ProfileDetails } from '../../../models/api/user-models';
+import type { UUID } from 'crypto';
 
 export function useProfile(userId: UUID) {
     return useQuery<ProfileDetails, Error>({

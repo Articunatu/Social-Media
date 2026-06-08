@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { FeedPost, FeedResponseServer } from '../models/api/post-models';
-import { PagedFeed } from '../models/paging-models';
-import postService from '../services/post-service';
+import type { FeedPost, FeedResponseServer } from '../../../models/api/post-models';
+import type { PagedFeed } from '../../../models/paging-models';
+import postService from '../../../services/post-service';
 
 function mapFeedResponseToFeedPost(item: FeedResponseServer): FeedPost {
     return {
