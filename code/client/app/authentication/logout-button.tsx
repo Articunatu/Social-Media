@@ -21,7 +21,7 @@ export const LogoutButton = () => {
             type="button"
             onClick={handleLogout}
             disabled={auth.loading}
-            className="rounded border border-black bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+            className="btn btn-outline btn-sm"
         >
             {auth.loading ? "Logging out..." : "Logout"}
         </button>

@@ -33,32 +33,34 @@ export function useExploredPosts(enabled: boolean = false) {
         return 'profileFeed' in r && typeof r.profileFeed === 'object';
       };
 
-      let values: ProfilePostDto[] = [];
-
       if (isServerResult(data)) {
-        values = data.value.profileFeed.values ?? [];
-      } else if (isProfileFeedResponse(data)) {
-        values = data.profileFeed.values ?? [];
-      } else {
-        return [];
+        return mapProfilePosts(data.value.profileFeed.values ?? []);
       }
 
-      return values.map<FeedPost>((p) => ({
-        postId: p.postId,
-        profile: {
-          id: EMPTY_UUID,
-          tag: '',
-          fullName: '',
-          profilePhoto: '',
-        },
-        content: p.content,
-        authorId: EMPTY_UUID,
-        createdAt: p.timeStamp,
-        commentsCount: p.commentsCount,
-        reactionCounts: p.reactionCounts ?? [],
-      }));
+      if (isProfileFeedResponse(data)) {
+        return mapProfilePosts(data.profileFeed.values ?? []);
+      }
+
+      return [];
     },
     enabled,
     staleTime: 1000 * 60,
   });
+}
+
+function mapProfilePosts(values: ProfilePostDto[]): FeedPost[] {
+  return values.map<FeedPost>((post) => ({
+    postId: post.postId,
+    profile: {
+      id: EMPTY_UUID,
+      tag: '',
+      fullName: '',
+      profilePhoto: '',
+    },
+    content: post.content,
+    authorId: EMPTY_UUID,
+    createdAt: post.timeStamp,
+    commentsCount: post.commentsCount,
+    reactionCounts: post.reactionCounts ?? [],
+  }));
 }

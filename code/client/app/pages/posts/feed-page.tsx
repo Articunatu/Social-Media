@@ -42,7 +42,7 @@ const FeedPage: React.FC = () => {
 
             {posts && posts.length === 0 && !showExplored && (
                 <button
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    className="btn btn-primary"
                     onClick={handleLoadExplored}
                 >
                     Load Explored Posts

@@ -1,5 +1,5 @@
 import React from "react";
-import type { SignUpField as SignUpFieldId } from "../utils/sign-up-validation";
+import type { SignUpField as SignUpFieldId } from "../validation-utils/sign-up-validation";
 
 type SignUpFieldProps = {
     id: SignUpFieldId;

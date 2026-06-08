@@ -1,73 +1,54 @@
 "use client";
-import React, { useState } from "react";
+
+import React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useAuth } from "../../authentication/auth-provider";
+import { useLoginForm } from "./hooks/use-login-form";
 
 export const LoginPage: React.FC = () => {
-    const [tag, setTag] = useState("");
-    const [password, setPassword] = useState("");
-    const auth = useAuth();
-    const [localError, setLocalError] = useState<string | null>(null);
-    const router = useRouter();
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLocalError(null);
-        if (!auth) return;
-        const success = await auth.login({ tag, password });
-        if (success) {
-            router.push("/");
-            return;
-        } 
-        setLocalError(auth.error || "Login failed");
-    };
+    const { auth, error, handleSubmit, password, setPassword, setTag, tag } = useLoginForm();
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
-            <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-80">
-                <h2 className="text-xl font-bold mb-4">Login</h2>
-                <p className="mb-4 text-sm text-gray-600">
-                    Need an account? <Link href="/signup" className="font-semibold text-blue-700 hover:text-blue-900">Sign up</Link>
-                </p>
-                <div className="mb-4">
-                    <label htmlFor="tag" className="block mb-1 font-medium">
-                        Tag
+        <div className="flex min-h-screen flex-col items-center justify-center bg-base-200">
+            <form onSubmit={handleSubmit} className="card w-full max-w-sm bg-base-100 shadow-sm">
+                <div className="card-body">
+                    <h2 className="card-title">Login</h2>
+                    <p className="text-sm text-base-content/70">
+                        Need an account?{" "}
+                        <Link href="/signup" className="link link-primary font-semibold">
+                            Sign up
+                        </Link>
+                    </p>
+
+                    <label className="form-control">
+                        <span className="label-text mb-1 font-medium">Tag</span>
+                        <input
+                            type="text"
+                            value={tag}
+                            onChange={(event) => setTag(event.target.value)}
+                            className="input input-bordered"
+                            required
+                            autoComplete="username"
+                        />
                     </label>
-                    <input
-                        id="tag"
-                        type="text"
-                        value={tag}
-                        onChange={(e) => setTag(e.target.value)}
-                        className="w-full border px-3 py-2 rounded"
-                        required
-                        autoComplete="username"
-                    />
-                </div>
-                <div className="mb-4">
-                    <label htmlFor="password" className="block mb-1 font-medium">
-                        Password
+
+                    <label className="form-control">
+                        <span className="label-text mb-1 font-medium">Password</span>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(event) => setPassword(event.target.value)}
+                            className="input input-bordered"
+                            required
+                            autoComplete="current-password"
+                        />
                     </label>
-                    <input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full border px-3 py-2 rounded"
-                        required
-                        autoComplete="current-password"
-                    />
+
+                    {error && <div className="alert alert-error py-2 text-sm">{error}</div>}
+
+                    <button type="submit" className="btn btn-primary w-full" disabled={auth?.loading}>
+                        {auth?.loading ? "Logging in..." : "Login"}
+                    </button>
                 </div>
-                {(localError || (auth && auth.error)) && (
-                    <div className="text-red-500 mb-2">{localError || auth?.error}</div>
-                )}
-                <button
-                    type="submit"
-                    className="w-full bg-blue-600 text-white py-2 rounded font-semibold"
-                    disabled={auth?.loading}
-                >
-                    {auth?.loading ? "Logging in..." : "Login"}
-                </button>
             </form>
         </div>
     );

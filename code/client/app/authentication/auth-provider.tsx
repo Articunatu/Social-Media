@@ -25,12 +25,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         const storedToken = localStorage.getItem("jwt");
-        if (storedToken) {
-            setToken(storedToken);
-            fetchUser(storedToken);
-        } else {
+        if (!storedToken) {
             setLoading(false);
+            return;
         }
+
+        setToken(storedToken);
+        fetchUser(storedToken);
     }, []);
 
     const fetchUser = async (jwt: string) => {
@@ -52,22 +53,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setLoading(true);
         setError(null);
         const result = await loginHook(credentials);
-        if (result.success) {
-            const storedToken = localStorage.getItem("jwt");
-            if (storedToken) {
-                setToken(storedToken);
-                await fetchUser(storedToken);
-            } else {
-                setLoading(false);
-            }
-            return true;
-        } else {
+
+        if (!result.success) {
             setToken(null);
             setUser(null);
             setLoading(false);
             setError(result.error || "Login failed");
             return false;
         }
+
+        const storedToken = localStorage.getItem("jwt");
+        if (!storedToken) {
+            setLoading(false);
+            return true;
+        }
+
+        setToken(storedToken);
+        await fetchUser(storedToken);
+        return true;
     };
 
     const logout = async () => {
