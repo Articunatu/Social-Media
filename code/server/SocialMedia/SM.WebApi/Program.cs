@@ -17,8 +17,6 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthenticationServices(builder.Configuration["JwtSettings:TokenKey"]!);
 builder.Services.AddAuthorization();
 
-builder.Services.AddSwaggerGen();
-
 string CorsPolicy = nameof(CorsPolicy);
 
 builder.Services.AddCors(options =>

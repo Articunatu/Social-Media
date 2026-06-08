@@ -17,7 +17,10 @@ public static class PhotoEndpoints
 
         group.MapGet("get-photo-by-id/{id}", GetPhotoById);
         group.MapGet("get-photos-by-userid/{userId}", GetPhotosByUserId);
-        //group.MapPost("/{userId}/upload", UploadPhoto); ///Fails in Swagger
+        group.MapPost("{userId}/upload", UploadPhoto)
+            .Accepts<IFormFile>("multipart/form-data")
+            .DisableAntiforgery()
+            .RequireAuthorization();
         group.MapPatch("set-pfp", SetProfilePictureByPhotoAndUserId).RequireAuthorization();
 
         return group;
@@ -37,22 +40,28 @@ public static class PhotoEndpoints
         return TypedResults.Ok(usersPhotos);
     }
 
-    //public static async Task<IResult> UploadPhoto([FromRoute] Guid userId, [FromForm] IFormFile file, ISender sender)
-    //{
-    //    var tempFilePath = Path.GetTempFileName();
-    //    using (var stream = File.Create(tempFilePath))
-    //    {
-    //        await file.CopyToAsync(stream);
-    //    }
-    //    var fileInfo = new FileInfo(tempFilePath);
-    //    var command = new UploadPhotoCommand(fileInfo, userId);
+    public static async Task<IResult> UploadPhoto(Guid userId, IFormFile file, ISender sender)
+    {
+        var tempFilePath = Path.GetTempFileName();
 
-    //    var uploadResponse = await sender.Send(command);
+        try
+        {
+            using (var stream = File.Create(tempFilePath))
+            {
+                await file.CopyToAsync(stream);
+            }
 
-    //    File.Delete(tempFilePath);
+            var fileInfo = new FileInfo(tempFilePath);
+            var command = new UploadPhotoCommand(fileInfo, userId);
+            var uploadResponse = await sender.Send(command);
 
-    //    return TypedResults.Ok(uploadResponse);
-    //}
+            return TypedResults.Ok(uploadResponse);
+        }
+        finally
+        {
+            File.Delete(tempFilePath);
+        }
+    }
 
     public static async Task<IResult> SetProfilePictureByPhotoAndUserId(
         [FromBody] SetProfilePhotoCommand command,

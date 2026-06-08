@@ -13,13 +13,13 @@ public static class UserEndpoints
 {
     public static RouteGroupBuilder MapUserEndpoints(this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("/api/users/").RequireAuthorization();
+        var group = routes.MapGroup("/api/users/");
 
-        group.MapDelete("delete", DeleteAccount);
-        group.MapPost("follow", Follow);
-        group.MapGet("{userId}", GetProfile);
+        group.MapDelete("delete", DeleteAccount).RequireAuthorization();
+        group.MapPost("follow", Follow).RequireAuthorization();
+        group.MapGet("{userId}", GetProfile).RequireAuthorization();
         group.MapPost("search", SearchUsers);
-        group.MapDelete("unfollow", Unfollow);
+        group.MapDelete("unfollow", Unfollow).RequireAuthorization();
 
         return group;
     }
