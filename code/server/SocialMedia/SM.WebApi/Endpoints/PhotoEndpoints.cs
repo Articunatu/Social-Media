@@ -30,14 +30,14 @@ public static class PhotoEndpoints
     {
         var query = new GetPhotoByIdQuery(id);
         var photo = await sender.Send(query);
-        return TypedResults.Ok(photo);
+        return photo.ToActionResult();
     }
 
     public static async Task<IResult> GetPhotosByUserId(Guid userId, ISender sender)
     {
         var query = new GetPhotosByUserIdQuery(userId);
         var usersPhotos = await sender.Send(query);
-        return TypedResults.Ok(usersPhotos);
+        return usersPhotos.ToActionResult();
     }
 
     public static async Task<IResult> UploadPhoto(Guid userId, IFormFile file, ISender sender)
@@ -52,10 +52,11 @@ public static class PhotoEndpoints
             }
 
             var fileInfo = new FileInfo(tempFilePath);
-            var command = new UploadPhotoCommand(fileInfo, userId);
+            var fileName = Path.GetFileName(file.FileName);
+            var command = new UploadPhotoCommand(fileInfo, fileName, userId);
             var uploadResponse = await sender.Send(command);
 
-            return TypedResults.Ok(uploadResponse);
+            return uploadResponse.ToActionResult();
         }
         finally
         {
@@ -75,6 +76,6 @@ public static class PhotoEndpoints
         command = command with { UserId = userId };
 
         var isUpdated = await sender.Send(command);
-        return TypedResults.Ok(isUpdated);
+        return isUpdated.ToActionResult();
     }
 }

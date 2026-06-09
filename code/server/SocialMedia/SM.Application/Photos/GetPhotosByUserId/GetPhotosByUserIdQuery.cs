@@ -1,3 +1,5 @@
-﻿namespace SM.Application.Photos.GetPhotosByUserId;
+using SM.Application.Abstractions;
 
-public record GetPhotosByUserIdQuery(Guid UserId);
+namespace SM.Application.Photos.GetPhotosByUserId;
+
+public record GetPhotosByUserIdQuery(Guid UserId) : IQuery<IEnumerable<PhotoResponse>>;

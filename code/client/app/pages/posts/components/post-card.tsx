@@ -6,6 +6,7 @@ import { PostComments } from "./post-comments";
 import { PostReactionButtons } from "./post-reaction-buttons";
 import { usePostCard } from "../hooks/use-post-card";
 import type { PostCardProps } from "../models/post-card-props";
+import { getPhotoDataUrl } from "../models/photo-data-url";
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
     const {
@@ -25,6 +26,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     } = usePostCard(post);
 
     const { profile, content, createdAt, commentsCount } = post;
+    const profilePhotoSrc = getPhotoDataUrl(profile.profilePhoto);
 
     return (
         <li className="list-none w-full max-w-xl px-4 py-3">
@@ -32,12 +34,13 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 <div className="card-body p-4 flex-row gap-4 items-start">
                     <div className="avatar">
                         <div className="w-12 h-12 rounded-full border-2 border-black pokeshadow">
-                            {profile.profilePhoto && (
+                            {profilePhotoSrc && (
                                 <Image
-                                    src={profile.profilePhoto}
+                                    src={profilePhotoSrc}
                                     alt={`${profile.fullName}'s profile`}
                                     width={48}
                                     height={48}
+                                    unoptimized
                                 />
                             )}
                         </div>

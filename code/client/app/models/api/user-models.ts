@@ -1,4 +1,5 @@
-import { UUID } from "crypto";
+import type { UUID } from "crypto";
+import type { PhotoResponse } from "./photo-models";
 
 export interface DeleteAccountCommand {
     userId: UUID;
@@ -10,18 +11,18 @@ export interface FollowCommand {
 }
 
 export interface ProfileDetails {
-    profileInfo: ProfileInfo;
+    profile: ProfileInfo;
     aboutMe: string;
     followingCount: number;
     followersCount: number;
-    backgroundPhoto: string;
+    backgroundPhoto: PhotoResponse | null;
 }
 
 export interface ProfileInfo {
     id: UUID;
     tag: string;
     fullName: string;
-    profilePhoto: string;
+    profilePhoto: PhotoResponse | null;
 }
 
 export interface SearchUserQuery {

@@ -27,18 +27,19 @@ internal class UploadPhotoCommandHandler(IDbContextFactory<ApplicationDbContext>
 
         var data = await File.ReadAllBytesAsync(fileInfo.FullName, ct);
 
-        var contentType = fileInfo.Name.GetContentType();
+        var contentType = request.FileName.GetContentType();
 
         if (contentType is null)
             return Result.Failure<Guid>(new Error("Unsupported file type."), HttpStatusCode.UnsupportedMediaType);
 
         var photo = new Photo(Guid.CreateVersion7())
         {
-            FileName = fileInfo.Name,
+            FileName = request.FileName,
             ContentType = contentType,
             Data = data,
             UserId = request.UserId,
-            Type = PhotoType.Regular
+            Type = PhotoType.Regular,
+            CreatedAt = DateTime.UtcNow
         };
 
         await using var context = await contextFactory.CreateDbContextAsync(ct);

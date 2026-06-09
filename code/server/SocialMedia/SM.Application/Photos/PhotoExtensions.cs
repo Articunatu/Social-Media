@@ -8,6 +8,7 @@ public static class PhotoExtensions
     {
         return new PhotoResponse
         {
+            Id = photo.Id,
             FileName = photo.FileName,
             ContentType = photo.ContentType,
             Base64Data = Convert.ToBase64String(photo.Data)

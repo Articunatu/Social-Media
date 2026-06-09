@@ -55,7 +55,7 @@ function mapProfilePosts(values: ProfilePostDto[]): FeedPost[] {
       id: EMPTY_UUID,
       tag: '',
       fullName: '',
-      profilePhoto: '',
+      profilePhoto: null,
     },
     content: post.content,
     authorId: EMPTY_UUID,

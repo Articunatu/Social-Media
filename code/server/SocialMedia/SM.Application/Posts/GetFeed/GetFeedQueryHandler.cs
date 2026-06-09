@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Application.Shared.Extensions;
@@ -27,7 +27,7 @@ internal class GetFeedQueryHandler(IDbContextFactory<ApplicationDbContext> conte
             .Where(p => followingIds.Contains(p.AuthorId))
             .Include(p => p.Author)
             .Select(p => new FeedResponse(
-                new ProfileInfo(p.Author.Id, p.Author.Tag, p.Author.GetFullName(), p.Author.GetProfilePhoto()),
+                p.Author.MapToProfile(),
                 new ProfilePostDto
                 {
                     PostId = p.Id,
@@ -35,8 +35,8 @@ internal class GetFeedQueryHandler(IDbContextFactory<ApplicationDbContext> conte
                     TimeStamp = p.TimeStamp,
                     CommentsCount = p.Comments.Count(),
                     ReactionCounts = p.Reactions
-                            .GroupBy(r => r.Type)
-                            .Select(rt => new ReactionCount(rt.Key, rt.Count()))
+                        .GroupBy(r => r.Type)
+                        .Select(rt => new ReactionCount(rt.Key, rt.Count()))
                 }
             ))
             .AsQueryable();
