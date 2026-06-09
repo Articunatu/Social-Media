@@ -2,4 +2,4 @@
 
 namespace SM.Application.Users.GetProfile;
 
-public record GetProfileQuery(Guid Id) : IQuery<ProfileDetails>;
+public record GetProfileQuery(Guid Id, Guid ViewerId) : IQuery<ProfileDetails>;

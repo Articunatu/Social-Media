@@ -13,7 +13,7 @@ public class GetProfileTests(IntegrationTestFixture fixture) : BaseIntegrationTe
             aboutMe: "About me",
             withBackgroundPhoto: true);
 
-        var result = await Sender.Send(new GetProfileQuery(userId));
+        var result = await Sender.Send(new GetProfileQuery(userId, Guid.Empty));
 
         using (new AssertionScope())
         {
@@ -21,13 +21,14 @@ public class GetProfileTests(IntegrationTestFixture fixture) : BaseIntegrationTe
             result.Value!.Profile.Should().NotBeNull();
             result.Value.AboutMe.Should().Be("About me");
             result.Value.BackgroundPhoto.Should().NotBeNull();
+            result.Value.IsFollowedByCurrentUser.Should().BeFalse();
         }
     }
 
     [Fact]
     public async Task Handle_ShouldReturnFailure_WhenUserNotFound()
     {
-        var result = await Sender.Send(new GetProfileQuery(Guid.NewGuid()));
+        var result = await Sender.Send(new GetProfileQuery(Guid.NewGuid(), Guid.Empty));
 
         result.IsSuccess.Should().BeFalse();
         result.Error.Should().Be(UserErrors.NotFound);

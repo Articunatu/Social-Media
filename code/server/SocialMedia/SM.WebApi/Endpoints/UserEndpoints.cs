@@ -47,16 +47,18 @@ public static class UserEndpoints
         command = command with { FollowerId = userId };
 
         var followPair = await sender.Send(command);
-        return TypedResults.Ok(followPair);
+        return followPair.ToActionResult();
     }
 
     public static async Task<IResult> GetProfile(
         Guid userId,
-        ISender sender)
+        ISender sender,
+        HttpContext httpContext)
     {
-        var query = new GetProfileQuery(userId);
+        var viewerId = httpContext.GetLoggedInUserId();
+        var query = new GetProfileQuery(userId, viewerId);
         var profile = await sender.Send(query);
-        return TypedResults.Ok(profile);
+        return profile.ToActionResult();
     }
 
     public static async Task<IResult> SearchUsers(
@@ -78,6 +80,6 @@ public static class UserEndpoints
         command = command with { FollowerId = userId };
 
         var unfollowPair = await sender.Send(command);
-        return TypedResults.Ok(unfollowPair);
+        return unfollowPair.ToActionResult();
     }
 }

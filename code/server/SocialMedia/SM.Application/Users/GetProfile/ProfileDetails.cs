@@ -9,5 +9,6 @@ public record ProfileDetails
     public string AboutMe { get; set; } = string.Empty;
     public int FollowingCount { get; set; }
     public int FollowersCount { get; set; }
+    public bool IsFollowedByCurrentUser { get; set; }
     public Photo? BackgroundPhoto { get; set; }
 }

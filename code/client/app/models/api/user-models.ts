@@ -7,7 +7,7 @@ export interface DeleteAccountCommand {
 
 export interface FollowCommand {
     followerId: UUID;
-    followedId: UUID;
+    followingId: UUID;
 }
 
 export interface ProfileDetails {
@@ -15,6 +15,7 @@ export interface ProfileDetails {
     aboutMe: string;
     followingCount: number;
     followersCount: number;
+    isFollowedByCurrentUser: boolean;
     backgroundPhoto: PhotoResponse | null;
 }
 
@@ -33,5 +34,5 @@ export interface SearchUserQuery {
 
 export interface UnfollowCommand {
     followerId: UUID;
-    unfollowedId: UUID;
+    followingId: UUID;
 }
