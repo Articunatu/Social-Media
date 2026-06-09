@@ -66,7 +66,7 @@ public static class UserEndpoints
         ISender sender)
     {
         var foundUsers = await sender.Send(query);
-        return TypedResults.Ok(foundUsers);
+        return foundUsers.ToActionResult();
     }
 
     public static async Task<IResult> Unfollow(

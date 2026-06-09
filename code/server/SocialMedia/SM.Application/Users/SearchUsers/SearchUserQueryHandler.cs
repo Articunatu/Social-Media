@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Application.Shared.Extensions;
@@ -14,22 +14,22 @@ internal class SearchUserQueryHandler(IDbContextFactory<ApplicationDbContext> co
         await using var context = await contextFactory.CreateDbContextAsync(ct);
 
         var search = (request.Filter?.SearchText ?? string.Empty).Trim().ToLower();
-
-        IQueryable<ProfileInfo> query = context.Users.Select(u => u.MapToProfile());
+        var query = context.Users
+            .AsNoTracking()
+            .Include(u => u.Photos)
+            .AsQueryable();
 
         if (!string.IsNullOrEmpty(search))
         {
             var pattern = $"%{search}%";
-            query = context.Users
-                .Where(u =>
-                    EF.Functions.Like(u.Tag, pattern) ||
-                    EF.Functions.Like(u.FirstName, pattern) ||
-                    EF.Functions.Like(u.LastName, pattern))
-                .Select(u => u.MapToProfile());
+            query = query.Where(u =>
+                EF.Functions.Like(u.Tag, pattern) ||
+                EF.Functions.Like(u.FirstName, pattern) ||
+                EF.Functions.Like(u.LastName, pattern));
         }
 
         var matchingUsers = await query.ToPagedFeed(request.Filter ?? new PageFilter());
 
-        return Result.Success(matchingUsers.Values);
+        return Result.Success(matchingUsers.Values.Select(u => u.MapToProfile()));
     }
 }

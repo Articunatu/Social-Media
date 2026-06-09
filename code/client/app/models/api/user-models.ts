@@ -1,5 +1,6 @@
 import type { UUID } from "crypto";
 import type { PhotoResponse } from "./photo-models";
+import type { PageFilter } from "../paging-models";
 
 export interface DeleteAccountCommand {
     userId: UUID;
@@ -27,9 +28,7 @@ export interface ProfileInfo {
 }
 
 export interface SearchUserQuery {
-    searchText: string;
-    index: number;
-    sortOrder: string;
+    filter: PageFilter;
 }
 
 export interface UnfollowCommand {

@@ -6,6 +6,7 @@ import { LogoutButton } from '../../authentication/logout-button';
 import { useFeed } from './hooks/use-feed';
 import { useExploredPosts } from './hooks/use-explored-posts';
 import type { FeedPost } from '@/app/models/api/post-models';
+import { UserSearch } from './components/user-search';
 
 const FeedPage: React.FC = () => {
     const { data: posts, isLoading, isError } = useFeed();
@@ -28,6 +29,8 @@ const FeedPage: React.FC = () => {
             )}
 
             {isLoading && <div>Loading...</div>}
+
+            {auth?.user && <UserSearch />}
 
             {auth && auth.user && (
                 <div className="w-full flex justify-center">

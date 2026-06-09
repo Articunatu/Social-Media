@@ -3,6 +3,7 @@ import {
     DeleteAccountCommand,
     FollowCommand,
     ProfileDetails,
+    ProfileInfo,
     SearchUserQuery,
     UnfollowCommand,
 } from '../models/api/user-models';
@@ -21,7 +22,7 @@ const userService = {
         api.get<ProfileDetails>(`${userUri}/${userId}`),
 
     searchUsers: (query: SearchUserQuery) =>
-        api.post<ProfileDetails[]>(`${userUri}/search`, query),
+        api.post<ProfileInfo[]>(`${userUri}/search`, query),
 
     unfollow: (command: UnfollowCommand) =>
         api.delete(`${userUri}/unfollow`, { data: command }),
