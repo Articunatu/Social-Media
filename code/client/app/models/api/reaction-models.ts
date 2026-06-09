@@ -14,6 +14,8 @@ export interface ReactionResponse {
 };
 
 export interface ReactedProfilePost extends ProfilePost {
+    postId: UUID;
+    reactionId: UUID;
     type: ReactionType;
 }
 

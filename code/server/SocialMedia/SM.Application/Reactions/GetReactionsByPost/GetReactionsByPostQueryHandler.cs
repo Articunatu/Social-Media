@@ -3,7 +3,6 @@ using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Application.Shared.Extensions;
 using SM.Domain.Shared;
-using SM.Domain.Users.Extensions;
 
 namespace SM.Application.Reactions.GetReactionsByPost;
 
@@ -14,18 +13,19 @@ internal class GetReactionsByPostQueryHandler(IDbContextFactory<ApplicationDbCon
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var reactionsQuery = context.Reactions
+        var pagedReactions = await context.Reactions
+            .AsNoTracking()
             .Where(r => r.PostId == request.PostId && (!request.Type.HasValue || r.Type == request.Type.Value))
             .Include(r => r.User)
-            .Select(r => new ReactionResponse
-            (
-                r.Id,
-                r.Type,
-                r.User.MapToProfile()
-            )).AsQueryable();
+            .ThenInclude(u => u.Photos)
+            .ToPagedFeed(request.Filter);
 
-        var pagedReactions = await reactionsQuery.ToPagedFeed(request.Filter);
-
-        return Result.Success(pagedReactions);
+        return Result.Success(new PagedFeed<ReactionResponse>
+        {
+            Index = pagedReactions.Index,
+            Order = pagedReactions.Order,
+            SearchText = pagedReactions.SearchText,
+            Values = pagedReactions.Values.Select(r => r.MapToResponse())
+        });
     }
 }

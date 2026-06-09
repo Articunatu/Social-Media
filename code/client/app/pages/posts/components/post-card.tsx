@@ -7,8 +7,11 @@ import { PostReactionButtons } from "./post-reaction-buttons";
 import { usePostCard } from "../hooks/use-post-card";
 import type { PostCardProps } from "../models/post-card-props";
 import { getPhotoDataUrl } from "../models/photo-data-url";
+import { ReactionDetailModal } from "./reaction-detail-modal";
+import React from "react";
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
+    const [showReactionDetails, setShowReactionDetails] = React.useState(false);
     const {
         commentContent,
         commentError,
@@ -57,6 +60,14 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                         <div className="mt-3 flex items-center gap-3">
                             <span className="text-sm text-gray-700">{totalReactions}</span>
                             <button
+                                className="btn btn-xs bg-base-100 border-2 border-black pokeshadow active:translate-x-px active:translate-y-px active:shadow-none"
+                                disabled={totalReactions === 0}
+                                onClick={() => setShowReactionDetails(true)}
+                                type="button"
+                            >
+                                Details
+                            </button>
+                            <button
                                 className="btn btn-sm bg-base-100 border-2 border-black pokeshadow active:translate-x-px active:translate-y-px active:shadow-none"
                                 onClick={toggleComments}
                                 type="button"
@@ -85,6 +96,12 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                     </div>
                 </div>
             </article>
+            <ReactionDetailModal
+                isOpen={showReactionDetails}
+                onClose={() => setShowReactionDetails(false)}
+                postId={post.postId}
+                reactionCounts={post.reactionCounts}
+            />
         </li>
     );
 };

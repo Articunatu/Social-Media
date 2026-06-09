@@ -13,6 +13,7 @@ import { getPhotoDataUrl } from './models/photo-data-url';
 import { usePostsByUser } from './hooks/use-posts-by-user';
 import { useFollowUser } from './hooks/use-follow-user';
 import { useUnfollowUser } from './hooks/use-unfollow-user';
+import { ReactedPostsList } from './components/reacted-posts-list';
 
 interface ProfilePageProps {
     userId: UUID;
@@ -26,6 +27,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
     const followUser = useFollowUser();
     const unfollowUser = useUnfollowUser();
     const [followError, setFollowError] = React.useState<string | null>(null);
+    const [activeTab, setActiveTab] = React.useState<'posts' | 'reacted'>('posts');
     const profilePhotoSrc = getPhotoDataUrl(profileInfo?.profilePhoto);
     const canEditPhotos = auth?.user?.userId === userId;
     const canFollow = !!auth?.user && auth.user.userId !== userId;
@@ -95,16 +97,35 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
                 <ProfilePhotoManager canEdit={canEditPhotos} userId={userId} />
             </div>
             <div className="flex flex-col items-center gap-4 p-4">
-                {isLoading && <div>Loading...</div>}
-                {isError && <div>Failed to load profile posts.</div>}
+                <div className="tabs tabs-boxed">
+                    <button
+                        className={`tab ${activeTab === 'posts' ? 'tab-active' : ''}`}
+                        onClick={() => setActiveTab('posts')}
+                        type="button"
+                    >
+                        Posts
+                    </button>
+                    <button
+                        className={`tab ${activeTab === 'reacted' ? 'tab-active' : ''}`}
+                        onClick={() => setActiveTab('reacted')}
+                        type="button"
+                    >
+                        Reacted
+                    </button>
+                </div>
+
+                {activeTab === 'posts' && isLoading && <div>Loading...</div>}
+                {activeTab === 'posts' && isError && <div>Failed to load profile posts.</div>}
                 
-                {posts && posts.map((post: FeedPost) => (
+                {activeTab === 'posts' && posts && posts.map((post: FeedPost) => (
                     <PostCard key={post.postId} post={post} />
                 ))}
 
-                {posts && posts.length === 0 && !isLoading && (
+                {activeTab === 'posts' && posts && posts.length === 0 && !isLoading && (
                     <div>This user has not posted anything yet.</div>
                 )}
+
+                <ReactedPostsList enabled={activeTab === 'reacted'} userId={userId} />
             </div>
         </div>
     );
