@@ -27,7 +27,9 @@ const postService = {
     api.get<ProfilePost>(`${postUri}/${postId}?pageNumber=${pageNumber}`),
 
   getProfilePosts: (userId: UUID, pageNumber: number) =>
-    api.get<ProfilePost[]>(`${postUri}/get-posts-by-user/${userId}?pageNumber=${pageNumber}`),
+    api.get<ServerResult<ProfileFeedResponseServer> | ProfileFeedResponseServer>(
+      `${postUri}/get-posts-by-user/${userId}?pageNumber=${pageNumber}`
+    ),
 
   getExploredPosts: () =>
     api.get<ServerResult<ProfileFeedResponseServer>>(`${postUri}/get-explored-posts`),
