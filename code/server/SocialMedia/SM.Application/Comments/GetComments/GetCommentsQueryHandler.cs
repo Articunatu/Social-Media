@@ -21,6 +21,7 @@ internal class GetCommentsQueryHandler(IDbContextFactory<ApplicationDbContext> c
             .Select(p => new CommentQuery
             {
                 PostId = p.Id,
+                AuthorId = p.AuthorId,
                 Content = p.Content,
                 TimeStamp = p.TimeStamp,
                 ParentPostId = request.ParentPostId,

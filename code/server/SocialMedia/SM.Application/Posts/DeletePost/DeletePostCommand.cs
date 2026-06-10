@@ -2,4 +2,4 @@
 
 namespace SM.Application.Posts.DeletePost;
 
-public record DeletePostCommand(Guid Id) : ICommand<PostResponse>;
+public record DeletePostCommand(Guid Id, Guid UserId) : ICommand<PostResponse>;

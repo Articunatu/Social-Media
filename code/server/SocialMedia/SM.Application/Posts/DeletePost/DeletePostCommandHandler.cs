@@ -19,6 +19,9 @@ internal class DeletePostCommandHandler(IDbContextFactory<ApplicationDbContext> 
         if (postToDelete is null)
             return Result.Failure<PostResponse>(new Error("Post.NotFound"), HttpStatusCode.NotFound);
 
+        if (postToDelete.AuthorId != request.UserId)
+            return Result.Failure<PostResponse>(new Error("Post.Forbidden"), HttpStatusCode.Forbidden);
+
         postToDelete.SoftDelete();
 
         await context.SaveChangesAsync(cancellationToken);

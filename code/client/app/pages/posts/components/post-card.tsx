@@ -10,9 +10,13 @@ import type { PostCardProps } from "../models/post-card-props";
 import { getPhotoDataUrl } from "../models/photo-data-url";
 import { ReactionDetailModal } from "./reaction-detail-modal";
 import React from "react";
+import { useAuth } from "../../../authentication/auth-provider";
+import { useDeletePost } from "../hooks/use-delete-post";
 
 const PostCard: React.FC<PostCardProps> = ({ post, commentsInitiallyOpen = false }) => {
     const [showReactionDetails, setShowReactionDetails] = React.useState(false);
+    const auth = useAuth();
+    const deletePost = useDeletePost();
     const {
         commentContent,
         commentError,
@@ -30,6 +34,11 @@ const PostCard: React.FC<PostCardProps> = ({ post, commentsInitiallyOpen = false
 
     const { profile, content, createdAt, commentsCount } = post;
     const profilePhotoSrc = getPhotoDataUrl(profile.profilePhoto);
+    const canDelete = auth?.user?.userId === post.authorId;
+
+    const handleDeletePost = async () => {
+        await deletePost.mutateAsync(post.postId);
+    };
 
     return (
         <li className="list-none w-full max-w-xl px-4 py-3">
@@ -58,6 +67,16 @@ const PostCard: React.FC<PostCardProps> = ({ post, commentsInitiallyOpen = false
                                 @{profile.tag}
                             </Link>
                             <span className="ml-2 text-xs text-gray-500">{new Date(createdAt).toLocaleString()}</span>
+                            {canDelete && (
+                                <button
+                                    className="btn btn-xs btn-error ml-auto"
+                                    disabled={deletePost.isPending}
+                                    onClick={handleDeletePost}
+                                    type="button"
+                                >
+                                    Delete
+                                </button>
+                            )}
                         </div>
                         <p className="mt-1 text-black">{content}</p>
 

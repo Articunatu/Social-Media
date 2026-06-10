@@ -3,6 +3,7 @@ import { ReactionCount } from "./reaction-models";
 
 export interface CommentDetails {
     postId: UUID;
+    authorId: UUID;
     commentsCount: number;
     reactionCounts: ReactionCount[];
     parentPostId: UUID;

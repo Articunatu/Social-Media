@@ -44,8 +44,8 @@ public static class PostEndpoints
         if (userId == Guid.Empty)
             return TypedResults.Unauthorized();
 
-        var deletedPost = await sender.Send(new DeletePostCommand(id));
-        return TypedResults.Ok(deletedPost);
+        var deletedPost = await sender.Send(new DeletePostCommand(id, userId));
+        return deletedPost.ToActionResult();
     }
 
     public static async Task<IResult> GetPostById(Guid id,

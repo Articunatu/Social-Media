@@ -41,8 +41,8 @@ public static class CommentEndpoints
         if (userId == Guid.Empty)
             return TypedResults.Unauthorized();
 
-        var deletedComment = await sender.Send(new DeleteCommentCommand(id));
-        return TypedResults.Ok(deletedComment);
+        var deletedComment = await sender.Send(new DeleteCommentCommand(id, userId));
+        return deletedComment.ToActionResult();
     }
 
     public static async Task<IResult> GetComments(Guid postId, [AsParameters] PageFilter filter, ISender sender)
