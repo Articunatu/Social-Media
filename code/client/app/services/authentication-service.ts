@@ -25,8 +25,8 @@ const authenticationService = {
     logout: (command: LogoutCommand) =>
         api.post(`${authUri}/logout`, command),
 
-    refreshToken: (command: RefreshTokenCommand) =>
-        api.post(`${authUri}/refresh-token`, command),
+    refreshToken: (command: RefreshTokenCommand = {}) =>
+        api.post<string>(`${authUri}/refresh-token`, command),
 
     changePassword: (command: ChangePasswordCommand) =>
         api.post<string>(`${authUri}/change-password`, command),

@@ -21,7 +21,7 @@ export interface LoginResponse {
 }
 
 export interface RefreshTokenCommand {
-    refreshToken: string;
+    refreshToken?: string;
 }
 
 export interface ChangePasswordCommand {
