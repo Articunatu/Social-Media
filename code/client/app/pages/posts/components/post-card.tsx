@@ -35,7 +35,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, commentsInitiallyOpen = false
         <li className="list-none w-full max-w-xl px-4 py-3">
             <article className="card bordered bg-base-200 border-4 border-black pokeshadow pokeshadow-hover transition-all duration-150">
                 <div className="card-body p-4 flex-row gap-4 items-start">
-                    <div className="avatar">
+                    <Link className="avatar shrink-0" href={`/profile/${profile.id}`}>
                         <div className="w-12 h-12 rounded-full border-2 border-black pokeshadow">
                             {profilePhotoSrc && (
                                 <Image
@@ -47,12 +47,16 @@ const PostCard: React.FC<PostCardProps> = ({ post, commentsInitiallyOpen = false
                                 />
                             )}
                         </div>
-                    </div>
+                    </Link>
 
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
-                            <span className="font-bold text-black">{profile.fullName}</span>
-                            <span className="text-sm text-gray-700">@{profile.tag}</span>
+                            <Link className="font-bold text-black hover:underline" href={`/profile/${profile.id}`}>
+                                {profile.fullName}
+                            </Link>
+                            <Link className="text-sm text-gray-700 hover:underline" href={`/profile/${profile.id}`}>
+                                @{profile.tag}
+                            </Link>
                             <span className="ml-2 text-xs text-gray-500">{new Date(createdAt).toLocaleString()}</span>
                         </div>
                         <p className="mt-1 text-black">{content}</p>
