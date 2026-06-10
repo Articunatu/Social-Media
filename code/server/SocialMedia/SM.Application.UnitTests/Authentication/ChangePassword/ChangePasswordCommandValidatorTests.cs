@@ -27,4 +27,15 @@ public class ChangePasswordCommandValidatorTests
         result.IsValid.Should().BeFalse();
         result.ShouldHaveValidationErrorFor(c => c.NewPassword);
     }
+
+    [Fact]
+    public void MismatchedConfirmPassword_ShouldHaveValidationErrors()
+    {
+        var command = new ChangePasswordCommand(Guid.NewGuid(), "OldPassword123!", "NewPassword123!", "OtherPassword123!");
+
+        var result = _validator.TestValidate(command);
+
+        result.IsValid.Should().BeFalse();
+        result.ShouldHaveValidationErrorFor(c => c.ConfirmPassword);
+    }
 }

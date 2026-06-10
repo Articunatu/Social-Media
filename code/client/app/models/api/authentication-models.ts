@@ -28,6 +28,7 @@ export interface ChangePasswordCommand {
     userId: string;
     oldPassword: string;
     newPassword: string;
+    confirmPassword: string;
 }
 
 export interface AuthorizeResponse {

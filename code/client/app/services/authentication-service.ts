@@ -29,7 +29,7 @@ const authenticationService = {
         api.post(`${authUri}/refresh-token`, command),
 
     changePassword: (command: ChangePasswordCommand) =>
-        api.post(`${authUri}/change-password`, command),
+        api.post<string>(`${authUri}/change-password`, command),
 };
 
 export default authenticationService;

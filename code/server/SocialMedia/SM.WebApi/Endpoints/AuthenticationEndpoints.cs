@@ -22,7 +22,7 @@ public static class AuthenticationEndpoints
         group.MapGet("/authorize", Authorize);
         group.MapPost("/logout", Logout).RequireAuthorization();
         group.MapPost("/refresh-token", RefreshToken);
-        group.MapPost("/change-password", ChangePassword);
+        group.MapPost("/change-password", ChangePassword).RequireAuthorization();
 
         return group;
     }
@@ -98,6 +98,6 @@ public static class AuthenticationEndpoints
 
         command = command with { UserId = userId };
         var result = await sender.Send(command);
-        return TypedResults.Ok(result.Value);
+        return result.ToActionResult();
     }
 }

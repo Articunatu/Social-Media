@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 import PostCard from './components/post-card';
 import NewPostForm from './components/new-post-form';
 import { useAuth } from '../../authentication/auth-provider';
@@ -24,7 +25,12 @@ const FeedPage: React.FC = () => {
                         <p className="truncate text-sm text-gray-600">Signed in as</p>
                         <p className="truncate text-base font-semibold text-black">{auth.user.username}</p>
                     </div>
-                    <LogoutButton />
+                    <div className="flex shrink-0 items-center gap-2">
+                        <Link className="btn btn-sm btn-ghost" href="/change-password">
+                            Password
+                        </Link>
+                        <LogoutButton />
+                    </div>
                 </div>
             )}
 

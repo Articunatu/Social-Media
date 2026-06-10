@@ -14,9 +14,15 @@ internal class ChangePasswordCommandHandler(IDbContextFactory<ApplicationDbConte
     {
         await using var context = await contextFactory.CreateDbContextAsync(ct);
 
-        jwt.GeneratePasswordHash(command.OldPassword, out byte[] oldPasswordHash, out byte[] oldPasswordSalt);
+        var user = await context.Users
+            .Where(u => u.Id == command.UserId)
+            .Select(u => new { u.PasswordHash, u.PasswordSalt })
+            .FirstOrDefaultAsync(ct);
 
-        if (!jwt.VerifyPasswordHash(command.OldPassword, oldPasswordHash, oldPasswordSalt))
+        if (user is null)
+            return Result.Failure<string>(new Error("User.NotFound"), HttpStatusCode.NotFound);
+
+        if (!jwt.VerifyPasswordHash(command.OldPassword, user.PasswordHash, user.PasswordSalt))
             return Result.Failure<string>(new Error("Credentials invalid"), HttpStatusCode.BadRequest);
 
         jwt.GeneratePasswordHash(command.NewPassword, out byte[] newPasswordHash, out byte[] newPasswordSalt);

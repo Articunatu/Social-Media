@@ -12,5 +12,8 @@ internal class ChangePasswordCommandValidator : AbstractValidator<ChangePassword
             .MinimumLength(Password.MinLength)
             .MaximumLength(Password.MaxLength)
             .Matches(Password.Pattern);
+
+        RuleFor(x => x.ConfirmPassword)
+            .Equal(x => x.NewPassword);
     }
 }
