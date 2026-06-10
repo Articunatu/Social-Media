@@ -7,9 +7,9 @@ import { useCreateComment } from "./use-create-comment";
 import { useMyReaction } from "./use-my-reaction";
 import { useReactToPost } from "./use-react-to-post";
 
-export function usePostCard(post: FeedPost) {
+export function usePostCard(post: FeedPost, commentsInitiallyOpen: boolean = false) {
     const { postId, reactionCounts } = post;
-    const [showComments, setShowComments] = useState(false);
+    const [showComments, setShowComments] = useState(commentsInitiallyOpen);
     const [commentContent, setCommentContent] = useState("");
     const [commentError, setCommentError] = useState<string | null>(null);
     const [reactionError, setReactionError] = useState<string | null>(null);

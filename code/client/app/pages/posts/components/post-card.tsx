@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { PostCommentForm } from "./post-comment-form";
 import { PostComments } from "./post-comments";
 import { PostReactionButtons } from "./post-reaction-buttons";
@@ -10,7 +11,7 @@ import { getPhotoDataUrl } from "../models/photo-data-url";
 import { ReactionDetailModal } from "./reaction-detail-modal";
 import React from "react";
 
-const PostCard: React.FC<PostCardProps> = ({ post }) => {
+const PostCard: React.FC<PostCardProps> = ({ post, commentsInitiallyOpen = false }) => {
     const [showReactionDetails, setShowReactionDetails] = React.useState(false);
     const {
         commentContent,
@@ -24,9 +25,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         reactToPost,
         reactionError,
         showComments,
-        toggleComments,
         totalReactions,
-    } = usePostCard(post);
+    } = usePostCard(post, commentsInitiallyOpen);
 
     const { profile, content, createdAt, commentsCount } = post;
     const profilePhotoSrc = getPhotoDataUrl(profile.profilePhoto);
@@ -67,13 +67,12 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                             >
                                 Details
                             </button>
-                            <button
+                            <Link
                                 className="btn btn-sm bg-base-100 border-2 border-black pokeshadow active:translate-x-px active:translate-y-px active:shadow-none"
-                                onClick={toggleComments}
-                                type="button"
+                                href={`/posts/${post.postId}`}
                             >
                                 <span className="material-symbols-outlined text-[1.2em]">comment</span>
-                            </button>
+                            </Link>
                             <span className="text-sm text-gray-700">{commentsCount}</span>
                         </div>
 

@@ -4,7 +4,7 @@ import {
   CreatePostResponse,
   FeedPost,
   FeedResponseServer,
-  ProfilePost,
+  PostDetails,
   ProfileFeedResponseServer,
   ServerResult,
 } from '../models/api/post-models';
@@ -24,7 +24,7 @@ const postService = {
     api.get<PagedFeed<FeedResponseServer> | FeedPost[]>(`${postUri}/get-feed?pageNumber=${pageNumber}`),
 
   getPostById: (postId: UUID, pageNumber: number) =>
-    api.get<ProfilePost>(`${postUri}/${postId}?pageNumber=${pageNumber}`),
+    api.get<PostDetails>(`${postUri}/${postId}?pageNumber=${pageNumber}`),
 
   getProfilePosts: (userId: UUID, pageNumber: number) =>
     api.get<ServerResult<ProfileFeedResponseServer> | ProfileFeedResponseServer>(

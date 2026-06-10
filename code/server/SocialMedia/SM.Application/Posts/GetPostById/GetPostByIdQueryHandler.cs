@@ -24,14 +24,14 @@ internal class GetPostByIdQueryHandler(IDbContextFactory<ApplicationDbContext> c
 
             var userProfile = await context.Users
                 .AsNoTracking()
+                .Include(u => u.Photos)
                 .Where(u => u.Id == authorId)
-                .Select(u => u.MapToProfile())
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (userProfile is null)
                 return Result.Failure<PostDetailsResponse>(new Error("User.NotFound"), HttpStatusCode.NotFound);
 
-            request.Profile = userProfile;
+            request.Profile = userProfile.MapToProfile();
         }
 
         request.Post ??= await context.Posts
@@ -39,6 +39,7 @@ internal class GetPostByIdQueryHandler(IDbContextFactory<ApplicationDbContext> c
             .Where(p => p.Id == request.Id && !p.IsDeleted)
             .Select(p => new ProfilePostDto
             {
+                PostId = p.Id,
                 Content = p.Content,
                 TimeStamp = p.TimeStamp,
                 CommentsCount = p.Comments.Where(c => !c.IsDeleted).Count(),
@@ -57,6 +58,7 @@ internal class GetPostByIdQueryHandler(IDbContextFactory<ApplicationDbContext> c
             .OrderByDescending(c => c.TimeStamp)
             .Select(p => new ProfilePostDto
             {
+                PostId = p.Id,
                 Content = p.Content,
                 TimeStamp = p.TimeStamp,
                 CommentsCount = p.Replies.Where(r => !r.IsDeleted).Count(),

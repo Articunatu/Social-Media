@@ -31,9 +31,9 @@ export interface ProfilePost {
 }
 
 export interface PostDetails {
-    post: ProfilePost;
-    profile: ProfileInfo;
-    comments: ProfilePost[];
+    profileMain: ProfileInfo;
+    post: ProfilePostDto;
+    comments: PagedFeed<ProfilePostDto>;
 }
 
 export interface DeletePostCommand {
