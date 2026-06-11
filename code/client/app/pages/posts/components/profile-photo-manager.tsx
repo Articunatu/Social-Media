@@ -52,7 +52,7 @@ export function ProfilePhotoManager({ canEdit, userId }: ProfilePhotoManagerProp
     };
 
     return (
-        <section className="mt-4 w-full max-w-xl">
+        <section className="mt-4 w-full">
             <div className="flex flex-wrap items-center gap-3">
                 <label className="btn btn-sm btn-primary" htmlFor={inputId}>
                     Upload photo

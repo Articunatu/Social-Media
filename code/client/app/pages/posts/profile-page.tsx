@@ -2,18 +2,16 @@
 "use client";
 
 import React from 'react';
-import Image from 'next/image';
 import PostCard from './components/post-card';
 import { useProfile } from './hooks/use-profile';
 import type { FeedPost } from '@/app/models/api/post-models';
 import type { UUID } from 'crypto';
 import { useAuth } from '../../authentication/auth-provider';
-import { ProfilePhotoManager } from './components/profile-photo-manager';
-import { getPhotoDataUrl } from './models/photo-data-url';
 import { usePostsByUser } from './hooks/use-posts-by-user';
 import { useFollowUser } from './hooks/use-follow-user';
 import { useUnfollowUser } from './hooks/use-unfollow-user';
 import { ReactedPostsList } from './components/reacted-posts-list';
+import { ProfileHeader } from './components/profile-header';
 
 interface ProfilePageProps {
     userId: UUID;
@@ -28,7 +26,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
     const unfollowUser = useUnfollowUser();
     const [followError, setFollowError] = React.useState<string | null>(null);
     const [activeTab, setActiveTab] = React.useState<'posts' | 'reacted'>('posts');
-    const profilePhotoSrc = getPhotoDataUrl(profileInfo?.profilePhoto);
     const canEditPhotos = auth?.user?.userId === userId;
     const canFollow = !!auth?.user && auth.user.userId !== userId;
     const isFollowPending = followUser.isPending || unfollowUser.isPending;
@@ -60,60 +57,39 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
     };
 
     return (
-        <div className=''>
-            <div>
-                <div className="avatar">
-                    <div className="w-12 h-12 rounded-full border-2 border-black pokeshadow">
-                        {profilePhotoSrc && profileInfo && (
-                            <Image
-                                src={profilePhotoSrc}
-                                alt={`${profileInfo.fullName}'s profile`}
-                                width={48}
-                                height={48}
-                                unoptimized
-                            />
-                        )}
+        <main className="min-h-screen bg-base-200">
+            <ProfileHeader
+                canEditPhotos={canEditPhotos}
+                canFollow={canFollow}
+                followError={followError}
+                isFollowPending={isFollowPending}
+                onFollowToggle={handleFollowToggle}
+                profile={profile}
+                userId={userId}
+            />
+
+            <section className="border-b border-base-300 bg-base-100">
+                <div className="mx-auto flex max-w-5xl justify-center px-4 py-3">
+                    <div className="tabs tabs-boxed border border-black bg-base-100">
+                        <button
+                            className={`tab ${activeTab === 'posts' ? 'tab-active' : ''}`}
+                            onClick={() => setActiveTab('posts')}
+                            type="button"
+                        >
+                            Posts
+                        </button>
+                        <button
+                            className={`tab ${activeTab === 'reacted' ? 'tab-active' : ''}`}
+                            onClick={() => setActiveTab('reacted')}
+                            type="button"
+                        >
+                            Reacted
+                        </button>
                     </div>
                 </div>
-                <div>
-                    <div>Following: {profile ? profile.followingCount : 0}</div>
-                    <div>Followers: {profile ? profile.followersCount : 0}</div>
-                </div>
-                {canFollow && (
-                    <button
-                        className="btn btn-sm btn-primary mt-2"
-                        disabled={isFollowPending}
-                        onClick={handleFollowToggle}
-                        type="button"
-                    >
-                        {isFollowPending
-                            ? 'Saving...'
-                            : profile?.isFollowedByCurrentUser
-                                ? 'Unfollow'
-                                : 'Follow'}
-                    </button>
-                )}
-                {followError && <p className="mt-2 text-sm text-error">{followError}</p>}
-                <ProfilePhotoManager canEdit={canEditPhotos} userId={userId} />
-            </div>
-            <div className="flex flex-col items-center gap-4 p-4">
-                <div className="tabs tabs-boxed">
-                    <button
-                        className={`tab ${activeTab === 'posts' ? 'tab-active' : ''}`}
-                        onClick={() => setActiveTab('posts')}
-                        type="button"
-                    >
-                        Posts
-                    </button>
-                    <button
-                        className={`tab ${activeTab === 'reacted' ? 'tab-active' : ''}`}
-                        onClick={() => setActiveTab('reacted')}
-                        type="button"
-                    >
-                        Reacted
-                    </button>
-                </div>
+            </section>
 
+            <section className="mx-auto flex w-full max-w-2xl flex-col items-center gap-4 px-4 py-6">
                 {activeTab === 'posts' && isLoading && <div>Loading...</div>}
                 {activeTab === 'posts' && isError && <div>Failed to load profile posts.</div>}
                 
@@ -126,8 +102,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
                 )}
 
                 <ReactedPostsList enabled={activeTab === 'reacted'} userId={userId} />
-            </div>
-        </div>
+            </section>
+        </main>
     );
 }
 
