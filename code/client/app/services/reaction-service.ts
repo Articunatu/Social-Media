@@ -21,7 +21,7 @@ const reactionService = {
 
     getReactedPostsByUser: (userId: UUID, pageIndex: number) =>
         api.get<PagedFeed<ReactedProfilePost>>(
-        `${reactionUri}/users-reactions/${userId}?index=${pageIndex}`
+        `${reactionUri}/users-reactions/${userId}?index=${pageIndex}&order=`
     ),
 
     addReaction: (command: AddReactionCommand) =>
