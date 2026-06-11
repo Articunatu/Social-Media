@@ -13,7 +13,7 @@ import React from "react";
 import { useAuth } from "../../../authentication/auth-provider";
 import { useDeletePost } from "../hooks/use-delete-post";
 
-const PostCard: React.FC<PostCardProps> = ({ post, commentsInitiallyOpen = false }) => {
+const PostCard: React.FC<PostCardProps> = ({ post, commentsInitiallyOpen = false, onDeleted }) => {
     const [showReactionDetails, setShowReactionDetails] = React.useState(false);
     const auth = useAuth();
     const deletePost = useDeletePost();
@@ -38,6 +38,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, commentsInitiallyOpen = false
 
     const handleDeletePost = async () => {
         await deletePost.mutateAsync(post.postId);
+        onDeleted?.();
     };
 
     return (

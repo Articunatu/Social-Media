@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { UUID } from 'crypto';
 import PostCard from './components/post-card';
 import { usePostDetails } from './hooks/use-post-details';
@@ -10,6 +11,7 @@ interface PostDetailPageProps {
 }
 
 export function PostDetailPage({ postId }: PostDetailPageProps) {
+    const router = useRouter();
     const { data: post, isError, isLoading } = usePostDetails(postId);
 
     return (
@@ -24,7 +26,11 @@ export function PostDetailPage({ postId }: PostDetailPageProps) {
 
                 {post && (
                     <div className="flex justify-center">
-                        <PostCard commentsInitiallyOpen post={post} />
+                        <PostCard
+                            commentsInitiallyOpen
+                            onDeleted={() => router.push('/')}
+                            post={post}
+                        />
                     </div>
                 )}
             </div>
