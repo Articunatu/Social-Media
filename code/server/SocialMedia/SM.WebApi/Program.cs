@@ -32,7 +32,10 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-app.Services.SeedDatabase();
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.Services.SeedDatabase();
+}
 
 app.MapApiEndpoints();
 app.UseExceptionHandler();
@@ -58,3 +61,5 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.Run();
+
+public partial class Program;

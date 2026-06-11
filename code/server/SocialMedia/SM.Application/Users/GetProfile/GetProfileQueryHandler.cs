@@ -35,7 +35,7 @@ internal class GetProfileQueryHandler(IDbContextFactory<ApplicationDbContext> co
             .FirstOrDefaultAsync(cancellationToken);
 
         return profileDetails is null ? 
-            Result.Failure<ProfileDetails>(new Error(UserErrors.NotFound), HttpStatusCode.NotFound) : 
+            Result.Failure<ProfileDetails>(UserErrors.NotFound, HttpStatusCode.NotFound) : 
             Result.Success(profileDetails);
     }
 }
