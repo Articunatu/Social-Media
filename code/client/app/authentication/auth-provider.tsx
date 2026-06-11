@@ -15,6 +15,29 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+type WrappedAuthorizeResponse = {
+    value?: AuthorizeResponse;
+    Value?: AuthorizeResponse;
+};
+
+function normalizeAuthorizeResponse(response: AuthorizeResponse | WrappedAuthorizeResponse) {
+    const responseValue = 'value' in response && response.value
+        ? response.value
+        : 'Value' in response && response.Value
+            ? response.Value
+            : response as AuthorizeResponse;
+    const userId = responseValue.userId;
+
+    if (!userId) {
+        return null;
+    }
+
+    return {
+        ...responseValue,
+        userId,
+        username: responseValue.username ?? responseValue.userName ?? '',
+    };
+}
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [token, setToken] = useState<string | null>(null);
@@ -38,7 +61,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setLoading(true);
         try {
             const response = await authenticationService.authorize(jwt);
-            setUser(response.data);
+            const authorizedUser = normalizeAuthorizeResponse(response.data);
+
+            if (!authorizedUser) {
+                throw new Error("Authorize response did not include a user id.");
+            }
+
+            setUser(authorizedUser);
             setLoading(false);
         } catch {
             setUser(null);

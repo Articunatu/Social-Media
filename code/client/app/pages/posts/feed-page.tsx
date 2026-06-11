@@ -14,6 +14,7 @@ const FeedPage: React.FC = () => {
     const auth = useAuth();
     const [showExplored, setShowExplored] = useState(false);
     const { data: exploredPosts, isLoading: isLoadingExplored, isError: isErrorExplored } = useExploredPosts(showExplored);
+    const userId = auth?.user?.userId;
 
     const handleLoadExplored = () => setShowExplored(true);
 
@@ -25,12 +26,16 @@ const FeedPage: React.FC = () => {
                         <p className="truncate text-sm text-gray-600">Signed in as {auth.user.username}</p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
-                        <Link className="btn btn-sm btn-ghost" href={`/profile/${auth.user.userId}`}>
-                            Profile
-                        </Link>
-                        <Link className="btn btn-sm btn-ghost" href="/change-password">
-                            Password
-                        </Link>
+                        {userId && (
+                            <Link className="btn btn-sm btn-ghost" href={`/profile/${userId}`}>
+                                Profile
+                            </Link>
+                        )}
+                        {userId && (
+                            <Link className="btn btn-sm btn-ghost" href="/change-password">
+                                Password
+                            </Link>
+                        )}
                         <LogoutButton />
                     </div>
                 </div>

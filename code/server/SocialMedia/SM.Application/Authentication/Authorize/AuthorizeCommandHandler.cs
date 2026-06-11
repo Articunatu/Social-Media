@@ -8,9 +8,9 @@ using System.Security.Claims;
 
 namespace SM.Application.Authentication.Authorize;
 
-internal class AuthorizeCommandHandler(IJwtService jwtService, ILoggingBehaviour logging) : ICommandHandler<AuthorizeCommand, Result<AuthorizeResponse>>
+internal class AuthorizeCommandHandler(IJwtService jwtService, ILoggingBehaviour logging) : ICommandHandler<AuthorizeCommand, AuthorizeResponse>
 {
-    public Task<Result<Result<AuthorizeResponse>>> Handle(AuthorizeCommand request, CancellationToken cancellationToken)
+    public Task<Result<AuthorizeResponse>> Handle(AuthorizeCommand request, CancellationToken cancellationToken)
     {
         var principal = jwtService.ValidateToken(request.AccessToken);
         var userId = principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -19,9 +19,11 @@ internal class AuthorizeCommandHandler(IJwtService jwtService, ILoggingBehaviour
         if (string.IsNullOrEmpty(userId))
         {
             logging.LogWarning("Token validation failed during authorization");
-            return Task.FromResult(Result.Success(Result.Failure<AuthorizeResponse>(new Error("Unauthorized", "Invalid token or userId"), HttpStatusCode.Unauthorized)));
+            return Task.FromResult(Result.Failure<AuthorizeResponse>(
+                new Error("Unauthorized", "Invalid token or userId"),
+                HttpStatusCode.Unauthorized));
         }
 
-        return Task.FromResult(Result.Success(Result.Success(new AuthorizeResponse(IsAuthorized: true, userId, userName))));
+        return Task.FromResult(Result.Success(new AuthorizeResponse(IsAuthorized: true, userId, userName)));
     }
 }

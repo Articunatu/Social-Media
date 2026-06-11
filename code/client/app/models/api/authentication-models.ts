@@ -32,6 +32,8 @@ export interface ChangePasswordCommand {
 }
 
 export interface AuthorizeResponse {
+    isAuthorized?: boolean;
     userId: string;
-    username: string;
+    username?: string;
+    userName?: string;
 }

@@ -14,13 +14,15 @@ function getPagedValues<T>(pagedFeed: PagedFeed<T> | (PagedFeed<T> & { Values?: 
 }
 
 export function useReactedPostsByUser(userId: UUID, pageIndex: number = 0, enabled: boolean = true) {
+    const hasUserId = !!userId && userId.toString() !== 'undefined';
+
     return useQuery<ReactedProfilePost[], Error>({
         queryKey: ['reacted-posts', userId, pageIndex],
         queryFn: async () => {
             const response = await reactionService.getReactedPostsByUser(userId, pageIndex);
             return getPagedValues(response.data);
         },
-        enabled: enabled && !!userId,
+        enabled: enabled && hasUserId,
         staleTime: 1000 * 60,
     });
 }
