@@ -21,13 +21,16 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ userId }) => {
     const { data: profile } = useProfile(userId);
     const auth = useAuth();
     const profileInfo = profile?.profile;
+    const authenticatedUserId = auth?.user?.userId?.toLowerCase();
+    const profileUserId = userId.toString().toLowerCase();
+    const isOwnProfile = !!authenticatedUserId && authenticatedUserId === profileUserId;
     const { data: posts, isLoading, isError } = usePostsByUser(userId, profileInfo);
     const followUser = useFollowUser();
     const unfollowUser = useUnfollowUser();
     const [followError, setFollowError] = React.useState<string | null>(null);
     const [activeTab, setActiveTab] = React.useState<'posts' | 'reacted'>('posts');
-    const canEditPhotos = auth?.user?.userId === userId;
-    const canFollow = !!auth?.user && auth.user.userId !== userId;
+    const canEditPhotos = isOwnProfile;
+    const canFollow = !!auth?.user && !isOwnProfile;
     const isFollowPending = followUser.isPending || unfollowUser.isPending;
 
     const handleFollowToggle = async () => {

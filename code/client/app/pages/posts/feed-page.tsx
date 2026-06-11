@@ -25,6 +25,9 @@ const FeedPage: React.FC = () => {
                         <p className="truncate text-sm text-gray-600">Signed in as {auth.user.username}</p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
+                        <Link className="btn btn-sm btn-ghost" href={`/profile/${auth.user.userId}`}>
+                            Profile
+                        </Link>
                         <Link className="btn btn-sm btn-ghost" href="/change-password">
                             Password
                         </Link>
