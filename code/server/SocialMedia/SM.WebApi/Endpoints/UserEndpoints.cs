@@ -33,7 +33,7 @@ public static class UserEndpoints
             return TypedResults.Unauthorized();
 
         var deletedAccount = await sender.Send(command);
-        return TypedResults.Ok(deletedAccount);
+        return deletedAccount.ToActionResult();
     }
 
     public static async Task<IResult> Follow(

@@ -22,8 +22,7 @@ const FeedPage: React.FC = () => {
             {auth?.user && (
                 <div className="flex w-full max-w-2xl items-center justify-between gap-4">
                     <div className="min-w-0">
-                        <p className="truncate text-sm text-gray-600">Signed in as</p>
-                        <p className="truncate text-base font-semibold text-black">{auth.user.username}</p>
+                        <p className="truncate text-sm text-gray-600">Signed in as {auth.user.username}</p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                         <Link className="btn btn-sm btn-ghost" href="/change-password">

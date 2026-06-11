@@ -38,9 +38,7 @@ public static class ReactionEndpoints
         var query = new GetReactionsByPostQuery(postId, type, filter);
         var result = await sender.Send(query);
 
-        return result.IsSuccess
-            ? TypedResults.Ok(result.Value)
-            : TypedResults.BadRequest(result.Error);
+        return result.ToActionResult();
     }
 
     public static async Task<IResult> GetReactionsByUser(ISender sender, Guid userId, [AsParameters] PageFilter filter)
@@ -59,11 +57,12 @@ public static class ReactionEndpoints
 
         var result = await sender.Send(new GetMyReactionByPostQuery(userId, postId));
         if (result.IsSuccess)
-            return TypedResults.Ok(result.Value);
+            return result.ToActionResult();
 
-        return result.Status == System.Net.HttpStatusCode.NotFound
-            ? TypedResults.NoContent()
-            : TypedResults.BadRequest(result.Error);
+        if (result.Status == System.Net.HttpStatusCode.NotFound)
+            return TypedResults.NoContent();
+
+        return result.ToActionResult();
     }
 
     public static async Task<IResult> ReactToPost([FromBody] AddReactionCommand command, ISender sender, HttpContext httpContext)

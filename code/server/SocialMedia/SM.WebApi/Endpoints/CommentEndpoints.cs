@@ -32,7 +32,7 @@ public static class CommentEndpoints
         command = command with { AuthorId = userId };
 
         var createdComment = await sender.Send(command);
-        return TypedResults.Ok(createdComment);
+        return createdComment.ToActionResult();
     }
 
     public static async Task<IResult> DeleteComment(Guid id, ISender sender, HttpContext httpContext)
@@ -49,13 +49,13 @@ public static class CommentEndpoints
     {
         var query = new GetCommentsQuery(postId, filter);
         var comments = await sender.Send(query);
-        return TypedResults.Ok(comments);
+        return comments.ToActionResult();
     }
 
     public static async Task<IResult> GetCommentById(Guid id, ISender sender)
     {
         var query = new GetCommentByIdQuery(id);
         var comment = await sender.Send(query);
-        return TypedResults.Ok(comment);
+        return comment.ToActionResult();
     }
 }

@@ -35,7 +35,7 @@ public static class PostEndpoints
 
         command = command with { AuthorId = userId };
         var createdPost = await sender.Send(command);
-        return TypedResults.Ok(createdPost);
+        return createdPost.ToActionResult();
     }
 
     public static async Task<IResult> DeletePost(Guid id, ISender sender, HttpContext httpContext)
@@ -55,9 +55,7 @@ public static class PostEndpoints
         var query = new GetPostByIdQuery(id, filter);
         var post = await sender.Send(query);
 
-        return post.IsSuccess
-            ? TypedResults.Ok(post.Value)
-            : TypedResults.BadRequest(post.Error);
+        return post.ToActionResult();
     }
 
     public static async Task<IResult> GetFeed(ISender sender, HttpContext httpContext, int pageNumber = 0)
@@ -69,7 +67,7 @@ public static class PostEndpoints
         var filter = new PageFilter { Index = pageNumber };
         var query = new GetFeedQuery(userId, filter);
         var feed = await sender.Send(query);
-        return TypedResults.Ok(feed);
+        return feed.ToActionResult();
     }
 
     public static async Task<IResult> GetProfilePosts(Guid userId, ISender sender, int pageNumber = 0)
@@ -77,12 +75,12 @@ public static class PostEndpoints
         var filter = new PageFilter { Index = pageNumber };
         var query = new GetProfilePostsQuery(userId, filter);
         var posts = await sender.Send(query);
-        return TypedResults.Ok(posts);
+        return posts.ToActionResult();
     }
 
     public static async Task<IResult> GetExploredPosts(ISender sender)
     {
         var exploredPosts = await sender.Send(new GetExploredPostsQuery());
-        return TypedResults.Ok(exploredPosts);
+        return exploredPosts.ToActionResult();
     }
 }

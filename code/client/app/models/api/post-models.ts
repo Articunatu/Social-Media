@@ -65,10 +65,3 @@ export interface FeedResponseServer {
     post: ProfilePostDto;
 }
 
-export interface ServerResult<T> {
-    value: T;
-    isSuccess: boolean;
-    isFailure: boolean;
-    error: { header: string; message: string } | null;
-    status: number;
-}
