@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using SM.Application.Abstractions;
 using SM.Application.Comments.Models;
 using SM.Application.Database;
+using SM.Application.Shared.Extensions;
 using SM.Application.Shared.Models;
+using SM.Domain.Messages;
 using SM.Domain.Shared;
 using SM.Domain.Users;
 using System.Net;
@@ -16,22 +18,41 @@ internal class GetCommentByIdQueryHandler(IDbContextFactory<ApplicationDbContext
         await using var context = await contextFactory.CreateDbContextAsync(ct);
 
         var comment = await context.Comments
-            .Where(c => c.Id == request.Id)
-            .Select(c => new CommentQuery
-            {
-                ParentPostId = c.ParentPostId,
-                Content = c.Content,
-                TimeStamp = c.TimeStamp,
-                CommentsCount = c.Replies != null ? c.Replies.Count() : 0,
-                ReactionCounts = c.Reactions
-                        .GroupBy(r => r.Type)
-                        .Select(rt => new ReactionCount(rt.Key, rt.Count()))
-            })
-            .FirstOrDefaultAsync(ct);
+            .AsNoTracking()
+            .Include(c => c.Author)
+            .ThenInclude(a => a.Photos)
+            .Include(c => c.Reactions)
+            .Include(c => c.Replies.Where(r => !r.IsDeleted))
+            .ThenInclude(r => r.Author)
+            .ThenInclude(a => a.Photos)
+            .Include(c => c.Replies.Where(r => !r.IsDeleted))
+            .ThenInclude(r => r.Reactions)
+            .FirstOrDefaultAsync(c => c.Id == request.Id && !c.IsDeleted, ct);
 
         if (comment is null)
             return Result.Failure<CommentQuery>(new Error(UserErrors.NotFound), HttpStatusCode.NotFound);
 
-        return Result.Success(comment);
+        return Result.Success(MapComment(comment));
+    }
+
+    private static CommentQuery MapComment(Comment comment)
+    {
+        return new CommentQuery
+        {
+            PostId = comment.Id,
+            AuthorId = comment.AuthorId,
+            Author = comment.Author.MapToProfile(),
+            Content = comment.Content,
+            TimeStamp = comment.TimeStamp,
+            ParentPostId = comment.ParentPostId,
+            CommentsCount = comment.Replies.Count(r => !r.IsDeleted),
+            ReactionCounts = comment.Reactions
+                .GroupBy(r => r.Type)
+                .Select(rt => new ReactionCount(rt.Key, rt.Count())),
+            Replies = comment.Replies
+                .Where(r => !r.IsDeleted)
+                .OrderBy(r => r.TimeStamp)
+                .Select(MapComment)
+        };
     }
 }
