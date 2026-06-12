@@ -834,6 +834,452 @@ Each area:
 * owns its data
 * communicates through contracts/events
 
+# 16. CQRS Read Models
+
+The Domain Model is optimized for correctness.
+
+The Read Model is optimized for performance.
+
+Social media platforms are typically read-heavy systems.
+
+A user may generate a few posts per day but consume hundreds or thousands of posts.
+
+Do not build every screen directly from aggregate roots.
+
+Instead, create dedicated read models.
+
+Example:
+
+```text
+Post Aggregate
+
+        |
+        v
+
+PostCreatedEvent
+
+        |
+        +--------------------+
+        |                    |
+        v                    v
+
+Search Projection     Feed Projection
+```
+
+Example read tables:
+
+```text
+UserFeedItems
+
+AuthorTimelineItems
+
+TrendingPosts
+
+PopularPosts
+```
+
+The goal is to avoid expensive joins and aggregate reconstruction for every request.
+
+---
+
+# 17. Outbox Pattern
+
+Domain Events must be reliable.
+
+Do not publish events directly inside business transactions.
+
+Bad:
+
+```text
+Save Post
+
+Publish Event
+
+Commit
+```
+
+If publishing succeeds but the transaction fails, the system becomes inconsistent.
+
+Use an Outbox table instead.
+
+```text
+Save Post
+
+Save Outbox Event
+
+Commit
+```
+
+Background Worker:
+
+```text
+Outbox
+
+   |
+   v
+
+Service Bus
+
+   |
+   v
+
+Consumers
+```
+
+This guarantees eventual consistency while preventing event loss.
+
+---
+
+# 18. Cache Strategy
+
+Caching exists to reduce database load.
+
+Introduce Redis for frequently requested data.
+
+Good cache candidates:
+
+```text
+User Profiles
+
+Follower Counts
+
+Following Counts
+
+Like Counts
+
+Reaction Counts
+
+Hot Posts
+
+Notification Badges
+
+Trending Data
+```
+
+Avoid caching highly sensitive transactional data unless necessary.
+
+Caching should be treated as an optimization layer.
+
+The database remains the source of truth.
+
+---
+
+# 19. Feed Architecture
+
+Feeds are one of the most expensive features in social media systems.
+
+Do not generate feeds on demand using large joins.
+
+Avoid:
+
+```sql
+SELECT *
+FROM Posts
+JOIN Follows
+JOIN Users
+ORDER BY CreatedAt DESC
+```
+
+Instead:
+
+```text
+PostCreatedEvent
+
+        |
+        v
+
+Feed Worker
+
+        |
+        v
+
+UserFeedItems
+```
+
+When a user creates a post:
+
+```text
+Create Post
+
+        |
+        v
+
+PostCreatedEvent
+
+        |
+        v
+
+Feed Projection
+
+        |
+        v
+
+Insert Feed Records
+```
+
+Feed requests should primarily read precomputed data.
+
+---
+
+# 20. Database Scaling Rules
+
+## Rule 4
+
+Separate Read and Write Workloads
+
+Write operations and read operations have different scaling requirements.
+
+Prefer:
+
+```text
+Write Database
+
+        |
+        +------ Read Replica
+        |
+        +------ Read Replica
+```
+
+Command handlers should target the primary database.
+
+Queries should target read replicas whenever possible.
+
+---
+
+## Rule 5
+
+Split Databases Before Splitting Services
+
+Avoid introducing distributed systems prematurely.
+
+Prefer:
+
+```text
+IdentityDb
+
+ContentDb
+
+MessagingDb
+
+SocialGraphDb
+```
+
+Before:
+
+```text
+Identity Service
+
+Content Service
+
+Messaging Service
+
+SocialGraph Service
+```
+
+Database separation is usually simpler than service separation.
+
+Only introduce additional services when clear operational boundaries exist.
+
+---
+
+# 21. Service Extraction Strategy
+
+The recommended migration path is:
+
+```text
+Phase 0
+Stabilize Existing System
+
+Phase 1
+Application Layer
+
+Phase 2
+Extract Content
+
+Phase 3
+Remove Navigation Abuse
+
+Phase 4
+Extract Messaging
+
+Phase 5
+Extract Social Graph
+
+Phase 6
+Domain Events
+
+Phase 7
+Split DbContexts
+
+Phase 8
+Split Databases
+
+Phase 9
+Extract Feed Service
+
+Phase 10
+Extract Messaging Service
+
+Phase 11
+Extract Search Service
+
+Phase 12
+Extract Media Service
+```
+
+Do not start with microservices.
+
+Earn the complexity through proven scaling requirements.
+
+---
+
+# 22. Scalability Principles
+
+## Rule 6
+
+Optimize for Reads
+
+Most social media traffic is read traffic.
+
+Prioritize:
+
+* Feed performance
+* Profile performance
+* Search performance
+* Notification performance
+
+Read scalability is usually more important than write scalability.
+
+---
+
+## Rule 7
+
+Use Event-Driven Communication
+
+Bounded Contexts should communicate through events whenever possible.
+
+Example:
+
+```text
+Content
+
+PostCreatedEvent
+
+        |
+        + Notification
+        |
+        + Feed
+        |
+        + Analytics
+        |
+        + Search
+```
+
+Avoid direct coupling between contexts.
+
+---
+
+## Rule 8
+
+The Feed Is a Product
+
+Treat feed generation as a dedicated subsystem.
+
+Do not consider feed generation a simple query.
+
+Feeds often become one of the highest-load components in the entire platform.
+
+Design them accordingly.
+
+---
+
+## Rule 9
+
+The Database Is Not the Architecture
+
+The database is a storage mechanism.
+
+Business rules belong in the domain.
+
+Application workflows belong in the application layer.
+
+Infrastructure concerns belong in infrastructure.
+
+Never allow table structures to dictate system design.
+
+---
+
+# 23. Azure Target Architecture
+
+```text
+Clients
+
+        |
+        v
+
+Azure Front Door
+
+        |
+        v
+
+ASP.NET Core API
+
+(Modular Monolith)
+
+        |
+        v
+
+Application Layer
+
+        |
+        +-------------------+
+        |                   |
+        v                   v
+
+Command Side         Query Side
+
+        |                   |
+
+Azure SQL       Read Replicas
+
+        |
+        v
+
+Outbox
+
+        |
+        v
+
+Azure Service Bus
+
+        |
+        +-------------------+
+        |                   |
+        v                   v
+
+Feed Worker    Notification Worker
+
+        |
+        v
+
+Redis Cache
+
+        |
+        v
+
+Clients
+```
+
+Final Principle:
+
+Build a modular monolith first.
+
+Scale databases before services.
+
+Scale services before introducing distributed complexity.
+
+Introduce microservices only when the operational benefits clearly outweigh the maintenance cost.
+
 ---
 
 # Final Principle
