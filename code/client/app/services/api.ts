@@ -8,9 +8,6 @@ type RetriableRequestConfig = InternalAxiosRequestConfig & {
 
 const api = axios.create({
     baseURL: API_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
     withCredentials: true,
 });
 
@@ -21,6 +18,11 @@ api.interceptors.request.use((config) => {
         config.headers = config.headers || {};
         config.headers['Authorization'] = `Bearer ${token}`;
     }
+
+    if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+        delete config.headers['Content-Type'];
+    }
+
     return config;
 });
 
