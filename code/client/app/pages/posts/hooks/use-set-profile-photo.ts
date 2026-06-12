@@ -20,6 +20,11 @@ export function useSetProfilePhoto() {
             queryClient.invalidateQueries({ queryKey: ['user-photos', userId] });
             queryClient.invalidateQueries({ queryKey: ['feed'] });
             queryClient.invalidateQueries({ queryKey: ['explored-posts'] });
+            queryClient.invalidateQueries({ queryKey: ['profile-posts'] });
+            queryClient.invalidateQueries({ queryKey: ['post-details'] });
+            queryClient.invalidateQueries({ queryKey: ['comments'] });
+            queryClient.invalidateQueries({ queryKey: ['post-reactions'] });
+            queryClient.invalidateQueries({ queryKey: ['reacted-posts'] });
         },
     });
 }

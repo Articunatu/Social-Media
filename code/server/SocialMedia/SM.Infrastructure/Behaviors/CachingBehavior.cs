@@ -17,7 +17,7 @@ public class CachingBehavior<TRequest, TResponse>(IMemoryCache cache, ILogger<Ca
         RequestHandlerDelegate<TResponse> next,
         CancellationToken ct)
     {
-        if (!IsQueryRequest())
+        if (!IsQueryRequest() || request is not ICacheableQuery cacheableQuery)
         {
             return await next(ct);
         }
@@ -36,7 +36,7 @@ public class CachingBehavior<TRequest, TResponse>(IMemoryCache cache, ILogger<Ca
 
         if (result.IsSuccess)
         {
-            cache.Set(cacheKey, result, TimeSpan.FromMinutes(5));
+            cache.Set(cacheKey, result, cacheableQuery.CacheDuration ?? TimeSpan.FromMinutes(5));
             logger.LogInformation("Cache set for key: {CacheKey}", cacheKey);
         }
 
