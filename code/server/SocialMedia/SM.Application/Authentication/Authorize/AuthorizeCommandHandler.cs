@@ -1,5 +1,4 @@
 using SM.Application.Abstractions;
-using SM.Application.Authentication;
 using SM.Application.Authentication.Authorize.Models;
 using SM.Application.Behaviors;
 using SM.Domain.Shared;
