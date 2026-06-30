@@ -154,15 +154,15 @@ SocialMedia.sln
 
 src/
 
-SocialMedia.Api
+SM.Application
 
-SocialMedia.Application
+SM.Domain
 
-SocialMedia.Domain
+SM.Infrastructure
 
-SocialMedia.Infrastructure
+SM.Persistence
 
-SocialMedia.Persistence
+SM.WebApi
 ```
 
 ---

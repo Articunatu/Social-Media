@@ -17,8 +17,8 @@ internal class GetPhotosByUserIdQueryHandler(IDbContextFactory<ApplicationDbCont
             .Where(p => p.UserId == request.UserId)
             .OrderByDescending(p => p.Type == PhotoType.Profile)
             .ThenByDescending(p => p.CreatedAt)
-            .ToListAsync(ct);
+            .ToArrayAsync(ct);
 
-        return Result.Success<IEnumerable<PhotoResponse>>(photos.Select(p => p.MapToResponse()));
+        return Result.Success(photos.Select(p => p.MapToResponse()));
     }
 }
