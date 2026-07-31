@@ -1,10 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 using SM.Domain.Abstractions;
 
-namespace SM.Domain.Messages;
+namespace SM.Domain.Content;
 
 [NotMapped]
-public abstract class Message(Guid id) : SoftDeletableEntity<Guid>(id)
+public abstract class AuthoredContent(Guid id) : SoftDeletableEntity<Guid>(id)
 {
     public string Content { get; set; } = string.Empty;
     public DateTimeOffset TimeStamp { get; set; }

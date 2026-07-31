@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SM.Domain.Authentication;
 using SM.Domain.Content;
-using SM.Domain.Messages;
 using SM.Domain.Photos;
 using SM.Domain.Users;
 
@@ -26,7 +25,7 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
 
     private static void NameTablesByEntities(ModelBuilder builder)
     {
-        builder.Ignore<Message>();
+        builder.Ignore<AuthoredContent>();
         builder.Entity<Post>().ToTable(nameof(Posts));
         builder.Entity<Comment>().ToTable(nameof(Comments));
     }

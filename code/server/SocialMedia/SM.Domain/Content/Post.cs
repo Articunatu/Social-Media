@@ -1,8 +1,6 @@
-using SM.Domain.Messages;
-
 namespace SM.Domain.Content;
 
-public class Post(Guid id) : Message(id)
+public class Post(Guid id) : AuthoredContent(id)
 {
     public virtual ICollection<Comment> Comments { get; set; } = [];
     public virtual ICollection<Reaction> Reactions { get; set; } = [];

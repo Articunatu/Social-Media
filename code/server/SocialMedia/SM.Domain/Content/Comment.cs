@@ -1,8 +1,6 @@
-using SM.Domain.Messages;
-
 namespace SM.Domain.Content;
 
-public class Comment(Guid id) : Message(id)
+public class Comment(Guid id) : AuthoredContent(id)
 {
     public Guid ParentPostId { get; private set; }
     public virtual Post ParentPost { get; private set; } = default!;

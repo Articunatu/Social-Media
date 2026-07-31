@@ -1,7 +1,12 @@
-﻿namespace SM.Domain.Messages.DirectMessages;
+using SM.Domain.Abstractions;
 
-public sealed class DirectMessage(Guid id) : Message(id)
+namespace SM.Domain.Messaging;
+
+public sealed class DirectMessage(Guid id) : SoftDeletableEntity<Guid>(id)
 {
+    public string Content { get; set; } = string.Empty;
+    public DateTimeOffset TimeStamp { get; set; }
+    public Guid AuthorId { get; set; }
     public Guid ConversationId { get; private set; }
     public Conversation Conversation { get; private set; } = default!;
 

@@ -1,5 +1,4 @@
-﻿
-namespace SM.Domain.Messages.DirectMessages;
+namespace SM.Domain.Messaging;
 
 public sealed class Conversation
 {
