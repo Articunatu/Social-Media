@@ -23,12 +23,12 @@ internal class GetFeedQueryHandler(IDbContextFactory<ApplicationDbContext> conte
         if (followingIds.Length == 0)
             return Result.Success(new PagedFeed<FeedResponse> { Values = [] });
 
-        var postsWithProfile = context.Posts
+        var pagedPosts = await context.Posts
             .Where(p => followingIds.Contains(p.AuthorId))
-            .Include(p => p.Author)
-            .Select(p => new FeedResponse(
-                p.Author.MapToProfile(),
-                new ProfilePostDto
+            .Select(p => new
+            {
+                p.AuthorId,
+                Post = new ProfilePostDto
                 {
                     PostId = p.Id,
                     Content = p.Content,
@@ -38,13 +38,21 @@ internal class GetFeedQueryHandler(IDbContextFactory<ApplicationDbContext> conte
                         .GroupBy(r => r.Type)
                         .Select(rt => new ReactionCount(rt.Key, rt.Count()))
                 }
-            ))
-            .AsQueryable();
+            })
+            .ToPagedFeed(request.Filter with { Order = "TimeStamp desc" });
 
-        var filter = request.Filter with { Order = "TimeStamp desc" };
+        var profiles = await context.GetProfileLookupAsync(pagedPosts.Values.Select(x => x.AuthorId), ct);
 
-        var feed = await postsWithProfile.ToPagedFeed(filter);
-
-        return Result.Success(feed);
+        return Result.Success(new PagedFeed<FeedResponse>
+        {
+            Index = pagedPosts.Index,
+            Order = pagedPosts.Order,
+            SearchText = pagedPosts.SearchText,
+            Values = pagedPosts.Values.Select(x => new FeedResponse(
+                profiles.TryGetValue(x.AuthorId, out var profile)
+                    ? profile
+                    : new ProfileInfo(x.AuthorId, string.Empty, string.Empty, null),
+                x.Post))
+        });
     }
 }

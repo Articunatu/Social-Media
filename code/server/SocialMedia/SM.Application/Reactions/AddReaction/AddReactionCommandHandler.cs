@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SM.Application.Abstractions;
 using SM.Application.Database;
+using SM.Application.Shared.Extensions;
 using SM.Domain.Content;
 using SM.Domain.Shared;
 using System.Net;
@@ -50,12 +51,13 @@ internal class AddReactionCommandHandler(IDbContextFactory<ApplicationDbContext>
 
         var reaction = await context.Reactions
             .AsNoTracking()
-            .Include(r => r.User)
             .FirstOrDefaultAsync(r => r.Id == reactionToAdd.Id, cancellationToken);
 
         if (reaction is null)
             return Result.Failure<ReactionResponse>(new Error("ReactionDisappeared"), HttpStatusCode.NotFound);
 
-        return Result.Success(reaction.MapToResponse());
+        var profile = await context.GetProfileAsync(reaction.UserId, cancellationToken);
+
+        return Result.Success(reaction.MapToResponse(profile));
     }
 }

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SM.Application.Abstractions;
 using SM.Application.Database;
+using SM.Application.Shared.Extensions;
 using SM.Domain.Shared;
 using System.Net;
 
@@ -15,12 +16,13 @@ internal class GetMyReactionByPostQueryHandler(IDbContextFactory<ApplicationDbCo
 
         var reaction = await context.Reactions
             .AsNoTracking()
-            .Include(r => r.User)
             .FirstOrDefaultAsync(r => r.UserId == request.UserId && r.PostId == request.PostId, cancellationToken);
 
         if (reaction is null)
             return Result.Failure<ReactionResponse>(new Error("Reaction.NotFound"), HttpStatusCode.NotFound);
 
-        return Result.Success(reaction.MapToResponse());
+        var profile = await context.GetProfileAsync(reaction.UserId, cancellationToken);
+
+        return Result.Success(reaction.MapToResponse(profile));
     }
 }

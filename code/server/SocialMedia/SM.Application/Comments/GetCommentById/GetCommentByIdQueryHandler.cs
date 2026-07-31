@@ -19,12 +19,7 @@ internal class GetCommentByIdQueryHandler(IDbContextFactory<ApplicationDbContext
 
         var comment = await context.Comments
             .AsNoTracking()
-            .Include(c => c.Author)
-            .ThenInclude(a => a.Photos)
             .Include(c => c.Reactions)
-            .Include(c => c.Replies.Where(r => !r.IsDeleted))
-            .ThenInclude(r => r.Author)
-            .ThenInclude(a => a.Photos)
             .Include(c => c.Replies.Where(r => !r.IsDeleted))
             .ThenInclude(r => r.Reactions)
             .FirstOrDefaultAsync(c => c.Id == request.Id && !c.IsDeleted, ct);
@@ -32,16 +27,29 @@ internal class GetCommentByIdQueryHandler(IDbContextFactory<ApplicationDbContext
         if (comment is null)
             return Result.Failure<CommentQuery>(new Error(UserErrors.NotFound), HttpStatusCode.NotFound);
 
-        return Result.Success(MapComment(comment));
+        var profiles = await context.GetProfileLookupAsync(CollectAuthorIds(comment), ct);
+
+        return Result.Success(MapComment(comment, profiles));
     }
 
-    private static CommentQuery MapComment(Comment comment)
+    private static IEnumerable<Guid> CollectAuthorIds(Comment comment)
+    {
+        yield return comment.AuthorId;
+
+        foreach (var reply in comment.Replies.Where(r => !r.IsDeleted))
+            foreach (var id in CollectAuthorIds(reply))
+                yield return id;
+    }
+
+    private static CommentQuery MapComment(Comment comment, IReadOnlyDictionary<Guid, ProfileInfo> profiles)
     {
         return new CommentQuery
         {
             PostId = comment.Id,
             AuthorId = comment.AuthorId,
-            Author = comment.Author.MapToProfile(),
+            Author = profiles.TryGetValue(comment.AuthorId, out var profile)
+                ? profile
+                : new ProfileInfo(comment.AuthorId, string.Empty, string.Empty, null),
             Content = comment.Content,
             TimeStamp = comment.TimeStamp,
             ParentPostId = comment.ParentPostId,
@@ -52,7 +60,7 @@ internal class GetCommentByIdQueryHandler(IDbContextFactory<ApplicationDbContext
             Replies = comment.Replies
                 .Where(r => !r.IsDeleted)
                 .OrderBy(r => r.TimeStamp)
-                .Select(MapComment)
+                .Select(r => MapComment(r, profiles))
         };
     }
 }

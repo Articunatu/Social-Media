@@ -1,11 +1,9 @@
 using SM.Domain.Messages;
-using SM.Domain.Users;
 
 namespace SM.Domain.Content;
 
 public class Post(Guid id) : Message(id)
 {
-    public virtual User Author { get; set; } = default!;
     public virtual ICollection<Comment> Comments { get; set; } = [];
     public virtual ICollection<Reaction> Reactions { get; set; } = [];
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SM.Application.Abstractions;
 using SM.Application.Database;
+using SM.Application.Shared.Extensions;
 using SM.Domain.Shared;
 using System.Net;
 
@@ -14,16 +15,17 @@ internal class RemoveReactionCommandHandler(IDbContextFactory<ApplicationDbConte
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
         var reactionToRemove = await context.Reactions
-            .Include(r => r.User)
             .FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
 
         if (reactionToRemove is null)
             return Result.Failure<ReactionResponse>(new Error("NotFound"), HttpStatusCode.NotFound);
 
+        var profile = await context.GetProfileAsync(reactionToRemove.UserId, cancellationToken);
+
         context.Reactions.Remove(reactionToRemove);
 
         await context.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(reactionToRemove.MapToResponse());
+        return Result.Success(reactionToRemove.MapToResponse(profile));
     }
 }

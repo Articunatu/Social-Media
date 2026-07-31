@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SM.Domain.Content;
 using SM.Domain.Content.ValueObjects;
+using SM.Domain.Users;
 
 namespace SM.Application.Database.Configurations;
 
@@ -23,7 +24,7 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
                .HasForeignKey(c => c.ParentCommentId)
                .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(c => c.Author)
+        builder.HasOne<User>()
                .WithMany()
                .HasForeignKey(c => c.AuthorId)
                .OnDelete(DeleteBehavior.Restrict);

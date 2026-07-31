@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SM.Domain.Content;
+using SM.Domain.Users;
 
 namespace SM.Application.Database.Configurations;
 
@@ -23,7 +24,7 @@ public class ReactionConfiguration : IEntityTypeConfiguration<Reaction>
                .HasForeignKey(r => r.CommentId)
                .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(r => r.User)
+        builder.HasOne<User>()
                .WithMany()
                .HasForeignKey(r => r.UserId)
                .OnDelete(DeleteBehavior.Cascade);
