@@ -21,9 +21,9 @@ internal class GetProfileQueryHandler(IDbContextFactory<ApplicationDbContext> co
             .Select(u => new ProfileDetails
             {
                 Profile = u.MapToProfile(),
-                FollowersCount = u.Followers.Count,
-                FollowingCount = u.Following.Count,
-                IsFollowedByCurrentUser = request.ViewerId != Guid.Empty && u.Followers.Any(f => f.Id == request.ViewerId),
+                FollowersCount = context.Follows.Count(f => f.FollowingId == u.Id),
+                FollowingCount = context.Follows.Count(f => f.FollowerId == u.Id),
+                IsFollowedByCurrentUser = request.ViewerId != Guid.Empty && context.Follows.Any(f => f.FollowingId == u.Id && f.FollowerId == request.ViewerId),
                 BackgroundPhoto = u.Photos.Where(p => p.Type == PhotoType.Background)
                     .OrderByDescending(p => p.CreatedAt)
                     .FirstOrDefault(),

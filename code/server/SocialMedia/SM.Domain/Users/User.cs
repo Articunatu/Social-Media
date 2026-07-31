@@ -18,8 +18,6 @@ public class User(Guid id, string tag, string firstName, string lastName, string
     public virtual Token? Token { get; set; }
 
     public virtual ICollection<Photo> Photos { get; set; } = [];
-    public virtual ICollection<User> Following { get; set; } = [];
-    public virtual ICollection<User> Followers { get; set; } = [];
 
     public static User Create(IUser request)
     {

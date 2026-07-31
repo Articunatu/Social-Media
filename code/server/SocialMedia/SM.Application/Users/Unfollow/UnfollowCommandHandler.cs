@@ -4,6 +4,7 @@ using SM.Application.Behaviors;
 using SM.Application.Database;
 using SM.Application.Shared.Extensions;
 using SM.Domain.Shared;
+using SM.Domain.SocialGraph;
 using SM.Domain.Users;
 using System.Net;
 
@@ -19,17 +20,19 @@ internal class UnfollowCommandHandler(IDbContextFactory<ApplicationDbContext> co
 
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var follower = await context.Users.Include(u => u.Following).FirstOrDefaultAsync(u => u.Id == request.FollowerId, cancellationToken);
-        var following = await context.Users.Include(u => u.Followers).FirstOrDefaultAsync(u => u.Id == request.FollowingId, cancellationToken);
+        var follower = await context.Users.FirstOrDefaultAsync(u => u.Id == request.FollowerId, cancellationToken);
+        var following = await context.Users.FirstOrDefaultAsync(u => u.Id == request.FollowingId, cancellationToken);
 
         if (follower is null || following is null)
             return Result.Failure<IEnumerable<UserCommandResponse>>(UserErrors.NotFound, HttpStatusCode.NotFound);
 
-        if (!follower.Following.Any(f => f.Id == following.Id))
+        var follow = await context.Follows.FirstOrDefaultAsync(
+            f => f.FollowerId == request.FollowerId && f.FollowingId == request.FollowingId, cancellationToken);
+
+        if (follow is null)
             return Result.Failure<IEnumerable<UserCommandResponse>>(new Error("User.NotFollowing", "The follower is not following the specified user."), HttpStatusCode.BadRequest);
 
-        follower.Following.Remove(following);
-        following.Followers.Remove(follower);
+        context.Follows.Remove(follow);
 
         try
         {

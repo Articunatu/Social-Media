@@ -2,6 +2,7 @@
 using SM.Domain.Authentication;
 using SM.Domain.Content;
 using SM.Domain.Photos;
+using SM.Domain.SocialGraph;
 using SM.Domain.Users;
 
 namespace SM.Application.Database;
@@ -14,6 +15,7 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
     public DbSet<Reaction> Reactions { get; set; } = default!;
     public DbSet<Token> Tokens { get; set; } = default!;
     public DbSet<Photo> Photos { get; set; } = default!;
+    public DbSet<Follow> Follows { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

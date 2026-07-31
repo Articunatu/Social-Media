@@ -18,17 +18,19 @@ internal class FollowCommandHandler(IDbContextFactory<ApplicationDbContext> cont
 
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
 
-        var follower = await context.Users.Include(u => u.Following).FirstOrDefaultAsync(u => u.Id == request.FollowerId, cancellationToken);
-        var following = await context.Users.Include(u => u.Followers).FirstOrDefaultAsync(u => u.Id == request.FollowingId, cancellationToken);
+        var follower = await context.Users.FirstOrDefaultAsync(u => u.Id == request.FollowerId, cancellationToken);
+        var following = await context.Users.FirstOrDefaultAsync(u => u.Id == request.FollowingId, cancellationToken);
 
         if (follower is null || following is null)
             return Result.Failure<IEnumerable<UserCommandResponse>>(UserErrors.NotFound, HttpStatusCode.NotFound);
 
-        if (follower.Following.Any(f => f.Id == following.Id))
+        var alreadyFollowing = await context.Follows.AnyAsync(
+            f => f.FollowerId == request.FollowerId && f.FollowingId == request.FollowingId, cancellationToken);
+
+        if (alreadyFollowing)
             return Result.Failure<IEnumerable<UserCommandResponse>>(new Error("User.AlreadyFollowing", "The follower is already following the specified user."), HttpStatusCode.BadRequest);
 
-        follower.Following.Add(following);
-        following.Followers.Add(follower);
+        context.Follows.Add(SM.Domain.SocialGraph.Follow.Create(request.FollowerId, request.FollowingId));
 
         await context.SaveChangesAsync(cancellationToken);
 

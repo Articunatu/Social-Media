@@ -14,10 +14,10 @@ internal class GetFeedQueryHandler(IDbContextFactory<ApplicationDbContext> conte
     {
         await using var context = await contextFactory.CreateDbContextAsync(ct);
 
-        var followingIds = await context.Users
+        var followingIds = await context.Follows
             .AsNoTracking()
-            .Where(u => u.Id == request.UserId)
-            .SelectMany(u => u.Following.Select(f => f.Id))
+            .Where(f => f.FollowerId == request.UserId)
+            .Select(f => f.FollowingId)
             .ToArrayAsync(cancellationToken: ct);
 
         if (followingIds.Length == 0)

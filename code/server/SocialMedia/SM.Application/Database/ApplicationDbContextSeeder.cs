@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SM.Domain.Authentication;
 using SM.Domain.Content;
 using SM.Domain.Photos;
+using SM.Domain.SocialGraph;
 using SM.Domain.Users;
 using System.Security.Cryptography;
 using System.Text;
@@ -28,7 +29,8 @@ public static class ApplicationDbContextSeeder
         context.SaveChanges();
 
         // Create follow relationships after users are persisted
-        AddFollowRelationships(faker, users);
+        var follows = CreateFollowRelationships(faker, users);
+        context.Follows.AddRange(follows);
         context.SaveChanges();
 
         // Create and persist posts
@@ -277,9 +279,11 @@ public static class ApplicationDbContextSeeder
             });
     }
 
-    private static void AddFollowRelationships(Faker faker, IReadOnlyList<User> users)
+    private static IEnumerable<Follow> CreateFollowRelationships(Faker faker, IReadOnlyList<User> users)
     {
         var userList = users.ToList();
+        var follows = new List<Follow>();
+        var seen = new HashSet<(Guid Follower, Guid Following)>();
 
         foreach (var user in userList)
         {
@@ -291,12 +295,11 @@ public static class ApplicationDbContextSeeder
 
             foreach (var target in targets)
             {
-                // Ensure we don't add duplicates
-                if (!user.Following.Any(f => f.Id == target.Id))
-                {
-                    user.Following.Add(target);
-                }
+                if (seen.Add((user.Id, target.Id)))
+                    follows.Add(Follow.Create(user.Id, target.Id));
             }
         }
+
+        return follows;
     }
 }

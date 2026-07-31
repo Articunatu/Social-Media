@@ -20,11 +20,10 @@ public class FollowTests(IntegrationTestFixture fixture) : BaseIntegrationTest(f
         {
             result.IsSuccess.Should().BeTrue();
 
-            var followerFromDb = await DbContext.Users.Include(u => u.Following).FirstOrDefaultAsync(u => u.Id == follower.Id);
-            var followingFromDb = await DbContext.Users.Include(u => u.Followers).FirstOrDefaultAsync(u => u.Id == following.Id);
+            var follow = await DbContext.Follows
+                .FirstOrDefaultAsync(f => f.FollowerId == follower.Id && f.FollowingId == following.Id);
 
-            followerFromDb!.Following.Should().Contain(f => f.Id == following.Id);
-            followingFromDb!.Followers.Should().Contain(f => f.Id == follower.Id);
+            follow.Should().NotBeNull();
         }
     }
 
