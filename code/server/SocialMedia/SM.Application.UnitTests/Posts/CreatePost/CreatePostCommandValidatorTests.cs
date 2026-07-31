@@ -1,6 +1,6 @@
 using FluentValidation.TestHelper;
 using SM.Application.Posts.CreatePost;
-using SM.Domain.Messages.ValueObjects;
+using SM.Domain.Content.ValueObjects;
 
 namespace SM.Application.UnitTests.Posts.CreatePost;
 
@@ -43,7 +43,7 @@ public class CreatePostCommandValidatorTests
     [Fact]
     public void TooLongContent_ShouldHaveValidationError()
     {
-        var longContent = new string('a', Content.MaxLength + 1);
+        var longContent = new string('a', ContentText.MaxLength + 1);
         var command = new CreatePostCommand(longContent, Guid.NewGuid());
 
         var result = _validator.TestValidate(command);

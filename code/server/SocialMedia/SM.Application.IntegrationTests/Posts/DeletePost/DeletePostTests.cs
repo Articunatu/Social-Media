@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SM.Application.IntegrationTests.IntegrationAbstractions;
 using SM.Application.Posts.DeletePost;
-using SM.Domain.Messages;
+using SM.Domain.Content;
 using SM.Domain.Users;
 using System.Net;
 

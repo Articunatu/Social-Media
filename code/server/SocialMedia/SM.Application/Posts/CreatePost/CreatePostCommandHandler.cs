@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SM.Application.Abstractions;
 using SM.Application.Database;
-using SM.Domain.Messages;
+using SM.Domain.Content;
 using SM.Domain.Shared;
 using System.Net;
 

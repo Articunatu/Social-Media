@@ -1,5 +1,5 @@
 ﻿using SM.Domain.Abstractions;
-using SM.Domain.Messages;
+using SM.Domain.Content;
 using SM.Domain.Users;
 
 namespace SM.Domain.Reactions;

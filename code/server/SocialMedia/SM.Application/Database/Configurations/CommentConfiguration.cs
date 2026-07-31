@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
-using SM.Domain.Messages;
-using SM.Domain.Messages.ValueObjects;
+using SM.Domain.Content;
+using SM.Domain.Content.ValueObjects;
 
 namespace SM.Application.Database.Configurations;
 
@@ -11,7 +11,7 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
     {
         builder.Property(c => c.Content)
                .IsRequired()
-               .HasMaxLength(Content.MaxLength);
+               .HasMaxLength(ContentText.MaxLength);
 
         builder.HasOne(c => c.ParentPost)
                .WithMany(p => p.Comments)

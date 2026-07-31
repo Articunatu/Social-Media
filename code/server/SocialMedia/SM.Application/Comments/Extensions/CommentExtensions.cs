@@ -1,5 +1,5 @@
 ﻿using SM.Application.Comments.Models;
-using SM.Domain.Messages;
+using SM.Domain.Content;
 
 namespace SM.Application.Comments.Extensions;
 

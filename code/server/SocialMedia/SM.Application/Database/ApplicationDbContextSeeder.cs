@@ -1,7 +1,7 @@
 using Bogus;
 using Microsoft.EntityFrameworkCore;
 using SM.Domain.Authentication;
-using SM.Domain.Messages;
+using SM.Domain.Content;
 using SM.Domain.Photos;
 using SM.Domain.Reactions;
 using SM.Domain.Users;

@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SM.Application.Database;
-using SM.Domain.Messages;
+using SM.Domain.Content;
 using SM.Domain.Photos;
 using SM.Domain.Users;
 

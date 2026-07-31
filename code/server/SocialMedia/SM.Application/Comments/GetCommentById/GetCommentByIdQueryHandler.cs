@@ -4,7 +4,7 @@ using SM.Application.Comments.Models;
 using SM.Application.Database;
 using SM.Application.Shared.Extensions;
 using SM.Application.Shared.Models;
-using SM.Domain.Messages;
+using SM.Domain.Content;
 using SM.Domain.Shared;
 using SM.Domain.Users;
 using System.Net;

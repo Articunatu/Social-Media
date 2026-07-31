@@ -1,7 +1,8 @@
-﻿using SM.Domain.Reactions;
+using SM.Domain.Messages;
+using SM.Domain.Reactions;
 using SM.Domain.Users;
 
-namespace SM.Domain.Messages;
+namespace SM.Domain.Content;
 
 public class Comment(Guid id) : Message(id)
 {

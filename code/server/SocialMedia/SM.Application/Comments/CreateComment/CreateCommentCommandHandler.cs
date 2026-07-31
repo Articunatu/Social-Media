@@ -3,7 +3,7 @@ using SM.Application.Abstractions;
 using SM.Application.Comments.Extensions;
 using SM.Application.Comments.Models;
 using SM.Application.Database;
-using SM.Domain.Messages;
+using SM.Domain.Content;
 using SM.Domain.Shared;
 using System.Net;
 

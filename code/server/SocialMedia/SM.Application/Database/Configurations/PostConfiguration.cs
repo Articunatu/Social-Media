@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SM.Domain.Messages;
-using SM.Domain.Messages.ValueObjects;
+using SM.Domain.Content;
+using SM.Domain.Content.ValueObjects;
 
 namespace SM.Application.Database.Configurations;
 
@@ -11,7 +11,7 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
     {
         builder.Property(p => p.Content)
             .IsRequired()
-            .HasMaxLength(Content.MaxLength);
+            .HasMaxLength(ContentText.MaxLength);
 
         builder.HasOne(p => p.Author)
                .WithMany(u => u.AuthoredPosts)

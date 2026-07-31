@@ -1,7 +1,8 @@
-﻿using SM.Domain.Users;
+using SM.Domain.Messages;
 using SM.Domain.Reactions;
+using SM.Domain.Users;
 
-namespace SM.Domain.Messages;
+namespace SM.Domain.Content;
 
 public class Post(Guid id) : Message(id)
 {

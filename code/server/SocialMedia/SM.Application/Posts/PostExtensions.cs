@@ -1,4 +1,4 @@
-﻿using SM.Domain.Messages;
+﻿using SM.Domain.Content;
 
 namespace SM.Application.Posts;
 
