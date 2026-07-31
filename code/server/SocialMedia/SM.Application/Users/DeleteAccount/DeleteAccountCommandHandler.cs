@@ -18,7 +18,6 @@ internal class DeleteAccountCommandHandler(IDbContextFactory<ApplicationDbContex
 
         var user = await context.Users
             .Include(u => u.Photos)
-            .Include(u => u.AuthoredPosts)
             .AsSplitQuery()
             .FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
 

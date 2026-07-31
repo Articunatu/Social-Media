@@ -3,7 +3,6 @@ using SM.Domain.Authentication;
 using SM.Domain.Content;
 using SM.Domain.Messages;
 using SM.Domain.Photos;
-using SM.Domain.Reactions;
 using SM.Domain.Users;
 
 namespace SM.Application.Database;

@@ -1,5 +1,4 @@
 using SM.Domain.Messages;
-using SM.Domain.Reactions;
 using SM.Domain.Users;
 
 namespace SM.Domain.Content;

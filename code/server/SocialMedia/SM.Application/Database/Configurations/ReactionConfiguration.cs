@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SM.Domain.Reactions;
+using SM.Domain.Content;
 
 namespace SM.Application.Database.Configurations;
 
@@ -24,7 +24,7 @@ public class ReactionConfiguration : IEntityTypeConfiguration<Reaction>
                .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(r => r.User)
-               .WithMany(u => u.Reactions)
+               .WithMany()
                .HasForeignKey(r => r.UserId)
                .OnDelete(DeleteBehavior.Cascade);
 

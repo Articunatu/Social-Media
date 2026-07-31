@@ -34,24 +34,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasMaxLength(Email.MaxLength);
 
-        builder.HasMany(u => u.AuthoredPosts)
-               .WithOne(p => p.Author)
-               .HasForeignKey(p => p.AuthorId)
-               .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasMany(u => u.AuthoredComments)
-               .WithOne(c => c.Author)
-               .HasForeignKey(c => c.AuthorId)
-               .OnDelete(DeleteBehavior.Restrict);
-        
         builder.HasMany(u => u.Photos)
                .WithOne(p => p.User)
                .HasForeignKey(p => p.UserId)
-               .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasMany(u => u.Reactions)
-               .WithOne(r => r.User)
-               .HasForeignKey(r => r.UserId)
                .OnDelete(DeleteBehavior.Cascade);
 
         // Rename join table for self-referencing many-to-many Followers/Following to Follows

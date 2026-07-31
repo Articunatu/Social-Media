@@ -1,4 +1,4 @@
-﻿using SM.Domain.Reactions;
+﻿using SM.Domain.Content;
 
 namespace SM.Application.Shared.Models;
 

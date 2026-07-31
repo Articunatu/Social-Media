@@ -24,8 +24,6 @@ public sealed class UserTestData(IDbContextFactory<ApplicationDbContext> context
             "User",
             $"{Guid.NewGuid():N}@example.com"));
 
-        user.AuthoredPosts.Add(Post.Create(aboutMe, user.Id));
-
         if (withBackgroundPhoto)
         {
             user.Photos.Add(new Photo(Guid.CreateVersion7())
@@ -37,6 +35,10 @@ public sealed class UserTestData(IDbContextFactory<ApplicationDbContext> context
         }
 
         await AddAsync(user);
+
+        await using var context = await contextFactory.CreateDbContextAsync();
+        context.Posts.Add(Post.Create(aboutMe, user.Id));
+        await context.SaveChangesAsync();
 
         return user.Id;
     }

@@ -14,7 +14,7 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
             .HasMaxLength(ContentText.MaxLength);
 
         builder.HasOne(p => p.Author)
-               .WithMany(u => u.AuthoredPosts)
+               .WithMany()
                .HasForeignKey(p => p.AuthorId)
                .OnDelete(DeleteBehavior.Restrict);
     }

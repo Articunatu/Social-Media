@@ -1,8 +1,7 @@
-﻿using SM.Domain.Abstractions;
-using SM.Domain.Content;
+using SM.Domain.Abstractions;
 using SM.Domain.Users;
 
-namespace SM.Domain.Reactions;
+namespace SM.Domain.Content;
 
 public class Reaction(Guid id) : Entity<Guid>(id)
 {

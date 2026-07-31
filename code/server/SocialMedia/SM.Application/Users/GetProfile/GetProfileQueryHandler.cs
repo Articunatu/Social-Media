@@ -27,15 +27,19 @@ internal class GetProfileQueryHandler(IDbContextFactory<ApplicationDbContext> co
                 BackgroundPhoto = u.Photos.Where(p => p.Type == PhotoType.Background)
                     .OrderByDescending(p => p.CreatedAt)
                     .FirstOrDefault(),
-                AboutMe = u.AuthoredPosts
-                    .OrderByDescending(am => am.TimeStamp)
-                    .Select(am => am.Content)
-                    .FirstOrDefault() ?? string.Empty
+                AboutMe = string.Empty
             })
             .FirstOrDefaultAsync(cancellationToken);
 
-        return profileDetails is null ? 
-            Result.Failure<ProfileDetails>(UserErrors.NotFound, HttpStatusCode.NotFound) : 
-            Result.Success(profileDetails);
+        if (profileDetails is null)
+            return Result.Failure<ProfileDetails>(UserErrors.NotFound, HttpStatusCode.NotFound);
+
+        profileDetails.AboutMe = await context.Posts
+            .Where(p => p.AuthorId == request.Id)
+            .OrderByDescending(p => p.TimeStamp)
+            .Select(p => p.Content)
+            .FirstOrDefaultAsync(cancellationToken) ?? string.Empty;
+
+        return Result.Success(profileDetails);
     }
 }

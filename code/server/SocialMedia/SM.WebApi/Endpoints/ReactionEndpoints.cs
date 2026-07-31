@@ -7,7 +7,7 @@ using SM.Application.Reactions.GetReactionsByPost;
 using SM.Application.Reactions.RemoveReaction;
 using SM.Application.Reactions.UpdateReaction;
 using SM.Application.Shared.Models;
-using SM.Domain.Reactions;
+using SM.Domain.Content;
 using SM.WebApi.Extensions;
 
 namespace SM.WebApi.Endpoints;

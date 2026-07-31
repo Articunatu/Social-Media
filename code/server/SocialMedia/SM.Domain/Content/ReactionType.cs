@@ -1,4 +1,4 @@
-﻿namespace SM.Domain.Reactions;
+namespace SM.Domain.Content;
 
 public enum ReactionType
 {

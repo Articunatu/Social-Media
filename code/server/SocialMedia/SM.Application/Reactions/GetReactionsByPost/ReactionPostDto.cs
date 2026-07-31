@@ -1,5 +1,5 @@
 ﻿using SM.Application.Shared.Models;
-using SM.Domain.Reactions;
+using SM.Domain.Content;
 
 namespace SM.Application.Reactions.GetReactionsByPost;
 

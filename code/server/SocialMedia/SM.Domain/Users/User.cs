@@ -1,9 +1,7 @@
 ﻿using SM.Domain.Abstractions;
 using SM.Domain.Authentication;
-using SM.Domain.Content;
 using SM.Domain.Photos;
 using SM.Domain.Users.Events;
-using SM.Domain.Reactions;
 
 namespace SM.Domain.Users;
 
@@ -19,9 +17,6 @@ public class User(Guid id, string tag, string firstName, string lastName, string
     public virtual byte[] PasswordSalt { get; private set; } = [];
     public virtual Token? Token { get; set; }
 
-    public virtual ICollection<Post> AuthoredPosts { get; set; } = [];
-    public virtual ICollection<Comment> AuthoredComments { get; set; } = [];
-    public virtual ICollection<Reaction> Reactions { get; set; } = [];
     public virtual ICollection<Photo> Photos { get; set; } = [];
     public virtual ICollection<User> Following { get; set; } = [];
     public virtual ICollection<User> Followers { get; set; } = [];
