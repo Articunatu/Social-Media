@@ -1,3 +1,5 @@
+using SM.Domain.Content.Events;
+
 namespace SM.Domain.Content;
 
 public class Post(Guid id) : AuthoredContent(id)
@@ -7,11 +9,15 @@ public class Post(Guid id) : AuthoredContent(id)
 
     public static Post Create(string content, Guid authorId)
     {
-        return new Post(Guid.CreateVersion7())
+        var post = new Post(Guid.CreateVersion7())
         {
             Content = content,
             TimeStamp = DateTimeOffset.UtcNow,
             AuthorId = authorId,
         };
+
+        post.RaiseDomainEvent(new PostCreatedDomainEvent(post.Id, authorId, post.TimeStamp));
+
+        return post;
     }
 }

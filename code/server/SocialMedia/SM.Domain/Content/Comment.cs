@@ -1,3 +1,5 @@
+using SM.Domain.Content.Events;
+
 namespace SM.Domain.Content;
 
 public class Comment(Guid id) : AuthoredContent(id)
@@ -11,7 +13,7 @@ public class Comment(Guid id) : AuthoredContent(id)
 
     public static Comment Create(Guid postId, string content, Guid authorId, Guid? parentCommentId = null)
     {
-        return new Comment(Guid.CreateVersion7())
+        var comment = new Comment(Guid.CreateVersion7())
         {
             Content = content,
             TimeStamp = DateTimeOffset.UtcNow,
@@ -19,5 +21,9 @@ public class Comment(Guid id) : AuthoredContent(id)
             ParentPostId = postId,
             ParentCommentId = parentCommentId
         };
+
+        comment.RaiseDomainEvent(new CommentAddedDomainEvent(comment.Id, postId, authorId, comment.TimeStamp));
+
+        return comment;
     }
 }
