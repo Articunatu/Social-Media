@@ -9,11 +9,11 @@ using System.Net;
 
 namespace SM.Application.Posts.GetExploredPosts;
 
-internal class GetExploredPostsQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : IQueryHandler<GetExploredPostsQuery, ProfileFeedResponse>
+internal class GetExploredPostsQueryHandler(IDbContextFactory<ContentDbContext> contentContextFactory) : IQueryHandler<GetExploredPostsQuery, ProfileFeedResponse>
 {
     public async Task<Result<ProfileFeedResponse>> Handle(GetExploredPostsQuery request, CancellationToken ct)
     {
-        await using var context = await contextFactory.CreateDbContextAsync(ct);
+        await using var context = await contentContextFactory.CreateDbContextAsync(ct);
 
         var posts = await context.Posts
             .Select(p => new

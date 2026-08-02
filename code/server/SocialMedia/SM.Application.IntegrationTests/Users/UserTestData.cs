@@ -6,11 +6,13 @@ using SM.Domain.Users;
 
 namespace SM.Application.IntegrationTests.Users;
 
-public sealed class UserTestData(IDbContextFactory<ApplicationDbContext> contextFactory)
+public sealed class UserTestData(
+    IDbContextFactory<IdentityDbContext> identityContextFactory,
+    IDbContextFactory<ContentDbContext> contentContextFactory)
 {
     public async Task AddAsync(params User[] users)
     {
-        await using var context = await contextFactory.CreateDbContextAsync();
+        await using var context = await identityContextFactory.CreateDbContextAsync();
 
         context.Users.AddRange(users);
         await context.SaveChangesAsync();
@@ -36,9 +38,9 @@ public sealed class UserTestData(IDbContextFactory<ApplicationDbContext> context
 
         await AddAsync(user);
 
-        await using var context = await contextFactory.CreateDbContextAsync();
-        context.Posts.Add(Post.Create(aboutMe, user.Id));
-        await context.SaveChangesAsync();
+        await using var contentContext = await contentContextFactory.CreateDbContextAsync();
+        contentContext.Posts.Add(Post.Create(aboutMe, user.Id));
+        await contentContext.SaveChangesAsync();
 
         return user.Id;
     }

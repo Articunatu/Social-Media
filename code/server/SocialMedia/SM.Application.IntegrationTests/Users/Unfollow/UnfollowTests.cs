@@ -13,8 +13,8 @@ public class UnfollowTests(IntegrationTestFixture fixture) : BaseIntegrationTest
         var follower = User.Create(new UserDto("bkc_nr1", "Heinrich", "Lunge", "lunge@bkc.de"));
         var following = User.Create(new UserDto("rose_duelist", "Utena", "Tenjou", "revolutionary@shoujo.jp"));
         await Users.AddAsync(follower, following);
-        DbContext.Follows.Add(SM.Domain.SocialGraph.Follow.Create(follower.Id, following.Id));
-        await DbContext.SaveChangesAsync();
+        SocialGraphDbContext.Follows.Add(SM.Domain.SocialGraph.Follow.Create(follower.Id, following.Id));
+        await SocialGraphDbContext.SaveChangesAsync();
 
         var result = await Sender.Send(new UnfollowCommand(follower.Id, following.Id));
 
@@ -22,7 +22,7 @@ public class UnfollowTests(IntegrationTestFixture fixture) : BaseIntegrationTest
         {
             result.IsSuccess.Should().BeTrue();
 
-            var follow = await DbContext.Follows
+            var follow = await SocialGraphDbContext.Follows
                 .FirstOrDefaultAsync(f => f.FollowerId == follower.Id && f.FollowingId == following.Id);
 
             follow.Should().BeNull();

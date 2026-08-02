@@ -26,25 +26,33 @@ public sealed class IntegrationTestFixture : WebApplicationFactory<Program>
 
         builder.ConfigureServices(services =>
         {
-            services.RemoveAll<IDbContextFactory<ApplicationDbContext>>();
-            services.RemoveAll<ApplicationDbContext>();
+            services.RemoveAll<IDbContextFactory<IdentityDbContext>>();
+            services.RemoveAll<IDbContextFactory<ContentDbContext>>();
+            services.RemoveAll<IDbContextFactory<SocialGraphDbContext>>();
             services.RemoveAll<DbContextOptions>();
-            services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
-            services.RemoveAll<IDbContextOptionsConfiguration<ApplicationDbContext>>();
 
-            services.AddDbContextFactory<ApplicationDbContext>(options =>
+            services.AddDbContextFactory<IdentityDbContext>(options =>
                 options.UseInMemoryDatabase(_databaseName));
-            services.AddScoped(serviceProvider =>
-                serviceProvider.GetRequiredService<IDbContextFactory<ApplicationDbContext>>().CreateDbContext());
+            services.AddDbContextFactory<ContentDbContext>(options =>
+                options.UseInMemoryDatabase(_databaseName));
+            services.AddDbContextFactory<SocialGraphDbContext>(options =>
+                options.UseInMemoryDatabase(_databaseName));
         });
     }
 
     public async Task ResetDatabaseAsync()
     {
-        var contextFactory = Services.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
+        var identityFactory = Services.GetRequiredService<IDbContextFactory<IdentityDbContext>>();
+        var contentFactory = Services.GetRequiredService<IDbContextFactory<ContentDbContext>>();
+        var socialGraphFactory = Services.GetRequiredService<IDbContextFactory<SocialGraphDbContext>>();
 
-        await using var context = await contextFactory.CreateDbContextAsync();
-        await context.Database.EnsureDeletedAsync();
-        await context.Database.EnsureCreatedAsync();
+        await using var identityContext = await identityFactory.CreateDbContextAsync();
+        await using var contentContext = await contentFactory.CreateDbContextAsync();
+        await using var socialGraphContext = await socialGraphFactory.CreateDbContextAsync();
+
+        await identityContext.Database.EnsureDeletedAsync();
+        await identityContext.Database.EnsureCreatedAsync();
+        await contentContext.Database.EnsureCreatedAsync();
+        await socialGraphContext.Database.EnsureCreatedAsync();
     }
 }

@@ -68,6 +68,63 @@ public static class ApplicationDbContextSeeder
         await Task.CompletedTask;
     }
 
+    public static void Seed(
+        IdentityDbContext identityContext,
+        ContentDbContext contentContext,
+        SocialGraphDbContext socialGraphContext)
+    {
+        if (identityContext.Users.Any())
+        {
+            return;
+        }
+
+        Randomizer.Seed = new Random(73425);
+        var faker = new Faker();
+
+        var users = CreateUsers(faker);
+        identityContext.Users.AddRange(users);
+        identityContext.SaveChanges();
+
+        var follows = CreateFollowRelationships(faker, users);
+        socialGraphContext.Follows.AddRange(follows);
+        socialGraphContext.SaveChanges();
+
+        var posts = CreatePosts(faker, users);
+        contentContext.Posts.AddRange(posts);
+        contentContext.SaveChanges();
+
+        var comments = CreateComments(faker, posts, users);
+        contentContext.Comments.AddRange(comments);
+        contentContext.SaveChanges();
+
+        var reactions = CreateReactions(faker, posts, comments, users);
+        var photos = CreatePhotos(faker, users).ToList();
+        var tokens = CreateTokens(faker, users).ToList();
+
+        contentContext.Reactions.AddRange(reactions);
+        identityContext.Photos.AddRange(photos);
+        identityContext.Tokens.AddRange(tokens);
+        contentContext.SaveChanges();
+        identityContext.SaveChanges();
+
+        WritePasswordsToFile(users);
+    }
+
+    public static async Task SeedAsync(
+        IdentityDbContext identityContext,
+        ContentDbContext contentContext,
+        SocialGraphDbContext socialGraphContext,
+        CancellationToken cancellationToken = default)
+    {
+        if (await identityContext.Users.AnyAsync(cancellationToken))
+        {
+            return;
+        }
+
+        Seed(identityContext, contentContext, socialGraphContext);
+        await Task.CompletedTask;
+    }
+
     private static string Truncate(string value, int max)
     {
         if (string.IsNullOrEmpty(value)) return value;

@@ -7,19 +7,22 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Reactions.GetReactionsByPost;
 
-internal class GetReactionsByPostQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+internal class GetReactionsByPostQueryHandler(
+    IDbContextFactory<ContentDbContext> contentContextFactory,
+    IDbContextFactory<IdentityDbContext> identityContextFactory)
     : IQueryHandler<GetReactionsByPostQuery, PagedFeed<ReactionResponse>>
 {
     public async Task<Result<PagedFeed<ReactionResponse>>> Handle(GetReactionsByPostQuery request, CancellationToken cancellationToken)
     {
-        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var contentContext = await contentContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var identityContext = await identityContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var pagedReactions = await context.Reactions
+        var pagedReactions = await contentContext.Reactions
             .AsNoTracking()
             .Where(r => r.PostId == request.PostId && (!request.Type.HasValue || r.Type == request.Type.Value))
             .ToPagedFeed(request.Filter);
 
-        var profiles = await context.GetProfileLookupAsync(pagedReactions.Values.Select(r => r.UserId), cancellationToken);
+        var profiles = await identityContext.GetProfileLookupAsync(pagedReactions.Values.Select(r => r.UserId), cancellationToken);
 
         return Result.Success(new PagedFeed<ReactionResponse>
         {

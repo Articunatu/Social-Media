@@ -7,14 +7,14 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Reactions.GetReactedPostsByUser;
 
-internal class GetReactedPostsByUserQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+internal class GetReactedPostsByUserQueryHandler(IDbContextFactory<ContentDbContext> contentContextFactory)
     : IQueryHandler<GetReactedPostsByUserQuery, PagedFeed<ReactedProfilePost>>
 {
     public async Task<Result<PagedFeed<ReactedProfilePost>>> Handle(GetReactedPostsByUserQuery request, CancellationToken cancellationToken)
     {
-        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var contentContext = await contentContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var reactedPostsQuery = context.Reactions
+        var reactedPostsQuery = contentContext.Reactions
             .AsNoTracking()
             .Where(r => r.UserId == request.UserId && r.PostId != null)
             .Select(r => new ReactedProfilePost(r.Id, r.Type)
@@ -22,8 +22,8 @@ internal class GetReactedPostsByUserQueryHandler(IDbContextFactory<ApplicationDb
                 PostId = r.PostId!.Value,
                 Content = r.Post!.Content,
                 TimeStamp = r.Post.TimeStamp,
-                CommentsCount = context.Comments.Count(c => c.ParentPostId == r.PostId && c.ParentCommentId == null),
-                ReactionCounts = context.Reactions
+                CommentsCount = contentContext.Comments.Count(c => c.ParentPostId == r.PostId && c.ParentCommentId == null),
+                ReactionCounts = contentContext.Reactions
                     .Where(x => x.PostId == r.PostId)
                     .GroupBy(x => x.Type)
                     .Select(g => new ReactionCount(g.Key, g.Count()))

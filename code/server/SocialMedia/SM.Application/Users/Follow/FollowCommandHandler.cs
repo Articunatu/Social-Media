@@ -8,7 +8,7 @@ using System.Net;
 
 namespace SM.Application.Users.Follow;
 
-internal class FollowCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+internal class FollowCommandHandler(IDbContextFactory<IdentityDbContext> identityContextFactory, IDbContextFactory<SocialGraphDbContext> socialGraphContextFactory)
     : ICommandHandler<FollowCommand, IEnumerable<UserCommandResponse>>
 {
     public async Task<Result<IEnumerable<UserCommandResponse>>> Handle(FollowCommand request, CancellationToken cancellationToken)
@@ -16,10 +16,11 @@ internal class FollowCommandHandler(IDbContextFactory<ApplicationDbContext> cont
         if (request.FollowerId == request.FollowingId)
             return Result.Failure<IEnumerable<UserCommandResponse>>(new Error("User.InvalidOperation", "A user cannot follow themself."), HttpStatusCode.BadRequest);
 
-        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var identityContext = await identityContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var context = await socialGraphContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var follower = await context.Users.FirstOrDefaultAsync(u => u.Id == request.FollowerId, cancellationToken);
-        var following = await context.Users.FirstOrDefaultAsync(u => u.Id == request.FollowingId, cancellationToken);
+        var follower = await identityContext.Users.FirstOrDefaultAsync(u => u.Id == request.FollowerId, cancellationToken);
+        var following = await identityContext.Users.FirstOrDefaultAsync(u => u.Id == request.FollowingId, cancellationToken);
 
         if (follower is null || following is null)
             return Result.Failure<IEnumerable<UserCommandResponse>>(UserErrors.NotFound, HttpStatusCode.NotFound);

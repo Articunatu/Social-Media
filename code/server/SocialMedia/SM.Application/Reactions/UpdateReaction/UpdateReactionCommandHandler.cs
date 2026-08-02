@@ -7,22 +7,26 @@ using System.Net;
 
 namespace SM.Application.Reactions.UpdateReaction;
 
-internal class UpdateReactionCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : ICommandHandler<UpdateReactionCommand, ReactionResponse>
+internal class UpdateReactionCommandHandler(
+    IDbContextFactory<ContentDbContext> contentContextFactory,
+    IDbContextFactory<IdentityDbContext> identityContextFactory)
+    : ICommandHandler<UpdateReactionCommand, ReactionResponse>
 {
     public async Task<Result<ReactionResponse>> Handle(UpdateReactionCommand request, CancellationToken cancellationToken)
     {
-        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var contentContext = await contentContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var identityContext = await identityContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var reactionToEdit = await context.Reactions.FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
+        var reactionToEdit = await contentContext.Reactions.FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
 
         if (reactionToEdit is null)
             return Result.Failure<ReactionResponse>(new Error("Reaction.NotFound"), HttpStatusCode.NotFound);
 
         reactionToEdit.Type = request.Type;
 
-        await context.SaveChangesAsync(cancellationToken);
+        await contentContext.SaveChangesAsync(cancellationToken);
 
-        var profile = await context.GetProfileAsync(reactionToEdit.UserId, cancellationToken);
+        var profile = await identityContext.GetProfileAsync(reactionToEdit.UserId, cancellationToken);
 
         return Result.Success(reactionToEdit.MapToResponse(profile));
     }

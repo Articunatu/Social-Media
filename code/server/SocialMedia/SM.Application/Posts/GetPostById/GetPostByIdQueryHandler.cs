@@ -8,21 +8,25 @@ using System.Net;
 
 namespace SM.Application.Posts.GetPostById;
 
-internal class GetPostByIdQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : IQueryHandler<GetPostByIdQuery, PostDetailsResponse>
+internal class GetPostByIdQueryHandler(
+    IDbContextFactory<ContentDbContext> contentContextFactory,
+    IDbContextFactory<IdentityDbContext> identityContextFactory)
+    : IQueryHandler<GetPostByIdQuery, PostDetailsResponse>
 {
     public async Task<Result<PostDetailsResponse>> Handle(GetPostByIdQuery request, CancellationToken cancellationToken)
     {
-        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var contentContext = await contentContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var identityContext = await identityContextFactory.CreateDbContextAsync(cancellationToken);
 
         if (request.Profile is null)
         {
-            Guid authorId = await context.Posts
+            Guid authorId = await contentContext.Posts
                 .AsNoTracking()
                 .Where(p => p.Id == request.Id && !p.IsDeleted)
                 .Select(p => p.AuthorId)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            var userProfile = await context.Users
+            var userProfile = await identityContext.Users
                 .AsNoTracking()
                 .Include(u => u.Photos)
                 .Where(u => u.Id == authorId)
@@ -34,7 +38,7 @@ internal class GetPostByIdQueryHandler(IDbContextFactory<ApplicationDbContext> c
             request.Profile = userProfile.MapToProfile();
         }
 
-        request.Post ??= await context.Posts
+        request.Post ??= await contentContext.Posts
             .AsNoTracking()
             .Where(p => p.Id == request.Id && !p.IsDeleted)
             .Select(p => new ProfilePostDto
@@ -52,7 +56,7 @@ internal class GetPostByIdQueryHandler(IDbContextFactory<ApplicationDbContext> c
         if (request.Post is null)
             return Result.Failure<PostDetailsResponse>(new Error("Post.NotFound"), HttpStatusCode.NotFound);
 
-        var commentsQuery = context.Comments
+        var commentsQuery = contentContext.Comments
             .AsNoTracking()
             .Where(c => c.ParentPostId == request.Id && c.ParentCommentId == null && !c.IsDeleted)
             .OrderByDescending(c => c.TimeStamp)

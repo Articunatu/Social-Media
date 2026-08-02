@@ -18,13 +18,6 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration config)
     {
-        services.AddDbContextFactory<ApplicationDbContext>((serviceProvider, options) =>
-            options.UseSqlServer(config.GetConnectionString("EfcoreSocials"))
-                   .UseSeeding((context, _) =>
-                       ApplicationDbContextSeeder.Seed((ApplicationDbContext)context))
-                   .UseAsyncSeeding((context, _, cancellationToken) =>
-                       ApplicationDbContextSeeder.SeedAsync((ApplicationDbContext)context, cancellationToken)));
-
         services.AddDbContextFactory<IdentityDbContext>((serviceProvider, options) =>
             options.UseSqlServer(config.GetConnectionString("EfcoreSocials")));
 

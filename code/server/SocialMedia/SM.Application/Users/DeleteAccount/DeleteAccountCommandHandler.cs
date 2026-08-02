@@ -9,7 +9,7 @@ using System.Net;
 
 namespace SM.Application.Users.DeleteAccount;
 
-internal class DeleteAccountCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory, ILoggingBehaviour logging) 
+internal class DeleteAccountCommandHandler(IDbContextFactory<IdentityDbContext> contextFactory, ILoggingBehaviour logging) 
     : ICommandHandler<DeleteAccountCommand, UserCommandResponse>
 {
     public async Task<Result<UserCommandResponse>> Handle(DeleteAccountCommand request, CancellationToken cancellationToken)

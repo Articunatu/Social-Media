@@ -17,12 +17,12 @@ public class DeletePostTests(IntegrationTestFixture fixture) : BaseIntegrationTe
         var post = Post.Create("Only the author can delete this.", author.Id);
 
         await Users.AddAsync(author, otherUser);
-        DbContext.Posts.Add(post);
-        await DbContext.SaveChangesAsync();
+        ContentDbContext.Posts.Add(post);
+        await ContentDbContext.SaveChangesAsync();
 
         var result = await Sender.Send(new DeletePostCommand(post.Id, otherUser.Id));
 
-        var postFromDb = await DbContext.Posts
+        var postFromDb = await ContentDbContext.Posts
             .AsNoTracking()
             .FirstAsync(p => p.Id == post.Id);
 

@@ -7,14 +7,15 @@ using System.Net;
 
 namespace SM.Application.Posts.CreatePost;
 
-internal class CreatePostCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory) 
+internal class CreatePostCommandHandler(IDbContextFactory<IdentityDbContext> identityContextFactory, IDbContextFactory<ContentDbContext> contentContextFactory) 
     : ICommandHandler<CreatePostCommand, PostResponse>
 {
     public async Task<Result<PostResponse>> Handle(CreatePostCommand request, CancellationToken cancellationToken)
     {
-        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var identityContext = await identityContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var contentContext = await contentContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var authorExists = await context.Users
+        var authorExists = await identityContext.Users
             .AsNoTracking()
             .AnyAsync(u => u.Id == request.AuthorId, cancellationToken);
         if (!authorExists)
@@ -22,8 +23,8 @@ internal class CreatePostCommandHandler(IDbContextFactory<ApplicationDbContext> 
 
         var post = Post.Create(request.Content, request.AuthorId);
 
-        context.Posts.Add(post);
-        await context.SaveChangesAsync(cancellationToken);
+        contentContext.Posts.Add(post);
+        await contentContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success(post.MapToResponse());
     }

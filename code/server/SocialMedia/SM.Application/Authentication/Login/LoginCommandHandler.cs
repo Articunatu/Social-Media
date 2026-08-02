@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace SM.Application.Authentication.Login;
 
-internal class LoginCommandHandler(IJwtService jwtService, IDbContextFactory<ApplicationDbContext> contextFactory, ILoggingBehaviour logging)
+internal class LoginCommandHandler(IJwtService jwtService, IDbContextFactory<IdentityDbContext> contextFactory, ILoggingBehaviour logging)
     : ICommandHandler<LoginCommand, LoginResponse>
 {
     public async Task<Result<LoginResponse>> Handle(LoginCommand request, CancellationToken ct)
@@ -46,7 +46,7 @@ internal class LoginCommandHandler(IJwtService jwtService, IDbContextFactory<App
         return Result.Success(loginResponse);
     }
 
-    private static async Task<UserAuthDto?> GetUserAuthAsync(ApplicationDbContext context, string tag, CancellationToken ct)
+    private static async Task<UserAuthDto?> GetUserAuthAsync(IdentityDbContext context, string tag, CancellationToken ct)
     {
         bool isTagEmail = Regex.IsMatch(tag, Email.Pattern);
 
@@ -58,7 +58,7 @@ internal class LoginCommandHandler(IJwtService jwtService, IDbContextFactory<App
             .FirstOrDefaultAsync(ct);
     }
 
-    private static async Task UpsertRefreshTokenAsync(ApplicationDbContext context, Token refreshToken, CancellationToken ct)
+    private static async Task UpsertRefreshTokenAsync(IdentityDbContext context, Token refreshToken, CancellationToken ct)
     {
         var existingToken = await context.Tokens.FirstOrDefaultAsync(t => t.UserId == refreshToken.UserId, ct);
 

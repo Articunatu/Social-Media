@@ -8,7 +8,7 @@ using System.Net;
 
 namespace SM.Application.Photos.UploadPhoto;
 
-internal class UploadPhotoCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : ICommandHandler<UploadPhotoCommand, Guid>
+internal class UploadPhotoCommandHandler(IDbContextFactory<IdentityDbContext> contextFactory) : ICommandHandler<UploadPhotoCommand, Guid>
 {
     public async Task<Result<Guid>> Handle(UploadPhotoCommand request, CancellationToken ct)
     {

@@ -9,11 +9,12 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Comments.GetComments;
 
-internal class GetCommentsQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : IQueryHandler<GetCommentsQuery, PagedFeed<CommentQuery>>
+internal class GetCommentsQueryHandler(IDbContextFactory<ContentDbContext> contentContextFactory, IDbContextFactory<IdentityDbContext> identityContextFactory) : IQueryHandler<GetCommentsQuery, PagedFeed<CommentQuery>>
 {
     public async Task<Result<PagedFeed<CommentQuery>>> Handle(GetCommentsQuery request, CancellationToken cancellationToken)
     {
-        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var context = await contentContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var identityContext = await identityContextFactory.CreateDbContextAsync(cancellationToken);
 
         var comments = await context.Comments
             .AsNoTracking()
@@ -24,7 +25,7 @@ internal class GetCommentsQueryHandler(IDbContextFactory<ApplicationDbContext> c
             .OrderByDescending(p => p.TimeStamp)
             .ToPagedFeed(request.Filter);
 
-        var profiles = await context.GetProfileLookupAsync(comments.Values.SelectMany(CollectAuthorIds), cancellationToken);
+        var profiles = await identityContext.GetProfileLookupAsync(comments.Values.SelectMany(CollectAuthorIds), cancellationToken);
 
         return Result.Success(new PagedFeed<CommentQuery>
         {

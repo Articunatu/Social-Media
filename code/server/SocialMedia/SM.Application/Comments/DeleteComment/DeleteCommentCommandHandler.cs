@@ -8,7 +8,7 @@ using System.Net;
 
 namespace SM.Application.Comments.DeleteComment;
 
-internal class DeleteCommentCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+internal class DeleteCommentCommandHandler(IDbContextFactory<ContentDbContext> contextFactory)
     : ICommandHandler<DeleteCommentCommand, CommentCommand>
 {
     public async Task<Result<CommentCommand>> Handle(DeleteCommentCommand request, CancellationToken ct)

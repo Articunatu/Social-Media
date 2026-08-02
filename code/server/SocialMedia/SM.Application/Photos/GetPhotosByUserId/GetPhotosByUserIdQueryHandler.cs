@@ -6,7 +6,7 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Photos.GetPhotosByUserId;
 
-internal class GetPhotosByUserIdQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+internal class GetPhotosByUserIdQueryHandler(IDbContextFactory<IdentityDbContext> contextFactory)
     : IQueryHandler<GetPhotosByUserIdQuery, IEnumerable<PhotoResponse>>
 {
     public async Task<Result<IEnumerable<PhotoResponse>>> Handle(GetPhotosByUserIdQuery request, CancellationToken ct)

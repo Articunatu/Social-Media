@@ -7,7 +7,7 @@ using System.Net;
 
 namespace SM.Application.Authentication.ChangePassword;
 
-internal class ChangePasswordCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory, IJwtService jwt, ILoggingBehaviour logging) 
+internal class ChangePasswordCommandHandler(IDbContextFactory<IdentityDbContext> contextFactory, IJwtService jwt, ILoggingBehaviour logging) 
     : ICommandHandler<ChangePasswordCommand, string>
 {
     public async Task<Result<string>> Handle(ChangePasswordCommand command, CancellationToken ct)

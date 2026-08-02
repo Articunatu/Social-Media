@@ -33,10 +33,10 @@ public class SignUpTests(IntegrationTestFixture fixture) : BaseIntegrationTest(f
             response.Email.Should().Be(email);
             response.FullName.Should().Be($"{firstName} {lastName}");
 
-            var exists = await DbContext.Users.AnyAsync(u => u.Id == response.Id && u.Email == email && u.Tag == tag);
+            var exists = await IdentityDbContext.Users.AnyAsync(u => u.Id == response.Id && u.Email == email && u.Tag == tag);
             exists.Should().BeTrue();
 
-            var user = await DbContext.Users.FirstAsync(u => u.Id == response.Id);
+            var user = await IdentityDbContext.Users.FirstAsync(u => u.Id == response.Id);
             user.PasswordHash.Should().NotBeNull();
             user.PasswordHash.Length.Should().BeGreaterThan(0);
         }

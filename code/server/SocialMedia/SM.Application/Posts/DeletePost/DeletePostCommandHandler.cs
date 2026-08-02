@@ -7,7 +7,7 @@ using System.Net;
 
 namespace SM.Application.Posts.DeletePost;
 
-internal class DeletePostCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory, ILoggingBehaviour logging) : ICommandHandler<DeletePostCommand, PostResponse>
+internal class DeletePostCommandHandler(IDbContextFactory<ContentDbContext> contextFactory, ILoggingBehaviour logging) : ICommandHandler<DeletePostCommand, PostResponse>
 {
     public async Task<Result<PostResponse>> Handle(DeletePostCommand request, CancellationToken cancellationToken)
     {

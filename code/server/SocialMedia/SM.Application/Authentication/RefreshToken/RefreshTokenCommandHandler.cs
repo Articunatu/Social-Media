@@ -7,7 +7,7 @@ using System.Net;
 
 namespace SM.Application.Authentication.RefreshToken;
 
-internal class RefreshTokenCommandHandler(IJwtService jwtService, IDbContextFactory<ApplicationDbContext> contextFactory, ILoggingBehaviour logging) 
+internal class RefreshTokenCommandHandler(IJwtService jwtService, IDbContextFactory<IdentityDbContext> contextFactory, ILoggingBehaviour logging) 
     : ICommandHandler<RefreshTokenCommand, LoginResponse>
 {
     public async Task<Result<LoginResponse>> Handle(RefreshTokenCommand request, CancellationToken ct)

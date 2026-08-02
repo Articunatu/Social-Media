@@ -10,8 +10,15 @@ public static class DependencyInjection
     public static void SeedDatabase(this IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        ApplicationDbContextSeeder.Seed(db);
+        var identityFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<IdentityDbContext>>();
+        var contentFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ContentDbContext>>();
+        var socialGraphFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<SocialGraphDbContext>>();
+
+        using var identityContext = identityFactory.CreateDbContext();
+        using var contentContext = contentFactory.CreateDbContext();
+        using var socialGraphContext = socialGraphFactory.CreateDbContext();
+
+        ApplicationDbContextSeeder.Seed(identityContext, contentContext, socialGraphContext);
     }
     // ...existing code...
 }

@@ -7,24 +7,27 @@ using System.Net;
 
 namespace SM.Application.Reactions.RemoveReaction;
 
-internal class RemoveReactionCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory) 
+internal class RemoveReactionCommandHandler(
+    IDbContextFactory<ContentDbContext> contentContextFactory,
+    IDbContextFactory<IdentityDbContext> identityContextFactory)
     : ICommandHandler<RemoveReactionCommand, ReactionResponse>
 {
     public async Task<Result<ReactionResponse>> Handle(RemoveReactionCommand request, CancellationToken cancellationToken)
     {
-        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var contentContext = await contentContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var identityContext = await identityContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var reactionToRemove = await context.Reactions
+        var reactionToRemove = await contentContext.Reactions
             .FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
 
         if (reactionToRemove is null)
             return Result.Failure<ReactionResponse>(new Error("NotFound"), HttpStatusCode.NotFound);
 
-        var profile = await context.GetProfileAsync(reactionToRemove.UserId, cancellationToken);
+        var profile = await identityContext.GetProfileAsync(reactionToRemove.UserId, cancellationToken);
 
-        context.Reactions.Remove(reactionToRemove);
+        contentContext.Reactions.Remove(reactionToRemove);
 
-        await context.SaveChangesAsync(cancellationToken);
+        await contentContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success(reactionToRemove.MapToResponse(profile));
     }

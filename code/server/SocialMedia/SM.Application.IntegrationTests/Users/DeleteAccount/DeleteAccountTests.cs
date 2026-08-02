@@ -19,7 +19,7 @@ public class DeleteAccountTests(IntegrationTestFixture fixture) : BaseIntegratio
         {
             result.IsSuccess.Should().BeTrue();
 
-            var exists = await DbContext.Users.AnyAsync(u => u.Id == user.Id);
+            var exists = await IdentityDbContext.Users.AnyAsync(u => u.Id == user.Id);
             exists.Should().BeFalse();
         }
     }

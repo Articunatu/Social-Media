@@ -6,7 +6,7 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Authentication.Logout;
 
-internal class LogoutCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : ICommandHandler<LogoutCommand, Unit>
+internal class LogoutCommandHandler(IDbContextFactory<IdentityDbContext> contextFactory) : ICommandHandler<LogoutCommand, Unit>
 {
     public async Task<Result<Unit>> Handle(LogoutCommand request, CancellationToken cancellationToken)
     {

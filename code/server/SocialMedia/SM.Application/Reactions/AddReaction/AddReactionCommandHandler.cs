@@ -8,19 +8,19 @@ using System.Net;
 
 namespace SM.Application.Reactions.AddReaction;
 
-internal class AddReactionCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : ICommandHandler<AddReactionCommand, ReactionResponse>
+internal class AddReactionCommandHandler(IDbContextFactory<IdentityDbContext> identityContextFactory, IDbContextFactory<ContentDbContext> contentContextFactory) : ICommandHandler<AddReactionCommand, ReactionResponse>
 {
     public async Task<Result<ReactionResponse>> Handle(AddReactionCommand request, CancellationToken cancellationToken)
     {
-        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var identityContext = await identityContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var contentContext = await contentContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var userExists = await context.Users.AnyAsync(u => u.Id == request.UserId, cancellationToken);
+        var userExists = await identityContext.Users.AnyAsync(u => u.Id == request.UserId, cancellationToken);
         if (!userExists)
             return Result.Failure<ReactionResponse>(new Error("User.NotFound", "User not found"), HttpStatusCode.NotFound);
 
-
-        var postExists = await context.Posts.AnyAsync(p => p.Id == request.MessageId, cancellationToken);
-        var commentExists = await context.Comments.AnyAsync(c => c.Id == request.MessageId, cancellationToken);
+        var postExists = await contentContext.Posts.AnyAsync(p => p.Id == request.MessageId, cancellationToken);
+        var commentExists = await contentContext.Comments.AnyAsync(c => c.Id == request.MessageId, cancellationToken);
 
         if (!postExists && !commentExists)
             return Result.Failure<ReactionResponse>(new Error("Target.NotFound", "The target post or comment was not found"), HttpStatusCode.NotFound);
@@ -31,7 +31,7 @@ internal class AddReactionCommandHandler(IDbContextFactory<ApplicationDbContext>
         Guid? postId = postExists ? request.MessageId : null;
         Guid? commentId = commentExists ? request.MessageId : null;
 
-        var existingReaction = await context.Reactions.FirstOrDefaultAsync(r =>
+        var existingReaction = await contentContext.Reactions.FirstOrDefaultAsync(r =>
             r.UserId == request.UserId && r.PostId == postId && r.CommentId == commentId, cancellationToken);
 
         if (existingReaction != null)
@@ -45,18 +45,18 @@ internal class AddReactionCommandHandler(IDbContextFactory<ApplicationDbContext>
             CommentId = commentId
         };
 
-        context.Reactions.Add(reactionToAdd);
+        contentContext.Reactions.Add(reactionToAdd);
 
-        await context.SaveChangesAsync(cancellationToken);
+        await contentContext.SaveChangesAsync(cancellationToken);
 
-        var reaction = await context.Reactions
+        var reaction = await contentContext.Reactions
             .AsNoTracking()
             .FirstOrDefaultAsync(r => r.Id == reactionToAdd.Id, cancellationToken);
 
         if (reaction is null)
             return Result.Failure<ReactionResponse>(new Error("ReactionDisappeared"), HttpStatusCode.NotFound);
 
-        var profile = await context.GetProfileAsync(reaction.UserId, cancellationToken);
+        var profile = await identityContext.GetProfileAsync(reaction.UserId, cancellationToken);
 
         return Result.Success(reaction.MapToResponse(profile));
     }

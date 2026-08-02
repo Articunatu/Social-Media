@@ -8,12 +8,12 @@ using System.Net;
 
 namespace SM.Application.Posts.GetProfilePosts;
 
-internal class GetProfilePostsQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory)
+internal class GetProfilePostsQueryHandler(IDbContextFactory<ContentDbContext> contentContextFactory)
     : IQueryHandler<GetProfilePostsQuery, ProfileFeedResponse>
 {
     public async Task<Result<ProfileFeedResponse>> Handle(GetProfilePostsQuery request, CancellationToken cancellationToken)
     {
-        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var context = await contentContextFactory.CreateDbContextAsync(cancellationToken);
 
         var posts = await context.Posts
             .Where(p => p.AuthorId == request.UserId)

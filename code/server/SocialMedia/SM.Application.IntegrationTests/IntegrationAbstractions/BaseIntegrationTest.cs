@@ -9,22 +9,39 @@ namespace SM.Application.IntegrationTests.IntegrationAbstractions;
 public abstract class BaseIntegrationTest(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>, IAsyncLifetime
 {
     protected readonly ISender Sender = fixture.Services.GetRequiredService<ISender>();
-    protected readonly IDbContextFactory<ApplicationDbContext> DbContextFactory = fixture.Services.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
-    protected ApplicationDbContext DbContext { get; private set; } = default!;
+    protected readonly IDbContextFactory<IdentityDbContext> IdentityDbContextFactory = fixture.Services.GetRequiredService<IDbContextFactory<IdentityDbContext>>();
+    protected readonly IDbContextFactory<ContentDbContext> ContentDbContextFactory = fixture.Services.GetRequiredService<IDbContextFactory<ContentDbContext>>();
+    protected readonly IDbContextFactory<SocialGraphDbContext> SocialGraphDbContextFactory = fixture.Services.GetRequiredService<IDbContextFactory<SocialGraphDbContext>>();
+
+    protected IdentityDbContext IdentityDbContext { get; private set; } = default!;
+    protected ContentDbContext ContentDbContext { get; private set; } = default!;
+    protected SocialGraphDbContext SocialGraphDbContext { get; private set; } = default!;
     protected UserTestData Users { get; private set; } = default!;
 
     public virtual async Task InitializeAsync()
     {
         await fixture.ResetDatabaseAsync();
-        DbContext = await DbContextFactory.CreateDbContextAsync();
-        Users = new UserTestData(DbContextFactory);
+        IdentityDbContext = await IdentityDbContextFactory.CreateDbContextAsync();
+        ContentDbContext = await ContentDbContextFactory.CreateDbContextAsync();
+        SocialGraphDbContext = await SocialGraphDbContextFactory.CreateDbContextAsync();
+        Users = new UserTestData(IdentityDbContextFactory, ContentDbContextFactory);
     }
 
     public virtual async Task DisposeAsync()
     {
-        if (DbContext is not null)
+        if (IdentityDbContext is not null)
         {
-            await DbContext.DisposeAsync();
+            await IdentityDbContext.DisposeAsync();
+        }
+
+        if (ContentDbContext is not null)
+        {
+            await ContentDbContext.DisposeAsync();
+        }
+
+        if (SocialGraphDbContext is not null)
+        {
+            await SocialGraphDbContext.DisposeAsync();
         }
     }
 }

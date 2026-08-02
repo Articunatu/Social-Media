@@ -7,7 +7,7 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Users.SearchUsers;
 
-internal class SearchUserQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : IQueryHandler<SearchUserQuery, IEnumerable<ProfileInfo>>
+internal class SearchUserQueryHandler(IDbContextFactory<IdentityDbContext> contextFactory) : IQueryHandler<SearchUserQuery, IEnumerable<ProfileInfo>>
 {
     public async Task<Result<IEnumerable<ProfileInfo>>> Handle(SearchUserQuery request, CancellationToken ct)
     {

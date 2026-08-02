@@ -10,7 +10,7 @@ using System.Net;
 
 namespace SM.Application.Authentication.SignUp;
 
-internal class SignUpCommandHandler(IDbContextFactory<ApplicationDbContext> contextFactory, IJwtService jwt, ILoggingBehaviour log)
+internal class SignUpCommandHandler(IDbContextFactory<IdentityDbContext> contextFactory, IJwtService jwt, ILoggingBehaviour log)
     : ICommandHandler<SignUpCommand, SignUpResponse>
 {
     public async Task<Result<SignUpResponse>> Handle(SignUpCommand dto, CancellationToken ct)

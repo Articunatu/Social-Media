@@ -20,7 +20,7 @@ public class FollowTests(IntegrationTestFixture fixture) : BaseIntegrationTest(f
         {
             result.IsSuccess.Should().BeTrue();
 
-            var follow = await DbContext.Follows
+            var follow = await SocialGraphDbContext.Follows
                 .FirstOrDefaultAsync(f => f.FollowerId == follower.Id && f.FollowingId == following.Id);
 
             follow.Should().NotBeNull();

@@ -8,13 +8,19 @@ using SM.Domain.Users.Extensions;
 
 namespace SM.Application.Posts.GetFeed;
 
-internal class GetFeedQueryHandler(IDbContextFactory<ApplicationDbContext> contextFactory) : IQueryHandler<GetFeedQuery, PagedFeed<FeedResponse>>
+internal class GetFeedQueryHandler(
+    IDbContextFactory<SocialGraphDbContext> socialGraphContextFactory,
+    IDbContextFactory<ContentDbContext> contentContextFactory,
+    IDbContextFactory<IdentityDbContext> identityContextFactory)
+    : IQueryHandler<GetFeedQuery, PagedFeed<FeedResponse>>
 {
     public async Task<Result<PagedFeed<FeedResponse>>> Handle(GetFeedQuery request, CancellationToken ct)
     {
-        await using var context = await contextFactory.CreateDbContextAsync(ct);
+        await using var socialGraphContext = await socialGraphContextFactory.CreateDbContextAsync(ct);
+        await using var contentContext = await contentContextFactory.CreateDbContextAsync(ct);
+        await using var identityContext = await identityContextFactory.CreateDbContextAsync(ct);
 
-        var followingIds = await context.Follows
+        var followingIds = await socialGraphContext.Follows
             .AsNoTracking()
             .Where(f => f.FollowerId == request.UserId)
             .Select(f => f.FollowingId)
@@ -23,7 +29,7 @@ internal class GetFeedQueryHandler(IDbContextFactory<ApplicationDbContext> conte
         if (followingIds.Length == 0)
             return Result.Success(new PagedFeed<FeedResponse> { Values = [] });
 
-        var pagedPosts = await context.Posts
+        var pagedPosts = await contentContext.Posts
             .Where(p => followingIds.Contains(p.AuthorId))
             .Select(p => new
             {
@@ -41,7 +47,7 @@ internal class GetFeedQueryHandler(IDbContextFactory<ApplicationDbContext> conte
             })
             .ToPagedFeed(request.Filter with { Order = "TimeStamp desc" });
 
-        var profiles = await context.GetProfileLookupAsync(pagedPosts.Values.Select(x => x.AuthorId), ct);
+        var profiles = await identityContext.GetProfileLookupAsync(pagedPosts.Values.Select(x => x.AuthorId), ct);
 
         return Result.Success(new PagedFeed<FeedResponse>
         {

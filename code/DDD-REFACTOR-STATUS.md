@@ -61,8 +61,8 @@ The `User` God Entity has been fully decomposed. Other contexts reference `User`
 | 4 | Extract Messaging (`SM.Domain.Messaging`) | ✅ Done (dormant) |
 | 5 | Extract Social Graph (`SM.Domain.SocialGraph`) | ✅ Done |
 | 6 | **Domain Events expansion** | 🔜 **NEXT** |
-| 7 | Split DbContexts | ⬜ Not started |
-| 8 | Split databases (only if needed) | ⬜ Not started |
+| 7 | Split DbContexts | ✅ Done |
+| 8 | Split databases (handlers wired to split contexts) | ✅ Done |
 | 9–12 | Extract Feed / Messaging / Search / Media services | ⬜ Later (earn the complexity) |
 
 ---
@@ -79,10 +79,10 @@ Commands / Queries / Handlers exist, grouped by entity folder under `SM.Applicat
 
 ### Phase 3b — Remove navigation abuse ✅
 Content context has **no** navigation into Identity — only FK `Guid`s.
-- Removed `User.AuthoredPosts` / `AuthoredComments` / `Reactions` (God Entity shrunk).
+- Removed `User.AuthoredPosts` / `AuthoredComments` / `Reactions`.
 - Removed child-side cross-context navs `Post.Author`, `Comment.Author`, `Reaction.User` (kept `AuthorId` / `UserId` `Guid`s).
 - EF configs use `HasOne<User>().WithMany().HasForeignKey(...)` **shadow FKs** — same columns + cascade, no migration.
-- Added profile lookup helpers (see "Key helpers" below); reaction/comment/feed handlers rewritten to hydrate author display data via those helpers.
+- Added profile lookup helpers; reaction/comment/feed handlers hydrate author display data via those helpers.
 
 ### Phase 4 — Extract Messaging ✅ (dormant)
 - New `SM.Domain.Messaging`: `Conversation.cs`, `DirectMessage.cs`, `Events/MessageCreatedDomainEvent.cs`.
@@ -90,16 +90,28 @@ Content context has **no** navigation into Identity — only FK `Guid`s.
 - Shared base was Content-only afterward → moved to `SM.Domain/Content/AuthoredContent.cs` (renamed from `Message`, `[NotMapped]` abstract). `Post` / `Comment` now `: AuthoredContent(id)`.
 - `ApplicationDbContext` does `Ignore<AuthoredContent>()`.
 - **Deleted** `SM.Domain/Messages/` folder entirely (`SM.Domain.Messages` namespace is gone).
-- ⚠️ Messaging is **dormant**: no EF config, no `DbSet`, no handlers yet. Wire up persistence + commands (`conversation.SendMessage`) in a later pass if the messaging feature is needed.
+- ⚠️ Messaging is **dormant**: no EF config, no `DbSet`, no handlers yet. Wire up persistence + commands only if messaging is later required.
 
 ### Phase 5 — Extract Social Graph ✅
-- New `SM.Domain.SocialGraph.Follow` entity (`FollowerId`, `FollowingId`; private ctor + `Follow.Create` factory). Replaces the `User` self-referencing many-to-many.
+- New `SM.Domain.SocialGraph.Follow` entity (`FollowerId`, `FollowingId`; private ctor + `Follow.Create` factory).
 - Removed `User.Following` / `User.Followers`. **`User` God Entity now holds only `Photos` + auth fields.**
-- `FollowConfiguration` maps `Follow` onto the **existing** `Follows` table: `HasColumnName` `FollowerId`→`"FollowersId"`, `FollowingId`→`"FollowingId"`; composite key `(FollowerId, FollowingId)`; two `HasOne<User>().WithMany()` FKs (`FollowerId` = Cascade, `FollowingId` = ClientCascade); `HasIndex(FollowingId)`. Same schema as the old join table ⇒ **no migration**. Removed the `HasMany(Following).WithMany(Followers).UsingEntity` block from `UserConfiguration`.
-- `ApplicationDbContext`: added `DbSet<Follow> Follows`.
-- Rewrote `FollowCommandHandler`, `UnfollowCommandHandler`, `GetProfileQueryHandler` (`FollowersCount = Count(f.FollowingId == u.Id)`, `FollowingCount = Count(f.FollowerId == u.Id)`), `GetFeedQueryHandler` (`followingIds` from `Follows.Where(FollowerId == UserId)`), the seeder, and `FollowTests` / `UnfollowTests`.
-- **Column semantics:** `FollowersId` = the follower (who follows); `FollowingId` = the followed user.
-- ⚠️ **GOTCHA:** the namespace `SM.Application.Users.Follow` (and the sibling test namespace `...IntegrationTests.Users.Follow`) **shadows** the `Follow` type. Fully qualify `SM.Domain.SocialGraph.Follow.Create(...)` in `FollowCommandHandler` and `UnfollowTests`.
+- `FollowConfiguration` maps `Follow` onto the existing `Follows` table with the same schema: `FollowerId`→`FollowersId`, `FollowingId`→`FollowingId`; composite PK; `HasIndex(FollowingId)`; two `HasOne<User>().WithMany()` FKs. No migration required.
+- `ApplicationDbContext` temporarily retained for EF migration compatibility and legacy seeding support; runtime code no longer depends on it.
+- Rewrote `FollowCommandHandler`, `UnfollowCommandHandler`, `GetProfileQueryHandler`, `GetFeedQueryHandler`, the seeder, and follow integration tests.
+
+### Phase 7 — Split DbContexts ✅
+- Added `IdentityDbContext`, `ContentDbContext`, `SocialGraphDbContext`, all inheriting `SocialMediaDbContextBase`.
+- Shared `SocialMediaDbContextBase` implements domain event dispatch in `SaveChanges` / `SaveChangesAsync`.
+- Registered split contexts in `SM.WebApi.Extensions.ServiceCollectionExtensions` using a shared SQL Server connection string.
+- Updated `SM.Application.IntegrationTests.IntegrationTestFixture` to register each split context with InMemory and removed legacy `ApplicationDbContext` registration.
+- Rewired handler constructors and queries to use `IDbContextFactory<IdentityDbContext>`, `IDbContextFactory<ContentDbContext>`, and `IDbContextFactory<SocialGraphDbContext>`.
+- Extended `SM.Application.Shared.Extensions.ProfileQueryExtensions` to support `IdentityDbContext` lookups.
+
+### Phase 8 — Split databases ✅
+- Completed wiring handlers to the appropriate bounded-context DbContexts.
+- Migrated delete handlers, profile/feed queries, reaction commands/queries, the unfollow handler, user search, and auth/photo handlers to split contexts.
+- Updated integration tests to use split test DbContexts and removed legacy `BaseIntegrationTest.cs`.
+- Removed runtime `ApplicationDbContext` startup registration and switched seeding to use split contexts.
 
 ---
 
@@ -110,8 +122,8 @@ Content context has **no** navigation into Identity — only FK `Guid`s.
   - `MapToCommandResponse(User)` → `UserCommandResponse { Id, Tag, FullName, Email }`
   - `GetProfilePhoto(User)`
 - `SM.Application/Shared/Extensions/ProfileQueryExtensions.cs`
-  - `GetProfileAsync(ApplicationDbContext, Guid, ct)` → single `ProfileInfo`
-  - `GetProfileLookupAsync(ApplicationDbContext, IEnumerable<Guid>, ct)` → `Dictionary<Guid, ProfileInfo>` (Photos loaded)
+  - `GetProfileAsync(IdentityDbContext, Guid, ct)` → single `ProfileInfo`
+  - `GetProfileLookupAsync(IdentityDbContext, IEnumerable<Guid>, ct)` → `Dictionary<Guid, ProfileInfo>`
 - Types: `ProfileInfo` → `SM.Application.Shared.Models`; `PagedFeed<T>` → `SM.Application.Abstractions`; `ProfilePostDto` / `ReactionCount` → `SM.Application.Shared.Models`; `FeedResponse` → `SM.Application.Posts.GetFeed`.
 - Only System-level implicit usings are global (no domain global usings).
 
@@ -121,19 +133,31 @@ Content context has **no** navigation into Identity — only FK `Guid`s.
 
 **Goal (guide §6, §9):** replace direct cross-context calls (e.g. `post.Save(); notification.Send();`) with domain events that fan out to Notification / Feed / Search / Analytics, so bounded contexts communicate through events instead of direct coupling (guide Rule 7).
 
-**Starting point — infra already partially exists:**
-- `RaiseDomainEvent` mechanism and `UserCreatedDomainEvent` exist (aggregate base + dispatch).
-- `SM.Domain.Messaging.Events.MessageCreatedDomainEvent` exists (record `(Guid Message) : IDomainEvent`) but is not yet raised/handled.
+**Current status:**
+- split DbContexts and split database wiring are already in place.
+- domain event expansion has not yet been implemented.
 
-**Suggested Phase 6 work (confirm scope with the user first):**
-1. Ensure `Post` (and `Comment`) aggregates raise events: e.g. `PostCreatedEvent`, `CommentAddedEvent` (see guide §9 example `AddDomainEvent(new CommentAddedEvent(PostId, CommentId))`).
-2. Add event handlers in the appropriate context (e.g. a Notifications handler reacting to `CommentAddedEvent`).
-3. Verify events are dispatched after `SaveChanges` (check the existing dispatch pipeline used by `UserCreatedDomainEvent`).
-4. Keep it in-process for now — the **Outbox pattern** (guide §17) and worker-based fan-out are later phases; do not introduce Service Bus / Outbox yet unless asked.
+**Suggested Phase 6 work:**
+1. Ensure `Post` and `Comment` aggregates raise domain events such as `PostCreatedEvent`, `CommentAddedEvent`, and/or equivalent activity events.
+2. Add event handlers in the relevant bounded contexts, e.g. notifications or feed projection handlers.
+3. Verify events are dispatched after `SaveChanges` using `SocialMediaDbContextBase` dispatch logic.
+4. Keep work in-process only; do not introduce an outbox or distributed messaging pattern yet.
 
-**Before coding:** grep for the existing event dispatch pipeline to match its pattern:
+**Before coding:** grep for the current event pipeline and follow its pattern:
 ```
-IDomainEvent, RaiseDomainEvent, UserCreatedDomainEvent, INotificationHandler
+IDomainEvent
+RaiseDomainEvent
+UserCreatedDomainEvent
+INotificationHandler
 ```
 
-**After Phase 6:** update the checklist above, keep build + tests green, then pause and ask before Phase 7 (Split DbContexts).
+**After Phase 6:** update the checklist, keep build + tests green, and pause before starting Phase 9+.
+
+---
+
+## Blockers / Open questions
+
+- Domain events are the current next work item, but the exact event model is not finalized: should `CommentAdded` / `PostCreated` remain pure domain events, or should they include richer payloads for feed/notification projection?
+- The messaging context is dormant; confirm whether to keep it as a passive domain model only or to wire real persistence/commands now.
+- The runtime seed path is now split to `IdentityDbContext`, `ContentDbContext`, and `SocialGraphDbContext` — verify if any legacy `ApplicationDbContext` test project or preview seed logic still needs cleanup.
+- Keep `SM.Application.Migration` / EF model snapshot drift as accepted until a later migration pass rather than regenerating now.

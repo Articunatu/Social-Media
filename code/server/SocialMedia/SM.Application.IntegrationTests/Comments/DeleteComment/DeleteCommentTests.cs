@@ -19,13 +19,13 @@ public class DeleteCommentTests(IntegrationTestFixture fixture) : BaseIntegratio
         var comment = Comment.Create(post.Id, "Only the comment author can delete this.", commentAuthor.Id);
 
         await Users.AddAsync(postAuthor, commentAuthor, otherUser);
-        DbContext.Posts.Add(post);
-        DbContext.Comments.Add(comment);
-        await DbContext.SaveChangesAsync();
+        ContentDbContext.Posts.Add(post);
+        ContentDbContext.Comments.Add(comment);
+        await ContentDbContext.SaveChangesAsync();
 
         var result = await Sender.Send(new DeleteCommentCommand(comment.Id, otherUser.Id));
 
-        var commentFromDb = await DbContext.Comments
+        var commentFromDb = await ContentDbContext.Comments
             .AsNoTracking()
             .FirstAsync(c => c.Id == comment.Id);
 
