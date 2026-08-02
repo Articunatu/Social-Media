@@ -25,6 +25,15 @@ public static class ServiceCollectionExtensions
                    .UseAsyncSeeding((context, _, cancellationToken) =>
                        ApplicationDbContextSeeder.SeedAsync((ApplicationDbContext)context, cancellationToken)));
 
+        services.AddDbContextFactory<IdentityDbContext>((serviceProvider, options) =>
+            options.UseSqlServer(config.GetConnectionString("EfcoreSocials")));
+
+        services.AddDbContextFactory<ContentDbContext>((serviceProvider, options) =>
+            options.UseSqlServer(config.GetConnectionString("EfcoreSocials")));
+
+        services.AddDbContextFactory<SocialGraphDbContext>((serviceProvider, options) =>
+            options.UseSqlServer(config.GetConnectionString("EfcoreSocials")));
+
         services.AddValidatorsFromAssembly(typeof(ServiceCollectionExtensions).Assembly, includeInternalTypes: true);
 
         services.AddTransient<IJwtService, JwtService>();
