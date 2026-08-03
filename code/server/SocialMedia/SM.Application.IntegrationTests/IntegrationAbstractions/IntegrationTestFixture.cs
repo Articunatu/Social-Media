@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using SM.Application.Database;
 
 namespace SM.Application.IntegrationTests.IntegrationAbstractions;
@@ -26,11 +26,7 @@ public sealed class IntegrationTestFixture : WebApplicationFactory<Program>
 
         builder.ConfigureServices(services =>
         {
-            services.RemoveAll<IDbContextFactory<IdentityDbContext>>();
-            services.RemoveAll<IDbContextFactory<ContentDbContext>>();
-            services.RemoveAll<IDbContextFactory<SocialGraphDbContext>>();
-            services.RemoveAll<DbContextOptions>();
-
+            // Register DbContextFactories with in-memory database for testing
             services.AddDbContextFactory<IdentityDbContext>(options =>
                 options.UseInMemoryDatabase(_databaseName));
             services.AddDbContextFactory<ContentDbContext>(options =>

@@ -6,7 +6,7 @@ using SM.WebApi.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddServices(builder.Configuration);
+builder.Services.AddServices(builder.Configuration, builder.Environment);
 builder.Services.AddProblemDetails();
 builder.Services.AddValidationProblems();
 builder.Services.AddSingleton<IExceptionHandler, GlobalExceptionHandler>();

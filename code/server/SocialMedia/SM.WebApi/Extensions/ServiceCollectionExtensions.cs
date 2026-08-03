@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -16,8 +17,14 @@ namespace SM.WebApi.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration config, IWebHostEnvironment? env = null)
     {
+        if (env?.IsEnvironment("Testing") == true)
+        {
+            // For testing, skip database registration here - it will be configured in the test fixture
+            return services.AddDatabaseAgnosticServices(config);
+        }
+
         services.AddDbContextFactory<IdentityDbContext>((serviceProvider, options) =>
             options.UseSqlServer(config.GetConnectionString("EfcoreSocials")));
 
@@ -27,6 +34,11 @@ public static class ServiceCollectionExtensions
         services.AddDbContextFactory<SocialGraphDbContext>((serviceProvider, options) =>
             options.UseSqlServer(config.GetConnectionString("EfcoreSocials")));
 
+        return services.AddDatabaseAgnosticServices(config);
+    }
+
+    private static IServiceCollection AddDatabaseAgnosticServices(this IServiceCollection services, IConfiguration config)
+    {
         services.AddValidatorsFromAssembly(typeof(ServiceCollectionExtensions).Assembly, includeInternalTypes: true);
 
         services.AddTransient<IJwtService, JwtService>();
