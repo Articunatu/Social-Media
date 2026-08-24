@@ -8,7 +8,7 @@ internal sealed class GlobalExceptionHandler(IProblemDetailsService service, ILo
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception ex, CancellationToken ct)
     {
-        logger.LogError(ex, "Unhandled exception occurred");
+        logger.LogError(ex, "Unhandled exception occurred {ErrMsg}", ex.Message);
 
         httpContext.Response.StatusCode = ex switch
         {
@@ -24,7 +24,9 @@ internal sealed class GlobalExceptionHandler(IProblemDetailsService service, ILo
             {
                 Type = ex.GetType().Name,
                 Title = "An error occured",
-                Detail = ex.Message
+                Detail = ex.Message,
+                Status = httpContext.Response.StatusCode,
+                Instance = httpContext.Request.Path
             }
         });
     }
