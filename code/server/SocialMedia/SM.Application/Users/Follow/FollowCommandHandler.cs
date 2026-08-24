@@ -3,12 +3,17 @@ using SM.Application.Abstractions;
 using SM.Application.Database;
 using SM.Application.Shared.Extensions;
 using SM.Domain.Shared;
+using SM.Domain.Feed;
 using SM.Domain.Users;
 using System.Net;
 
 namespace SM.Application.Users.Follow;
 
-internal class FollowCommandHandler(IDbContextFactory<IdentityDbContext> identityContextFactory, IDbContextFactory<SocialGraphDbContext> socialGraphContextFactory)
+internal class FollowCommandHandler(
+    IDbContextFactory<IdentityDbContext> identityContextFactory,
+    IDbContextFactory<SocialGraphDbContext> socialGraphContextFactory,
+    IDbContextFactory<ContentDbContext> contentContextFactory,
+    IDbContextFactory<FeedDbContext> feedContextFactory)
     : ICommandHandler<FollowCommand, IEnumerable<UserCommandResponse>>
 {
     public async Task<Result<IEnumerable<UserCommandResponse>>> Handle(FollowCommand request, CancellationToken cancellationToken)
@@ -34,6 +39,23 @@ internal class FollowCommandHandler(IDbContextFactory<IdentityDbContext> identit
         context.Follows.Add(SM.Domain.SocialGraph.Follow.Create(request.FollowerId, request.FollowingId));
 
         await context.SaveChangesAsync(cancellationToken);
+
+        await using var contentContext = await contentContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var feedContext = await feedContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var existingPosts = await contentContext.Posts
+            .AsNoTracking()
+            .Where(post => post.AuthorId == request.FollowingId)
+            .Select(post => new { post.Id, post.TimeStamp })
+            .ToArrayAsync(cancellationToken);
+
+        if (existingPosts.Length > 0)
+        {
+            feedContext.FeedItems.AddRange(existingPosts.Select(post =>
+                FeedItem.Create(request.FollowerId, post.Id, request.FollowingId, post.TimeStamp)));
+
+            await feedContext.SaveChangesAsync(cancellationToken);
+        }
 
         return Result.Success<IEnumerable<UserCommandResponse>>(new[]
         {

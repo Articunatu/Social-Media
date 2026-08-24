@@ -122,8 +122,9 @@ The first Feed slice is now in place, still in-process and without an outbox or 
 - `PostCreatedDomainEvent` fans out feed items to all current followers.
 - `GetFeedQueryHandler` pages projection records, then hydrates post and profile data through their owning contexts.
 - Integration coverage verifies follow → create post → projected feed read.
+- Following an author now backfills the follower's feed with that author's existing, non-deleted posts.
 
-**Next decision:** add follow-time backfill for existing posts, or leave that behavior for a later Feed service pass.
+**Decision:** include follow-time backfill in this in-process Feed slice. A later Feed service pass can move it behind an outbox/distributed workflow if needed.
 
 **Schema note:** `UserFeedItems` is a new table. Existing migrations target the retired `ApplicationDbContext`; create a dedicated split-context migration or deployment schema step before enabling this projection against an existing SQL database.
 
