@@ -9,31 +9,39 @@ using SM.Domain.Users.Extensions;
 namespace SM.Application.Posts.GetFeed;
 
 internal class GetFeedQueryHandler(
-    IDbContextFactory<SocialGraphDbContext> socialGraphContextFactory,
+    IDbContextFactory<FeedDbContext> feedContextFactory,
     IDbContextFactory<ContentDbContext> contentContextFactory,
     IDbContextFactory<IdentityDbContext> identityContextFactory)
     : IQueryHandler<GetFeedQuery, PagedFeed<FeedResponse>>
 {
     public async Task<Result<PagedFeed<FeedResponse>>> Handle(GetFeedQuery request, CancellationToken ct)
     {
-        await using var socialGraphContext = await socialGraphContextFactory.CreateDbContextAsync(ct);
+        await using var feedContext = await feedContextFactory.CreateDbContextAsync(ct);
         await using var contentContext = await contentContextFactory.CreateDbContextAsync(ct);
         await using var identityContext = await identityContextFactory.CreateDbContextAsync(ct);
 
-        var followingIds = await socialGraphContext.Follows
+        var feedItems = feedContext.FeedItems
             .AsNoTracking()
-            .Where(f => f.FollowerId == request.UserId)
-            .Select(f => f.FollowingId)
-            .ToArrayAsync(cancellationToken: ct);
+            .Where(item => item.RecipientId == request.UserId);
 
-        if (followingIds.Length == 0)
+        var pagedItems = await feedItems
+            .Select(item => new
+            {
+                item.PostId,
+                item.AuthorId,
+                item.CreatedAt
+            })
+            .ToPagedFeed(request.Filter with { Order = "CreatedAt desc" });
+
+        if (!pagedItems.Values.Any())
             return Result.Success(new PagedFeed<FeedResponse> { Values = [] });
 
-        var pagedPosts = await contentContext.Posts
-            .Where(p => followingIds.Contains(p.AuthorId))
+        var postIds = pagedItems.Values.Select(item => item.PostId).ToArray();
+        var posts = await contentContext.Posts
+            .Where(post => postIds.Contains(post.Id))
             .Select(p => new
             {
-                p.AuthorId,
+                p.Id,
                 Post = new ProfilePostDto
                 {
                     PostId = p.Id,
@@ -45,20 +53,22 @@ internal class GetFeedQueryHandler(
                         .Select(rt => new ReactionCount(rt.Key, rt.Count()))
                 }
             })
-            .ToPagedFeed(request.Filter with { Order = "TimeStamp desc" });
+            .ToDictionaryAsync(post => post.Id, cancellationToken: ct);
 
-        var profiles = await identityContext.GetProfileLookupAsync(pagedPosts.Values.Select(x => x.AuthorId), ct);
+        var profiles = await identityContext.GetProfileLookupAsync(pagedItems.Values.Select(x => x.AuthorId), ct);
 
         return Result.Success(new PagedFeed<FeedResponse>
         {
-            Index = pagedPosts.Index,
-            Order = pagedPosts.Order,
-            SearchText = pagedPosts.SearchText,
-            Values = pagedPosts.Values.Select(x => new FeedResponse(
-                profiles.TryGetValue(x.AuthorId, out var profile)
-                    ? profile
-                    : new ProfileInfo(x.AuthorId, string.Empty, string.Empty, null),
-                x.Post))
+            Index = pagedItems.Index,
+            Order = pagedItems.Order,
+            SearchText = pagedItems.SearchText,
+            Values = pagedItems.Values
+                .Where(item => posts.ContainsKey(item.PostId))
+                .Select(item => new FeedResponse(
+                    profiles.TryGetValue(item.AuthorId, out var profile)
+                        ? profile
+                        : new ProfileInfo(item.AuthorId, string.Empty, string.Empty, null),
+                    posts[item.PostId].Post))
         });
     }
 }

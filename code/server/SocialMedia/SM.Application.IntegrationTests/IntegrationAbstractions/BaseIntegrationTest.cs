@@ -12,10 +12,12 @@ public abstract class BaseIntegrationTest(IntegrationTestFixture fixture) : ICla
     protected readonly IDbContextFactory<IdentityDbContext> IdentityDbContextFactory = fixture.Services.GetRequiredService<IDbContextFactory<IdentityDbContext>>();
     protected readonly IDbContextFactory<ContentDbContext> ContentDbContextFactory = fixture.Services.GetRequiredService<IDbContextFactory<ContentDbContext>>();
     protected readonly IDbContextFactory<SocialGraphDbContext> SocialGraphDbContextFactory = fixture.Services.GetRequiredService<IDbContextFactory<SocialGraphDbContext>>();
+    protected readonly IDbContextFactory<FeedDbContext> FeedDbContextFactory = fixture.Services.GetRequiredService<IDbContextFactory<FeedDbContext>>();
 
     protected IdentityDbContext IdentityDbContext { get; private set; } = default!;
     protected ContentDbContext ContentDbContext { get; private set; } = default!;
     protected SocialGraphDbContext SocialGraphDbContext { get; private set; } = default!;
+    protected FeedDbContext FeedDbContext { get; private set; } = default!;
     protected UserTestData Users { get; private set; } = default!;
 
     public virtual async Task InitializeAsync()
@@ -24,6 +26,7 @@ public abstract class BaseIntegrationTest(IntegrationTestFixture fixture) : ICla
         IdentityDbContext = await IdentityDbContextFactory.CreateDbContextAsync();
         ContentDbContext = await ContentDbContextFactory.CreateDbContextAsync();
         SocialGraphDbContext = await SocialGraphDbContextFactory.CreateDbContextAsync();
+        FeedDbContext = await FeedDbContextFactory.CreateDbContextAsync();
         Users = new UserTestData(IdentityDbContextFactory, ContentDbContextFactory);
     }
 
@@ -42,6 +45,11 @@ public abstract class BaseIntegrationTest(IntegrationTestFixture fixture) : ICla
         if (SocialGraphDbContext is not null)
         {
             await SocialGraphDbContext.DisposeAsync();
+        }
+
+        if (FeedDbContext is not null)
+        {
+            await FeedDbContext.DisposeAsync();
         }
     }
 }

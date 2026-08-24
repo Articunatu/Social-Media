@@ -63,7 +63,7 @@ The `User` God Entity has been fully decomposed. Other contexts reference `User`
 | 6 | **Domain Events expansion** | ✅ Done (in-process) |
 | 7 | Split DbContexts | ✅ Done |
 | 8 | Split databases (handlers wired to split contexts) | ✅ Done |
-| 9–12 | Extract Feed / Messaging / Search / Media services | ⬜ Later (earn the complexity) |
+| 9–12 | Extract Feed / Messaging / Search / Media services | 🟨 Feed projection slice started |
 
 ---
 
@@ -114,31 +114,18 @@ Content context has **no** navigation into Identity — only FK `Guid`s.
 
 ---
 
-## NEXT: Phase 9 — Extract Feed service
+## NEXT: Feed projection checkpoint
 
-Phase 6 is complete at the current modular-monolith scope. Do not add distributed messaging or an outbox yet; first earn the complexity through a concrete feed projection requirement as described in the guide.
+The first Feed slice is now in place, still in-process and without an outbox or distributed messaging.
 
-**Goal (guide §6, §9):** replace direct cross-context calls (e.g. `post.Save(); notification.Send();`) with domain events that fan out to Notification / Feed / Search / Analytics, so bounded contexts communicate through events instead of direct coupling (guide Rule 7).
+- `SM.Domain.Feed.FeedItem` and `FeedDbContext` map the `UserFeedItems` projection table.
+- `PostCreatedDomainEvent` fans out feed items to all current followers.
+- `GetFeedQueryHandler` pages projection records, then hydrates post and profile data through their owning contexts.
+- Integration coverage verifies follow → create post → projected feed read.
 
-**Current status:**
-- split DbContexts and split database wiring are already in place.
-- domain event expansion has not yet been implemented.
+**Next decision:** add follow-time backfill for existing posts, or leave that behavior for a later Feed service pass.
 
-**Suggested Phase 6 work:**
-1. Ensure `Post` and `Comment` aggregates raise domain events such as `PostCreatedEvent`, `CommentAddedEvent`, and/or equivalent activity events.
-2. Add event handlers in the relevant bounded contexts, e.g. notifications or feed projection handlers.
-3. Verify events are dispatched after `SaveChanges` using `SocialMediaDbContextBase` dispatch logic.
-4. Keep work in-process only; do not introduce an outbox or distributed messaging pattern yet.
-
-**Before coding:** grep for the current event pipeline and follow its pattern:
-```
-IDomainEvent
-RaiseDomainEvent
-UserCreatedDomainEvent
-INotificationHandler
-```
-
-**After Phase 6:** update the checklist, keep build + tests green, and pause before starting Phase 9+.
+**Schema note:** `UserFeedItems` is a new table. Existing migrations target the retired `ApplicationDbContext`; create a dedicated split-context migration or deployment schema step before enabling this projection against an existing SQL database.
 
 ---
 
