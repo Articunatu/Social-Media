@@ -20,11 +20,8 @@ internal class RefreshTokenCommandHandler(IJwtService jwtService, IDbContextFact
             return Result.Failure<LoginResponse>(new Error("Invalid or expired refresh token"), HttpStatusCode.BadRequest);
 
         string accessToken = jwtService.CreateToken(existing.UserId.ToString(), "");
-        var refreshedToken = jwtService.GenerateRefreshToken();
-        refreshedToken.UserId = existing.UserId;
-
-        existing.Text = refreshedToken.Text;
-        existing.Expires = refreshedToken.Expires;
+        var refreshedToken = jwtService.GenerateRefreshToken(existing.UserId);
+        existing.Rotate(refreshedToken.Text, refreshedToken.Created, refreshedToken.Expires);
         await context.SaveChangesAsync(ct);
 
         logging.LogInformation($"Refreshed token for user {existing.UserId}");

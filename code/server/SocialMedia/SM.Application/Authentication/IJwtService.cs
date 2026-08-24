@@ -9,7 +9,7 @@ public interface IJwtService
 
     public ClaimsPrincipal? ValidateToken(string token);
 
-    public Token GenerateRefreshToken();
+    public Token GenerateRefreshToken(Guid userId);
 
     public void GeneratePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt);
 

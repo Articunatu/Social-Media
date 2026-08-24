@@ -72,6 +72,8 @@ The `User` God Entity has been fully decomposed. Other contexts reference `User`
 ### Phase 2 — Application / CQRS layer ✅
 Commands / Queries / Handlers exist, grouped by entity folder under `SM.Application`.
 
+Identity token lifecycle is now domain-owned: `Token.Create` and `Token.Rotate` encapsulate refresh-token state, while authentication handlers no longer assign token properties directly.
+
 ### Phase 3 — Extract Content ✅
 - `Post`, `Comment`, `Reaction`, `ReactionType` moved to `SM.Domain.Content`.
 - `Content` value object renamed → `ContentText` (`SM.Domain.Content.ValueObjects`).

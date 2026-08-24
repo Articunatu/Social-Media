@@ -59,15 +59,14 @@ public class JwtService(IConfiguration configuration) : IJwtService
         }
     }
 
-    public Token GenerateRefreshToken()
+    public Token GenerateRefreshToken(Guid userId)
     {
-        var refreshToken = new Token(Guid.CreateVersion7())
-        {
-            Text = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-            Expires = DateTime.Now.AddDays(7),
-            Created = DateTime.Now
-        };
-        return refreshToken;
+        var now = DateTimeOffset.UtcNow;
+        return Token.Create(
+            userId,
+            Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+            now,
+            now.AddDays(7));
     }
 
     public void GeneratePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)

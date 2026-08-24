@@ -33,12 +33,11 @@ internal class LoginCommandHandler(IJwtService jwtService, IDbContextFactory<Ide
         }
 
         var accessToken = jwtService.CreateToken(userAuth.Id.ToString(), userAuth.Tag);
-        var refreshToken = jwtService.GenerateRefreshToken();
+        var refreshToken = jwtService.GenerateRefreshToken(userAuth.Id);
 
         if (refreshToken is null)
             return Failure("TokenFailedRefresh", HttpStatusCode.Unauthorized);
 
-        refreshToken.UserId = userAuth.Id;
         await UpsertRefreshTokenAsync(context, refreshToken, ct);
         logging.LogInformation($"User with tag {request.Tag} logged in successfully");
 
@@ -68,8 +67,7 @@ internal class LoginCommandHandler(IJwtService jwtService, IDbContextFactory<Ide
             await context.SaveChangesAsync(ct);
             return;
         }
-        existingToken.Created = refreshToken.Created;
-        existingToken.Expires = refreshToken.Expires;
+        existingToken.Rotate(refreshToken.Text, refreshToken.Created, refreshToken.Expires);
 
         await context.SaveChangesAsync(ct);
     }

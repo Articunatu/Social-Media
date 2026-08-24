@@ -275,13 +275,11 @@ public static class ApplicationDbContextSeeder
     {
         return users
             .Take(6)
-            .Select(user => new Token(Guid.CreateVersion7())
-            {
-                UserId = user.Id,
-                Text = faker.Random.Guid().ToString("N"),
-                Created = faker.Date.RecentOffset(2),
-                Expires = faker.Date.SoonOffset(14)
-            });
+            .Select(user => Token.Create(
+                user.Id,
+                faker.Random.Guid().ToString("N"),
+                faker.Date.RecentOffset(2),
+                faker.Date.SoonOffset(14)));
     }
 
     private static IEnumerable<Follow> CreateFollowRelationships(Faker faker, IReadOnlyList<User> users)
