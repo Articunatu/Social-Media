@@ -63,7 +63,7 @@ The `User` God Entity has been fully decomposed. Other contexts reference `User`
 | 6 | **Domain Events expansion** | ✅ Done (in-process) |
 | 7 | Split DbContexts | ✅ Done |
 | 8 | Split databases (handlers wired to split contexts) | ✅ Done |
-| 9–12 | Extract Feed / Messaging / Search / Media services | 🟨 Feed projection slice complete; checkpoint reached |
+| 9–12 | Extract Feed / Messaging / Search / Media services | 🟨 Feed persistence checkpoint complete |
 
 ---
 
@@ -127,6 +127,8 @@ The first Feed slice is now in place, still in-process and without an outbox or 
 **Decision:** include follow-time backfill in this in-process Feed slice. A later Feed service pass can move it behind an outbox/distributed workflow if needed.
 
 **Schema note:** `UserFeedItems` is a new table. Existing migrations target the retired `ApplicationDbContext`; create a dedicated split-context migration or deployment schema step before enabling this projection against an existing SQL database.
+
+**Persistence checkpoint:** Added `SM.Application/Migrations/Feed/20260824072923_FeedProjection.cs` and the `FeedDbContext` model snapshot. The migration creates only `UserFeedItems` with its composite key and feed paging index.
 
 ---
 
