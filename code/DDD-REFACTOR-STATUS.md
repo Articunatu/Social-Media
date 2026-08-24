@@ -63,7 +63,7 @@ The `User` God Entity has been fully decomposed. Other contexts reference `User`
 | 6 | **Domain Events expansion** | ✅ Done (in-process) |
 | 7 | Split DbContexts | ✅ Done |
 | 8 | Split databases (handlers wired to split contexts) | ✅ Done |
-| 9–12 | Extract Feed / Messaging / Search / Media services | 🟨 Feed projection slice started |
+| 9–12 | Extract Feed / Messaging / Search / Media services | 🟨 Feed projection slice complete; checkpoint reached |
 
 ---
 
@@ -109,12 +109,12 @@ Content context has **no** navigation into Identity — only FK `Guid`s.
 - `Post.Create` raises `PostCreatedDomainEvent` with post, author, and creation timestamp.
 - `Comment.Create` raises `CommentAddedDomainEvent` with comment, post, author, and creation timestamp.
 - `SocialMediaDbContextBase` publishes tracked entity events through MediatR after `SaveChanges` / `SaveChangesAsync`, then clears them.
-- In-process application handlers currently log the events; feed, notification, search, analytics, and outbox infrastructure remain future work.
+- In-process application handlers currently process the events; the feed projection is implemented, while notification, search, analytics, and outbox infrastructure remain future work.
 - Added domain tests covering both content event contracts in `SM.Domain.UnitTests/ContentDomainEventTests.cs`.
 
 ---
 
-## NEXT: Feed projection checkpoint
+## Feed projection checkpoint reached
 
 The first Feed slice is now in place, still in-process and without an outbox or distributed messaging.
 

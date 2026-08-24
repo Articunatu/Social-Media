@@ -13,61 +13,6 @@ namespace SM.Application.Database;
 
 public static class ApplicationDbContextSeeder
 {
-    public static void Seed(ApplicationDbContext context)
-    {
-        if (context.Users.Any())
-        {
-            return;
-        }
-
-        Randomizer.Seed = new Random(73425);
-        var faker = new Faker();
-
-        // Create and persist users first so that relationships can reference existing rows
-        var users = CreateUsers(faker);
-        context.Users.AddRange(users);
-        context.SaveChanges();
-
-        // Create follow relationships after users are persisted
-        var follows = CreateFollowRelationships(faker, users);
-        context.Follows.AddRange(follows);
-        context.SaveChanges();
-
-        // Create and persist posts
-        var posts = CreatePosts(faker, users);
-        context.Posts.AddRange(posts);
-        context.SaveChanges();
-
-        // Create and persist comments
-        var comments = CreateComments(faker, posts, users);
-        context.Comments.AddRange(comments);
-        context.SaveChanges();
-
-        // Create reactions, photos and tokens and persist
-        var reactions = CreateReactions(faker, posts, comments, users);
-        var photos = CreatePhotos(faker, users).ToList();
-        var tokens = CreateTokens(faker, users).ToList();
-
-        context.Reactions.AddRange(reactions);
-        context.Photos.AddRange(photos);
-        context.Tokens.AddRange(tokens);
-        context.SaveChanges();
-
-        // Persist mapping of user tags -> plaintext passwords for developer convenience
-        WritePasswordsToFile(users);
-    }
-
-    public static async Task SeedAsync(ApplicationDbContext context, CancellationToken cancellationToken = default)
-    {
-        if (await context.Users.AnyAsync(cancellationToken))
-        {
-            return;
-        }
-
-        Seed(context);
-        await Task.CompletedTask;
-    }
-
     public static void Seed(
         IdentityDbContext identityContext,
         ContentDbContext contentContext,
