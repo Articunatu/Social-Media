@@ -21,23 +21,27 @@ internal class GetProfileQueryHandler(
         await using var socialGraphContext = await socialGraphContextFactory.CreateDbContextAsync(cancellationToken);
         await using var contentContext = await contentContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var profileDetails = await identityContext.Users
-            .Where(u => u.Id == request.Id)
-            .Select(u => new ProfileDetails
-            {
-                Profile = u.MapToProfile(),
-                FollowersCount = socialGraphContext.Follows.Count(f => f.FollowingId == u.Id),
-                FollowingCount = socialGraphContext.Follows.Count(f => f.FollowerId == u.Id),
-                IsFollowedByCurrentUser = request.ViewerId != Guid.Empty && socialGraphContext.Follows.Any(f => f.FollowingId == u.Id && f.FollowerId == request.ViewerId),
-                BackgroundPhoto = u.Photos.Where(p => p.Type == PhotoType.Background)
-                    .OrderByDescending(p => p.CreatedAt)
-                    .FirstOrDefault(),
-                AboutMe = string.Empty
-            })
-            .FirstOrDefaultAsync(cancellationToken);
+        var user = await identityContext.Users
+            .AsNoTracking()
+            .Include(u => u.Photos)
+            .FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
 
-        if (profileDetails is null)
+        if (user is null)
             return Result.Failure<ProfileDetails>(UserErrors.NotFound, HttpStatusCode.NotFound);
+
+        var profileDetails = new ProfileDetails
+        {
+            Profile = user.MapToProfile(),
+            FollowersCount = await socialGraphContext.Follows.CountAsync(f => f.FollowingId == request.Id, cancellationToken),
+            FollowingCount = await socialGraphContext.Follows.CountAsync(f => f.FollowerId == request.Id, cancellationToken),
+            IsFollowedByCurrentUser = request.ViewerId != Guid.Empty && await socialGraphContext.Follows.AnyAsync(
+                f => f.FollowingId == request.Id && f.FollowerId == request.ViewerId,
+                cancellationToken),
+            BackgroundPhoto = user.Photos
+                .Where(p => p.Type == PhotoType.Background)
+                .OrderByDescending(p => p.CreatedAt)
+                .FirstOrDefault(),
+        };
 
         profileDetails.AboutMe = await contentContext.Posts
             .Where(p => p.AuthorId == request.Id)

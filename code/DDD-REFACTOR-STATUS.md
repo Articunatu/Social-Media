@@ -32,7 +32,7 @@ dotnet test SM.Application.UnitTests/SM.Application.UnitTests.csproj --nologo -v
 dotnet test SM.Domain.UnitTests/SM.Domain.UnitTests.csproj --nologo -v q
 ```
 
-**Green baseline:** 14 integration + 34 application unit + 1 domain unit test — all passing.
+**Green baseline:** 14 integration + 34 application unit + 3 domain unit tests — all passing.
 
 **Environment notes:**
 - Windows PowerShell — chain commands with `;`, not `&&`.
@@ -60,7 +60,7 @@ The `User` God Entity has been fully decomposed. Other contexts reference `User`
 | 3b| Remove navigation abuse (no Content→Identity navs) | ✅ Done |
 | 4 | Extract Messaging (`SM.Domain.Messaging`) | ✅ Done (dormant) |
 | 5 | Extract Social Graph (`SM.Domain.SocialGraph`) | ✅ Done |
-| 6 | **Domain Events expansion** | 🔜 **NEXT** |
+| 6 | **Domain Events expansion** | ✅ Done (in-process) |
 | 7 | Split DbContexts | ✅ Done |
 | 8 | Split databases (handlers wired to split contexts) | ✅ Done |
 | 9–12 | Extract Feed / Messaging / Search / Media services | ⬜ Later (earn the complexity) |
@@ -105,31 +105,18 @@ Content context has **no** navigation into Identity — only FK `Guid`s.
 - Registered split contexts in `SM.WebApi.Extensions.ServiceCollectionExtensions` using a shared SQL Server connection string.
 - Updated `SM.Application.IntegrationTests.IntegrationTestFixture` to register each split context with InMemory and removed legacy `ApplicationDbContext` registration.
 - Rewired handler constructors and queries to use `IDbContextFactory<IdentityDbContext>`, `IDbContextFactory<ContentDbContext>`, and `IDbContextFactory<SocialGraphDbContext>`.
-- Extended `SM.Application.Shared.Extensions.ProfileQueryExtensions` to support `IdentityDbContext` lookups.
-
-### Phase 8 — Split databases ✅
-- Completed wiring handlers to the appropriate bounded-context DbContexts.
-- Migrated delete handlers, profile/feed queries, reaction commands/queries, the unfollow handler, user search, and auth/photo handlers to split contexts.
-- Updated integration tests to use split test DbContexts and removed legacy `BaseIntegrationTest.cs`.
-- Removed runtime `ApplicationDbContext` startup registration and switched seeding to use split contexts.
-
----
-
-## Key helpers / conventions (reuse these)
-
-- `SM.Application/Shared/Extensions/UserExtensions.cs`
-  - `MapToProfile(User)` → `ProfileInfo(Id, Tag, FullName, ProfilePhoto?)`
-  - `MapToCommandResponse(User)` → `UserCommandResponse { Id, Tag, FullName, Email }`
-  - `GetProfilePhoto(User)`
-- `SM.Application/Shared/Extensions/ProfileQueryExtensions.cs`
-  - `GetProfileAsync(IdentityDbContext, Guid, ct)` → single `ProfileInfo`
-  - `GetProfileLookupAsync(IdentityDbContext, IEnumerable<Guid>, ct)` → `Dictionary<Guid, ProfileInfo>`
-- Types: `ProfileInfo` → `SM.Application.Shared.Models`; `PagedFeed<T>` → `SM.Application.Abstractions`; `ProfilePostDto` / `ReactionCount` → `SM.Application.Shared.Models`; `FeedResponse` → `SM.Application.Posts.GetFeed`.
-- Only System-level implicit usings are global (no domain global usings).
+### Phase 6 — Domain Events expansion ✅
+- `Post.Create` raises `PostCreatedDomainEvent` with post, author, and creation timestamp.
+- `Comment.Create` raises `CommentAddedDomainEvent` with comment, post, author, and creation timestamp.
+- `SocialMediaDbContextBase` publishes tracked entity events through MediatR after `SaveChanges` / `SaveChangesAsync`, then clears them.
+- In-process application handlers currently log the events; feed, notification, search, analytics, and outbox infrastructure remain future work.
+- Added domain tests covering both content event contracts in `SM.Domain.UnitTests/ContentDomainEventTests.cs`.
 
 ---
 
-## NEXT: Phase 6 — Introduce / expand Domain Events
+## NEXT: Phase 9 — Extract Feed service
+
+Phase 6 is complete at the current modular-monolith scope. Do not add distributed messaging or an outbox yet; first earn the complexity through a concrete feed projection requirement as described in the guide.
 
 **Goal (guide §6, §9):** replace direct cross-context calls (e.g. `post.Save(); notification.Send();`) with domain events that fan out to Notification / Feed / Search / Analytics, so bounded contexts communicate through events instead of direct coupling (guide Rule 7).
 
@@ -157,7 +144,7 @@ INotificationHandler
 
 ## Blockers / Open questions
 
-- Domain events are the current next work item, but the exact event model is not finalized: should `CommentAdded` / `PostCreated` remain pure domain events, or should they include richer payloads for feed/notification projection?
+- Domain event consumers currently log only. Define the first concrete projection contract before adding feed, notification, search, analytics, or outbox infrastructure.
 - The messaging context is dormant; confirm whether to keep it as a passive domain model only or to wire real persistence/commands now.
 - The runtime seed path is now split to `IdentityDbContext`, `ContentDbContext`, and `SocialGraphDbContext` — verify if any legacy `ApplicationDbContext` test project or preview seed logic still needs cleanup.
 - Keep `SM.Application.Migration` / EF model snapshot drift as accepted until a later migration pass rather than regenerating now.
