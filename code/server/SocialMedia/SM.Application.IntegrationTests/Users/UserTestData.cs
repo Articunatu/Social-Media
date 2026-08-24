@@ -8,7 +8,8 @@ namespace SM.Application.IntegrationTests.Users;
 
 public sealed class UserTestData(
     IDbContextFactory<IdentityDbContext> identityContextFactory,
-    IDbContextFactory<ContentDbContext> contentContextFactory)
+    IDbContextFactory<ContentDbContext> contentContextFactory,
+    IDbContextFactory<MediaDbContext> mediaContextFactory)
 {
     public async Task AddAsync(params User[] users)
     {
@@ -26,17 +27,19 @@ public sealed class UserTestData(
             "User",
             $"{Guid.NewGuid():N}@example.com"));
 
+        await AddAsync(user);
+
         if (withBackgroundPhoto)
         {
-            user.Photos.Add(new Photo(Guid.CreateVersion7())
+            await using var mediaContext = await mediaContextFactory.CreateDbContextAsync();
+            mediaContext.Photos.Add(new Photo(Guid.CreateVersion7())
             {
                 UserId = user.Id,
                 Type = PhotoType.Background,
                 CreatedAt = DateTime.UtcNow
             });
+            await mediaContext.SaveChangesAsync();
         }
-
-        await AddAsync(user);
 
         await using var contentContext = await contentContextFactory.CreateDbContextAsync();
         contentContext.Posts.Add(Post.Create(aboutMe, user.Id));

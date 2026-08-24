@@ -9,13 +9,15 @@ namespace SM.Application.Reactions.RemoveReaction;
 
 internal class RemoveReactionCommandHandler(
     IDbContextFactory<ContentDbContext> contentContextFactory,
-    IDbContextFactory<IdentityDbContext> identityContextFactory)
+    IDbContextFactory<IdentityDbContext> identityContextFactory,
+    IDbContextFactory<MediaDbContext> mediaContextFactory)
     : ICommandHandler<RemoveReactionCommand, ReactionResponse>
 {
     public async Task<Result<ReactionResponse>> Handle(RemoveReactionCommand request, CancellationToken cancellationToken)
     {
         await using var contentContext = await contentContextFactory.CreateDbContextAsync(cancellationToken);
         await using var identityContext = await identityContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var mediaContext = await mediaContextFactory.CreateDbContextAsync(cancellationToken);
 
         var reactionToRemove = await contentContext.Reactions
             .FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
@@ -23,7 +25,7 @@ internal class RemoveReactionCommandHandler(
         if (reactionToRemove is null)
             return Result.Failure<ReactionResponse>(new Error("NotFound"), HttpStatusCode.NotFound);
 
-        var profile = await identityContext.GetProfileAsync(reactionToRemove.UserId, cancellationToken);
+        var profile = await identityContext.GetProfileAsync(mediaContext, reactionToRemove.UserId, cancellationToken);
 
         contentContext.Reactions.Remove(reactionToRemove);
 

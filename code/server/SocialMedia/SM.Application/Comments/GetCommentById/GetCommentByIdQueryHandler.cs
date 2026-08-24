@@ -11,12 +11,13 @@ using System.Net;
 
 namespace SM.Application.Comments.GetCommentById;
 
-internal class GetCommentByIdQueryHandler(IDbContextFactory<ContentDbContext> contentContextFactory, IDbContextFactory<IdentityDbContext> identityContextFactory) : IQueryHandler<GetCommentByIdQuery, CommentQuery>
+internal class GetCommentByIdQueryHandler(IDbContextFactory<ContentDbContext> contentContextFactory, IDbContextFactory<IdentityDbContext> identityContextFactory, IDbContextFactory<MediaDbContext> mediaContextFactory) : IQueryHandler<GetCommentByIdQuery, CommentQuery>
 {
     public async Task<Result<CommentQuery>> Handle(GetCommentByIdQuery request, CancellationToken ct)
     {
         await using var context = await contentContextFactory.CreateDbContextAsync(ct);
         await using var identityContext = await identityContextFactory.CreateDbContextAsync(ct);
+        await using var mediaContext = await mediaContextFactory.CreateDbContextAsync(ct);
 
         var comment = await context.Comments
             .AsNoTracking()
@@ -28,7 +29,7 @@ internal class GetCommentByIdQueryHandler(IDbContextFactory<ContentDbContext> co
         if (comment is null)
             return Result.Failure<CommentQuery>(new Error(UserErrors.NotFound), HttpStatusCode.NotFound);
 
-        var profiles = await identityContext.GetProfileLookupAsync(CollectAuthorIds(comment), ct);
+        var profiles = await identityContext.GetProfileLookupAsync(mediaContext, CollectAuthorIds(comment), ct);
 
         return Result.Success(MapComment(comment, profiles));
     }

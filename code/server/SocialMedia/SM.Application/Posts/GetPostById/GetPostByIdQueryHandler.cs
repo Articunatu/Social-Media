@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SM.Application.Abstractions;
 using SM.Application.Database;
+using SM.Application.Photos;
 using SM.Application.Shared.Extensions;
 using SM.Application.Shared.Models;
+using SM.Domain.Photos;
 using SM.Domain.Shared;
 using System.Net;
 
@@ -10,13 +12,15 @@ namespace SM.Application.Posts.GetPostById;
 
 internal class GetPostByIdQueryHandler(
     IDbContextFactory<ContentDbContext> contentContextFactory,
-    IDbContextFactory<IdentityDbContext> identityContextFactory)
+    IDbContextFactory<IdentityDbContext> identityContextFactory,
+    IDbContextFactory<MediaDbContext> mediaContextFactory)
     : IQueryHandler<GetPostByIdQuery, PostDetailsResponse>
 {
     public async Task<Result<PostDetailsResponse>> Handle(GetPostByIdQuery request, CancellationToken cancellationToken)
     {
         await using var contentContext = await contentContextFactory.CreateDbContextAsync(cancellationToken);
         await using var identityContext = await identityContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var mediaContext = await mediaContextFactory.CreateDbContextAsync(cancellationToken);
 
         if (request.Profile is null)
         {
@@ -28,14 +32,20 @@ internal class GetPostByIdQueryHandler(
 
             var userProfile = await identityContext.Users
                 .AsNoTracking()
-                .Include(u => u.Photos)
                 .Where(u => u.Id == authorId)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (userProfile is null)
                 return Result.Failure<PostDetailsResponse>(new Error("User.NotFound"), HttpStatusCode.NotFound);
 
-            request.Profile = userProfile.MapToProfile();
+            var profilePhoto = await mediaContext.Photos
+                .AsNoTracking()
+                .Where(p => p.UserId == authorId && p.Type == PhotoType.Profile)
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => p.MapToResponse())
+                .FirstOrDefaultAsync(cancellationToken);
+
+            request.Profile = userProfile.MapToProfile(profilePhoto);
         }
 
         request.Post ??= await contentContext.Posts

@@ -13,12 +13,14 @@ public static class DependencyInjection
         var identityFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<IdentityDbContext>>();
         var contentFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ContentDbContext>>();
         var socialGraphFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<SocialGraphDbContext>>();
+        var mediaFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MediaDbContext>>();
 
         using var identityContext = identityFactory.CreateDbContext();
         using var contentContext = contentFactory.CreateDbContext();
         using var socialGraphContext = socialGraphFactory.CreateDbContext();
+        using var mediaContext = mediaFactory.CreateDbContext();
 
-        ApplicationDbContextSeeder.Seed(identityContext, contentContext, socialGraphContext);
+        ApplicationDbContextSeeder.Seed(identityContext, contentContext, socialGraphContext, mediaContext);
     }
     // ...existing code...
 }

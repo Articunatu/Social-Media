@@ -8,12 +8,13 @@ using System.Net;
 
 namespace SM.Application.Reactions.AddReaction;
 
-internal class AddReactionCommandHandler(IDbContextFactory<IdentityDbContext> identityContextFactory, IDbContextFactory<ContentDbContext> contentContextFactory) : ICommandHandler<AddReactionCommand, ReactionResponse>
+internal class AddReactionCommandHandler(IDbContextFactory<IdentityDbContext> identityContextFactory, IDbContextFactory<ContentDbContext> contentContextFactory, IDbContextFactory<MediaDbContext> mediaContextFactory) : ICommandHandler<AddReactionCommand, ReactionResponse>
 {
     public async Task<Result<ReactionResponse>> Handle(AddReactionCommand request, CancellationToken cancellationToken)
     {
         await using var identityContext = await identityContextFactory.CreateDbContextAsync(cancellationToken);
         await using var contentContext = await contentContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var mediaContext = await mediaContextFactory.CreateDbContextAsync(cancellationToken);
 
         var userExists = await identityContext.Users.AnyAsync(u => u.Id == request.UserId, cancellationToken);
         if (!userExists)
@@ -56,7 +57,7 @@ internal class AddReactionCommandHandler(IDbContextFactory<IdentityDbContext> id
         if (reaction is null)
             return Result.Failure<ReactionResponse>(new Error("ReactionDisappeared"), HttpStatusCode.NotFound);
 
-        var profile = await identityContext.GetProfileAsync(reaction.UserId, cancellationToken);
+        var profile = await identityContext.GetProfileAsync(mediaContext, reaction.UserId, cancellationToken);
 
         return Result.Success(reaction.MapToResponse(profile));
     }

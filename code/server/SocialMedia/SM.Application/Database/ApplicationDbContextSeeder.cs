@@ -16,7 +16,8 @@ public static class ApplicationDbContextSeeder
     public static void Seed(
         IdentityDbContext identityContext,
         ContentDbContext contentContext,
-        SocialGraphDbContext socialGraphContext)
+        SocialGraphDbContext socialGraphContext,
+        MediaDbContext mediaContext)
     {
         if (identityContext.Users.Any())
         {
@@ -47,10 +48,11 @@ public static class ApplicationDbContextSeeder
         var tokens = CreateTokens(faker, users).ToList();
 
         contentContext.Reactions.AddRange(reactions);
-        identityContext.Photos.AddRange(photos);
+        mediaContext.Photos.AddRange(photos);
         identityContext.Tokens.AddRange(tokens);
         contentContext.SaveChanges();
         identityContext.SaveChanges();
+        mediaContext.SaveChanges();
 
         WritePasswordsToFile(users);
     }
@@ -59,6 +61,7 @@ public static class ApplicationDbContextSeeder
         IdentityDbContext identityContext,
         ContentDbContext contentContext,
         SocialGraphDbContext socialGraphContext,
+        MediaDbContext mediaContext,
         CancellationToken cancellationToken = default)
     {
         if (await identityContext.Users.AnyAsync(cancellationToken))
@@ -66,7 +69,7 @@ public static class ApplicationDbContextSeeder
             return;
         }
 
-        Seed(identityContext, contentContext, socialGraphContext);
+        Seed(identityContext, contentContext, socialGraphContext, mediaContext);
         await Task.CompletedTask;
     }
 

@@ -132,11 +132,9 @@ The first Feed slice is now in place, still in-process and without an outbox or 
 
 ## Media context slice reached
 
-- Added `MediaDbContext` for the existing `Photos` table, with no Identity navigation in the Media model.
-- Registered the context in the Web API and integration test hosts.
-- Moved photo upload, profile-photo mutation, and photo query handlers to `MediaDbContext`.
-- Preserved the existing `Photos` table and `UserId` column; profile read models still hydrate photos through Identity and need a later cross-context read-model cleanup.
-
+ Removed `User.Photos` and `Photo.User`; profile, search, post, feed, comment, reaction, and account deletion paths now hydrate or mutate photos through `MediaDbContext` explicitly.
+ Updated seed and integration test data setup to write photos through Media.
+ Media/profile cross-context hydration is complete for the current in-process application. A later service pass can replace these direct context joins with read models or distributed projections.
 ---
 
 ## Blockers / Open questions

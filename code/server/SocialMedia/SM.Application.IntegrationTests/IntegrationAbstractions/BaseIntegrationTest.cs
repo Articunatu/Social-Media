@@ -13,6 +13,7 @@ public abstract class BaseIntegrationTest(IntegrationTestFixture fixture) : ICla
     protected readonly IDbContextFactory<ContentDbContext> ContentDbContextFactory = fixture.Services.GetRequiredService<IDbContextFactory<ContentDbContext>>();
     protected readonly IDbContextFactory<SocialGraphDbContext> SocialGraphDbContextFactory = fixture.Services.GetRequiredService<IDbContextFactory<SocialGraphDbContext>>();
     protected readonly IDbContextFactory<FeedDbContext> FeedDbContextFactory = fixture.Services.GetRequiredService<IDbContextFactory<FeedDbContext>>();
+    protected readonly IDbContextFactory<MediaDbContext> MediaDbContextFactory = fixture.Services.GetRequiredService<IDbContextFactory<MediaDbContext>>();
 
     protected IdentityDbContext IdentityDbContext { get; private set; } = default!;
     protected ContentDbContext ContentDbContext { get; private set; } = default!;
@@ -27,7 +28,7 @@ public abstract class BaseIntegrationTest(IntegrationTestFixture fixture) : ICla
         ContentDbContext = await ContentDbContextFactory.CreateDbContextAsync();
         SocialGraphDbContext = await SocialGraphDbContextFactory.CreateDbContextAsync();
         FeedDbContext = await FeedDbContextFactory.CreateDbContextAsync();
-        Users = new UserTestData(IdentityDbContextFactory, ContentDbContextFactory);
+        Users = new UserTestData(IdentityDbContextFactory, ContentDbContextFactory, MediaDbContextFactory);
     }
 
     public virtual async Task DisposeAsync()

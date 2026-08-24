@@ -11,7 +11,8 @@ namespace SM.Application.Posts.GetFeed;
 internal class GetFeedQueryHandler(
     IDbContextFactory<FeedDbContext> feedContextFactory,
     IDbContextFactory<ContentDbContext> contentContextFactory,
-    IDbContextFactory<IdentityDbContext> identityContextFactory)
+    IDbContextFactory<IdentityDbContext> identityContextFactory,
+    IDbContextFactory<MediaDbContext> mediaContextFactory)
     : IQueryHandler<GetFeedQuery, PagedFeed<FeedResponse>>
 {
     public async Task<Result<PagedFeed<FeedResponse>>> Handle(GetFeedQuery request, CancellationToken ct)
@@ -19,6 +20,7 @@ internal class GetFeedQueryHandler(
         await using var feedContext = await feedContextFactory.CreateDbContextAsync(ct);
         await using var contentContext = await contentContextFactory.CreateDbContextAsync(ct);
         await using var identityContext = await identityContextFactory.CreateDbContextAsync(ct);
+        await using var mediaContext = await mediaContextFactory.CreateDbContextAsync(ct);
 
         var feedItems = feedContext.FeedItems
             .AsNoTracking()
@@ -55,7 +57,7 @@ internal class GetFeedQueryHandler(
             })
             .ToDictionaryAsync(post => post.Id, cancellationToken: ct);
 
-        var profiles = await identityContext.GetProfileLookupAsync(pagedItems.Values.Select(x => x.AuthorId), ct);
+        var profiles = await identityContext.GetProfileLookupAsync(mediaContext, pagedItems.Values.Select(x => x.AuthorId), ct);
 
         return Result.Success(new PagedFeed<FeedResponse>
         {

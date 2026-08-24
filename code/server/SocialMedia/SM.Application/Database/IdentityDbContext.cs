@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using SM.Application.Database.Configurations;
 using SM.Domain.Authentication;
 using SM.Domain.Content;
-using SM.Domain.Photos;
 using SM.Domain.Users;
 
 namespace SM.Application.Database;
@@ -13,7 +12,6 @@ public class IdentityDbContext(DbContextOptions<IdentityDbContext> options, IMed
 {
     public DbSet<User> Users { get; set; } = default!;
     public DbSet<Token> Tokens { get; set; } = default!;
-    public DbSet<Photo> Photos { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -22,7 +20,6 @@ public class IdentityDbContext(DbContextOptions<IdentityDbContext> options, IMed
         ApplySoftDeleteFilter(builder);
 
         builder.ApplyConfiguration(new UserConfiguration());
-        builder.ApplyConfiguration(new PhotoConfiguration());
     }
 
     private static void NameTablesByEntities(ModelBuilder builder)

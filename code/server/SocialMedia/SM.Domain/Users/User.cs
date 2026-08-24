@@ -1,6 +1,5 @@
 ﻿using SM.Domain.Abstractions;
 using SM.Domain.Authentication;
-using SM.Domain.Photos;
 using SM.Domain.Users.Events;
 
 namespace SM.Domain.Users;
@@ -16,8 +15,6 @@ public class User(Guid id, string tag, string firstName, string lastName, string
     public virtual byte[] PasswordHash { get; private set; } = [];
     public virtual byte[] PasswordSalt { get; private set; } = [];
     public virtual Token? Token { get; set; }
-
-    public virtual ICollection<Photo> Photos { get; set; } = [];
 
     public static User Create(IUser request)
     {

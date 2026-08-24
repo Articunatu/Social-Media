@@ -7,16 +7,16 @@ using SM.Domain.Shared;
 
 namespace SM.Application.Users.SearchUsers;
 
-internal class SearchUserQueryHandler(IDbContextFactory<IdentityDbContext> contextFactory) : IQueryHandler<SearchUserQuery, IEnumerable<ProfileInfo>>
+internal class SearchUserQueryHandler(IDbContextFactory<IdentityDbContext> contextFactory, IDbContextFactory<MediaDbContext> mediaContextFactory) : IQueryHandler<SearchUserQuery, IEnumerable<ProfileInfo>>
 {
     public async Task<Result<IEnumerable<ProfileInfo>>> Handle(SearchUserQuery request, CancellationToken ct)
     {
         await using var context = await contextFactory.CreateDbContextAsync(ct);
+        await using var mediaContext = await mediaContextFactory.CreateDbContextAsync(ct);
 
         var search = (request.Filter?.SearchText ?? string.Empty).Trim().ToLower();
         var query = context.Users
             .AsNoTracking()
-            .Include(u => u.Photos)
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(search))
@@ -29,7 +29,8 @@ internal class SearchUserQueryHandler(IDbContextFactory<IdentityDbContext> conte
         }
 
         var matchingUsers = await query.ToPagedFeed(request.Filter ?? new PageFilter());
+        var profiles = await context.GetProfileLookupAsync(mediaContext, matchingUsers.Values.Select(u => u.Id), ct);
 
-        return Result.Success(matchingUsers.Values.Select(u => u.MapToProfile()));
+        return Result.Success(matchingUsers.Values.Select(u => profiles[u.Id]));
     }
 }

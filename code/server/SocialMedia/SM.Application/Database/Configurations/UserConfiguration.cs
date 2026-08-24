@@ -34,10 +34,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasMaxLength(Email.MaxLength);
 
-        builder.HasMany(u => u.Photos)
-               .WithOne(p => p.User)
-               .HasForeignKey(p => p.UserId)
-               .OnDelete(DeleteBehavior.Cascade);
     }
 }
 
