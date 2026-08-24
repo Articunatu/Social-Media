@@ -143,6 +143,7 @@ The first Feed slice is now in place, still in-process and without an outbox or 
 
  Added `MessagingDbContext` with `Conversations` and `DirectMessages` mappings, preserving the domain model without Identity navigation properties.
  Registered the context for SQL Server and integration-test InMemory hosting.
+ Added dedicated `SM.Application/Migrations/Messaging/20260824000000_MessagingPersistence.cs` migration for the conversation, participant, and direct-message tables.
  Added the first CQRS use case, `SendMessageCommand`, with author and conversation existence checks.
  Added integration coverage for message creation and persistence.
  Conversations now carry explicit participant IDs through `ConversationParticipant` join rows; sending is restricted to participants and returns `403 Forbidden` otherwise.
