@@ -63,7 +63,7 @@ The `User` God Entity has been fully decomposed. Other contexts reference `User`
 | 6 | **Domain Events expansion** | ✅ Done (in-process) |
 | 7 | Split DbContexts | ✅ Done |
 | 8 | Split databases (handlers wired to split contexts) | ✅ Done |
-| 9–12 | Extract Feed / Messaging / Search / Media services | 🟨 Feed persistence + Media context slices complete |
+| 9–12 | Extract Feed / Messaging / Search / Media services | 🟨 Feed persistence + Messaging persistence + Media context slices complete |
 
 ---
 
@@ -138,12 +138,20 @@ The first Feed slice is now in place, still in-process and without an outbox or 
  Removed `User.Photos` and `Photo.User`; profile, search, post, feed, comment, reaction, and account deletion paths now hydrate or mutate photos through `MediaDbContext` explicitly.
  Updated seed and integration test data setup to write photos through Media.
  Media/profile cross-context hydration is complete for the current in-process application. A later service pass can replace these direct context joins with read models or distributed projections.
+
+## Messaging persistence slice reached
+
+ Added `MessagingDbContext` with `Conversations` and `DirectMessages` mappings, preserving the domain model without Identity navigation properties.
+ Registered the context for SQL Server and integration-test InMemory hosting.
+ Added the first CQRS use case, `SendMessageCommand`, with author and conversation existence checks.
+ Added integration coverage for message creation and persistence.
+ No migration was generated; the Messaging tables should be included in the dedicated database migration pass once the participant model is finalized.
 ---
 
 ## Blockers / Open questions
 
 - Domain event consumers currently log only. Define the first concrete projection contract before adding feed, notification, search, analytics, or outbox infrastructure.
-- The messaging context is dormant; confirm whether to keep it as a passive domain model only or to wire real persistence/commands now.
+- Messaging persistence and the first send command are now wired in-process; participant membership and service extraction remain open.
 - The runtime seed path is now split to `IdentityDbContext`, `ContentDbContext`, and `SocialGraphDbContext` — verify if any legacy `ApplicationDbContext` test project or preview seed logic still needs cleanup.
 - Keep `SM.Application.Migration` / EF model snapshot drift as accepted until a later migration pass rather than regenerating now.
 - The Media/profile path is now navigation-free: `Photo` exposes only `UserId`, and Identity-side profile hydration queries `MediaDbContext` explicitly.

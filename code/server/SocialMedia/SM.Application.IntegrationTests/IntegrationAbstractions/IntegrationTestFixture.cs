@@ -36,6 +36,8 @@ public sealed class IntegrationTestFixture : WebApplicationFactory<Program>
                 options.UseInMemoryDatabase(_databaseName));
             services.AddDbContextFactory<MediaDbContext>(options =>
                 options.UseInMemoryDatabase(_databaseName));
+            services.AddDbContextFactory<MessagingDbContext>(options =>
+                options.UseInMemoryDatabase(_databaseName));
         });
     }
 
@@ -46,12 +48,14 @@ public sealed class IntegrationTestFixture : WebApplicationFactory<Program>
         var socialGraphFactory = Services.GetRequiredService<IDbContextFactory<SocialGraphDbContext>>();
         var feedFactory = Services.GetRequiredService<IDbContextFactory<FeedDbContext>>();
         var mediaFactory = Services.GetRequiredService<IDbContextFactory<MediaDbContext>>();
+        var messagingFactory = Services.GetRequiredService<IDbContextFactory<MessagingDbContext>>();
 
         await using var identityContext = await identityFactory.CreateDbContextAsync();
         await using var contentContext = await contentFactory.CreateDbContextAsync();
         await using var socialGraphContext = await socialGraphFactory.CreateDbContextAsync();
         await using var feedContext = await feedFactory.CreateDbContextAsync();
         await using var mediaContext = await mediaFactory.CreateDbContextAsync();
+        await using var messagingContext = await messagingFactory.CreateDbContextAsync();
 
         await identityContext.Database.EnsureDeletedAsync();
         await identityContext.Database.EnsureCreatedAsync();
@@ -59,5 +63,6 @@ public sealed class IntegrationTestFixture : WebApplicationFactory<Program>
         await socialGraphContext.Database.EnsureCreatedAsync();
         await feedContext.Database.EnsureCreatedAsync();
         await mediaContext.Database.EnsureCreatedAsync();
+        await messagingContext.Database.EnsureCreatedAsync();
     }
 }

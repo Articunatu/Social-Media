@@ -14,11 +14,13 @@ public abstract class BaseIntegrationTest(IntegrationTestFixture fixture) : ICla
     protected readonly IDbContextFactory<SocialGraphDbContext> SocialGraphDbContextFactory = fixture.Services.GetRequiredService<IDbContextFactory<SocialGraphDbContext>>();
     protected readonly IDbContextFactory<FeedDbContext> FeedDbContextFactory = fixture.Services.GetRequiredService<IDbContextFactory<FeedDbContext>>();
     protected readonly IDbContextFactory<MediaDbContext> MediaDbContextFactory = fixture.Services.GetRequiredService<IDbContextFactory<MediaDbContext>>();
+    protected readonly IDbContextFactory<MessagingDbContext> MessagingDbContextFactory = fixture.Services.GetRequiredService<IDbContextFactory<MessagingDbContext>>();
 
     protected IdentityDbContext IdentityDbContext { get; private set; } = default!;
     protected ContentDbContext ContentDbContext { get; private set; } = default!;
     protected SocialGraphDbContext SocialGraphDbContext { get; private set; } = default!;
     protected FeedDbContext FeedDbContext { get; private set; } = default!;
+    protected MessagingDbContext MessagingDbContext { get; private set; } = default!;
     protected UserTestData Users { get; private set; } = default!;
 
     public virtual async Task InitializeAsync()
@@ -28,6 +30,7 @@ public abstract class BaseIntegrationTest(IntegrationTestFixture fixture) : ICla
         ContentDbContext = await ContentDbContextFactory.CreateDbContextAsync();
         SocialGraphDbContext = await SocialGraphDbContextFactory.CreateDbContextAsync();
         FeedDbContext = await FeedDbContextFactory.CreateDbContextAsync();
+        MessagingDbContext = await MessagingDbContextFactory.CreateDbContextAsync();
         Users = new UserTestData(IdentityDbContextFactory, ContentDbContextFactory, MediaDbContextFactory);
     }
 
@@ -51,6 +54,11 @@ public abstract class BaseIntegrationTest(IntegrationTestFixture fixture) : ICla
         if (FeedDbContext is not null)
         {
             await FeedDbContext.DisposeAsync();
+        }
+
+        if (MessagingDbContext is not null)
+        {
+            await MessagingDbContext.DisposeAsync();
         }
     }
 }
