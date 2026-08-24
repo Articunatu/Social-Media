@@ -1,4 +1,5 @@
 using SM.Domain.Abstractions;
+using SM.Domain.Messaging.Events;
 
 namespace SM.Domain.Messaging;
 
@@ -12,12 +13,20 @@ public sealed class DirectMessage(Guid id) : SoftDeletableEntity<Guid>(id)
 
     public static DirectMessage Create(Guid conversationId, string content, Guid authorId)
     {
-        return new DirectMessage(Guid.CreateVersion7())
+        var message = new DirectMessage(Guid.CreateVersion7())
         {
             Content = content,
             TimeStamp = DateTimeOffset.UtcNow,
             AuthorId = authorId,
             ConversationId = conversationId
         };
+
+        message.RaiseDomainEvent(new MessageCreatedDomainEvent(
+            message.Id,
+            conversationId,
+            authorId,
+            message.TimeStamp));
+
+        return message;
     }
 }

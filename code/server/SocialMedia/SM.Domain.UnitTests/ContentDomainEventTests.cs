@@ -1,6 +1,8 @@
 using FluentAssertions;
 using SM.Domain.Content;
 using SM.Domain.Content.Events;
+using SM.Domain.Messaging;
+using SM.Domain.Messaging.Events;
 
 namespace SM.Domain.UnitTests;
 
@@ -29,5 +31,18 @@ public class ContentDomainEventTests
         var domainEvent = comment.GetDomainEvents().Should().ContainSingle().Which;
         domainEvent.Should().BeOfType<CommentAddedDomainEvent>().Which.Should().BeEquivalentTo(
             new CommentAddedDomainEvent(comment.Id, postId, authorId, comment.TimeStamp));
+    }
+
+    [Fact]
+    public void CreateDirectMessage_RaisesMessageCreatedEvent()
+    {
+        var authorId = Guid.NewGuid();
+        var conversationId = Guid.NewGuid();
+
+        var message = DirectMessage.Create(conversationId, "A message", authorId);
+
+        var domainEvent = message.GetDomainEvents().Should().ContainSingle().Which;
+        domainEvent.Should().BeOfType<MessageCreatedDomainEvent>().Which.Should().BeEquivalentTo(
+            new MessageCreatedDomainEvent(message.Id, conversationId, authorId, message.TimeStamp));
     }
 }

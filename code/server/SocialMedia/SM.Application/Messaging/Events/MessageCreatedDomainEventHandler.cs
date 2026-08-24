@@ -15,7 +15,7 @@ internal sealed class MessageCreatedDomainEventHandler : INotificationHandler<Me
 
     public Task Handle(MessageCreatedDomainEvent notification, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Message created: {MessageId}", notification.Message);
+        _logger.LogInformation("Message created: {MessageId}", notification.MessageId);
         return Task.CompletedTask;
     }
 }

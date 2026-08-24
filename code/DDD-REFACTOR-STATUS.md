@@ -87,6 +87,7 @@ Content context has **no** navigation into Identity — only FK `Guid`s.
 ### Phase 4 — Extract Messaging ✅ (dormant)
 - New `SM.Domain.Messaging`: `Conversation.cs`, `DirectMessage.cs`, `Events/MessageCreatedDomainEvent.cs`.
 - `DirectMessage` inherits `SoftDeletableEntity<Guid>` directly and inlines `Content` / `TimeStamp` / `AuthorId` (no cross-context base sharing).
+- `DirectMessage.Create` raises `MessageCreatedDomainEvent` with message, conversation, author, and creation timestamp.
 - Shared base was Content-only afterward → moved to `SM.Domain/Content/AuthoredContent.cs` (renamed from `Message`, `[NotMapped]` abstract). `Post` / `Comment` now `: AuthoredContent(id)`.
 - `ApplicationDbContext` does `Ignore<AuthoredContent>()`.
 - **Deleted** `SM.Domain/Messages/` folder entirely (`SM.Domain.Messages` namespace is gone).
@@ -143,4 +144,4 @@ The first Feed slice is now in place, still in-process and without an outbox or 
 - The messaging context is dormant; confirm whether to keep it as a passive domain model only or to wire real persistence/commands now.
 - The runtime seed path is now split to `IdentityDbContext`, `ContentDbContext`, and `SocialGraphDbContext` — verify if any legacy `ApplicationDbContext` test project or preview seed logic still needs cleanup.
 - Keep `SM.Application.Migration` / EF model snapshot drift as accepted until a later migration pass rather than regenerating now.
-- Media still has a legacy `Photo.User` navigation for Identity-side profile hydration; remove or replace that read path in a later Media/profile slice.
+- The Media/profile path is now navigation-free: `Photo` exposes only `UserId`, and Identity-side profile hydration queries `MediaDbContext` explicitly.
