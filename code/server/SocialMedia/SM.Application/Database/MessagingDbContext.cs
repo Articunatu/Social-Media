@@ -20,6 +20,17 @@ public sealed class MessagingDbContext(DbContextOptions<MessagingDbContext> opti
             entity.HasKey(conversation => conversation.Id);
         });
 
+        builder.Entity<ConversationParticipant>(entity =>
+        {
+            entity.ToTable("ConversationParticipants");
+            entity.HasKey(participant => new { participant.ConversationId, participant.UserId });
+            entity.HasOne(participant => participant.Conversation)
+                .WithMany(conversation => conversation.Participants)
+                .HasForeignKey(participant => participant.ConversationId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(participant => participant.UserId);
+        });
+
         builder.Entity<DirectMessage>(entity =>
         {
             entity.ToTable(nameof(DirectMessages));

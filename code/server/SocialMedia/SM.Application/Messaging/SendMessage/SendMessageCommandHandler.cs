@@ -25,10 +25,20 @@ internal sealed class SendMessageCommandHandler(
             return Result.Failure<DirectMessageResponse>(new Error("User.NotFound"), HttpStatusCode.NotFound);
 
         await using var messagingContext = await messagingContextFactory.CreateDbContextAsync(cancellationToken);
-        var conversationExists = await messagingContext.Conversations
-            .AnyAsync(conversation => conversation.Id == request.ConversationId, cancellationToken);
-        if (!conversationExists)
-            return Result.Failure<DirectMessageResponse>(new Error("Conversation.NotFound"), HttpStatusCode.NotFound);
+        var participant = await messagingContext.Set<ConversationParticipant>()
+            .AsNoTracking()
+            .AnyAsync(
+                participant => participant.ConversationId == request.ConversationId && participant.UserId == request.AuthorId,
+                cancellationToken);
+        if (!participant)
+        {
+            var conversationExists = await messagingContext.Conversations
+                .AnyAsync(conversation => conversation.Id == request.ConversationId, cancellationToken);
+            if (!conversationExists)
+                return Result.Failure<DirectMessageResponse>(new Error("Conversation.NotFound"), HttpStatusCode.NotFound);
+
+            return Result.Failure<DirectMessageResponse>(new Error("Conversation.NotParticipant"), HttpStatusCode.Forbidden);
+        }
 
         var message = DirectMessage.Create(request.ConversationId, request.Content.Trim(), request.AuthorId);
         messagingContext.DirectMessages.Add(message);

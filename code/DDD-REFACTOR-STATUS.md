@@ -145,6 +145,7 @@ The first Feed slice is now in place, still in-process and without an outbox or 
  Registered the context for SQL Server and integration-test InMemory hosting.
  Added the first CQRS use case, `SendMessageCommand`, with author and conversation existence checks.
  Added integration coverage for message creation and persistence.
+ Conversations now carry explicit participant IDs through `ConversationParticipant` join rows; sending is restricted to participants and returns `403 Forbidden` otherwise.
  No migration was generated; the Messaging tables should be included in the dedicated database migration pass once the participant model is finalized.
 ---
 
