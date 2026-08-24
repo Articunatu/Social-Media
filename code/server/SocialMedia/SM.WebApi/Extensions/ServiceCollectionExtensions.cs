@@ -37,6 +37,9 @@ public static class ServiceCollectionExtensions
         services.AddDbContextFactory<FeedDbContext>((serviceProvider, options) =>
             options.UseSqlServer(config.GetConnectionString("EfcoreSocials")));
 
+        services.AddDbContextFactory<MediaDbContext>((serviceProvider, options) =>
+            options.UseSqlServer(config.GetConnectionString("EfcoreSocials")));
+
         return services.AddDatabaseAgnosticServices(config);
     }
 

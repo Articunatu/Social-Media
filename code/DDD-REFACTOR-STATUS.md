@@ -63,7 +63,7 @@ The `User` God Entity has been fully decomposed. Other contexts reference `User`
 | 6 | **Domain Events expansion** | ✅ Done (in-process) |
 | 7 | Split DbContexts | ✅ Done |
 | 8 | Split databases (handlers wired to split contexts) | ✅ Done |
-| 9–12 | Extract Feed / Messaging / Search / Media services | 🟨 Feed persistence checkpoint complete |
+| 9–12 | Extract Feed / Messaging / Search / Media services | 🟨 Feed persistence + Media context slices complete |
 
 ---
 
@@ -130,6 +130,13 @@ The first Feed slice is now in place, still in-process and without an outbox or 
 
 **Persistence checkpoint:** Added `SM.Application/Migrations/Feed/20260824072923_FeedProjection.cs` and the `FeedDbContext` model snapshot. The migration creates only `UserFeedItems` with its composite key and feed paging index.
 
+## Media context slice reached
+
+- Added `MediaDbContext` for the existing `Photos` table, with no Identity navigation in the Media model.
+- Registered the context in the Web API and integration test hosts.
+- Moved photo upload, profile-photo mutation, and photo query handlers to `MediaDbContext`.
+- Preserved the existing `Photos` table and `UserId` column; profile read models still hydrate photos through Identity and need a later cross-context read-model cleanup.
+
 ---
 
 ## Blockers / Open questions
@@ -138,3 +145,4 @@ The first Feed slice is now in place, still in-process and without an outbox or 
 - The messaging context is dormant; confirm whether to keep it as a passive domain model only or to wire real persistence/commands now.
 - The runtime seed path is now split to `IdentityDbContext`, `ContentDbContext`, and `SocialGraphDbContext` — verify if any legacy `ApplicationDbContext` test project or preview seed logic still needs cleanup.
 - Keep `SM.Application.Migration` / EF model snapshot drift as accepted until a later migration pass rather than regenerating now.
+- Media still has a legacy `Photo.User` navigation for Identity-side profile hydration; remove or replace that read path in a later Media/profile slice.

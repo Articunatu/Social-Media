@@ -7,7 +7,7 @@ using System.Net;
 
 namespace SM.Application.Photos.SetProfilePhoto;
 
-internal class SetProfilePhotoCommandHandler(IDbContextFactory<IdentityDbContext> contextFactory) : ICommandHandler<SetProfilePhotoCommand, bool>
+internal class SetProfilePhotoCommandHandler(IDbContextFactory<MediaDbContext> contextFactory) : ICommandHandler<SetProfilePhotoCommand, bool>
 {
     public async Task<Result<bool>> Handle(SetProfilePhotoCommand request, CancellationToken ct)
     {

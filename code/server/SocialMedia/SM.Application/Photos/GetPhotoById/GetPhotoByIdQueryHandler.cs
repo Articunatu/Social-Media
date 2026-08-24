@@ -6,7 +6,7 @@ using System.Net;
 
 namespace SM.Application.Photos.GetPhotoById;
 
-internal class GetPhotoByIdQueryHandler(IDbContextFactory<IdentityDbContext> contextFactory)
+internal class GetPhotoByIdQueryHandler(IDbContextFactory<MediaDbContext> contextFactory)
     : IQueryHandler<GetPhotoByIdQuery, PhotoResponse>
 {
     public async Task<Result<PhotoResponse>> Handle(GetPhotoByIdQuery request, CancellationToken ct)
