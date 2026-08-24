@@ -8,7 +8,7 @@ export default function PostDetailRoute() {
     const params = useParams<{ postId: string }>();
 
     if (!params.postId) {
-        return <div>Invalid post ID</div>;
+        return <div className="error">Invalid post ID</div>;
     }
 
     return <PostDetailPage postId={params.postId as UUID} />;

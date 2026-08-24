@@ -9,12 +9,12 @@ import {
     hasSignUpErrors,
     toSignUpCommand,
     validateSignUp,
-} from "../validation-utils/sign-up-validation";
+} from "../validations/sign-up-validation";
 import type {
     SignUpErrors,
     SignUpField,
     SignUpFormValues,
-} from "../validation-utils/sign-up-validation";
+} from "../validations/sign-up-validation";
 
 const initialValues: SignUpFormValues = {
     tag: "",

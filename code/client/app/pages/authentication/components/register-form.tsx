@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SignUpField } from "./sign-up-field";
 import { useRegisterForm } from "../hooks/use-register-form";
-import { signUpLimits } from "../validation-utils/sign-up-validation";
+import { signUpLimits } from "../validations/sign-up-validation";
 
 export const RegisterForm: React.FC = () => {
     const { auth, canSubmit, errors, handleChange, handleSubmit, localError, values } = useRegisterForm();
