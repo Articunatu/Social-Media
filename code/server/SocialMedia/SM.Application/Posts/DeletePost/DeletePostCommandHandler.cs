@@ -9,12 +9,12 @@ namespace SM.Application.Posts.DeletePost;
 
 internal class DeletePostCommandHandler(IDbContextFactory<ContentDbContext> contextFactory, ILoggingBehaviour logging) : ICommandHandler<DeletePostCommand, PostResponse>
 {
-    public async Task<Result<PostResponse>> Handle(DeletePostCommand request, CancellationToken cancellationToken)
+    public async Task<Result<PostResponse>> Handle(DeletePostCommand request, CancellationToken ct)
     {
-        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var context = await contextFactory.CreateDbContextAsync(ct);
 
         var postToDelete = await context.Posts
-            .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken: cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == request.Id, ct);
 
         if (postToDelete is null)
             return Result.Failure<PostResponse>(new Error("Post.NotFound"), HttpStatusCode.NotFound);
@@ -24,7 +24,7 @@ internal class DeletePostCommandHandler(IDbContextFactory<ContentDbContext> cont
 
         postToDelete.SoftDelete();
 
-        await context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(ct);
         logging.LogInformation($"Post with id {request.Id} from author with id {postToDelete.AuthorId} marked as deleted.");
 
         return Result.Success(postToDelete.MapToResponse());
