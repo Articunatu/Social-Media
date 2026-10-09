@@ -1,10 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
+import React from "react";
 import type { UseQueryResult } from "@tanstack/react-query";
 import type { UUID } from "crypto";
 import type { CommentDetails } from "../../../models/api/comment-models";
 import { useAuth } from "../../../authentication/auth-provider";
 import { useDeleteComment } from "../hooks/use-delete-comment";
+import { useCreateComment } from "../hooks/use-create-comment";
+import { PostCommentForm } from "./post-comment-form";
 import { getPhotoDataUrl } from "../models/photo-data-url";
 
 type PostCommentsProps = {
@@ -19,8 +22,35 @@ type CommentRowProps = {
 
 function CommentRow({ comment, isDeleting, onDelete }: CommentRowProps) {
     const auth = useAuth();
+    const createComment = useCreateComment();
+    const [isReplying, setIsReplying] = React.useState(false);
+    const [replyContent, setReplyContent] = React.useState("");
+    const [replyError, setReplyError] = React.useState<string | null>(null);
     const canDelete = auth?.user?.userId === (comment.authorId as UUID);
     const profilePhotoSrc = getPhotoDataUrl(comment.author.profilePhoto);
+
+    const handleReply = async (event: React.FormEvent) => {
+        event.preventDefault();
+        setReplyError(null);
+
+        const trimmed = replyContent.trim();
+        if (!trimmed) {
+            setReplyError("Reply cannot be empty.");
+            return;
+        }
+
+        try {
+            await createComment.mutateAsync({
+                content: trimmed,
+                parentPostId: comment.parentPostId,
+                parentCommentId: comment.postId,
+            });
+            setReplyContent("");
+            setIsReplying(false);
+        } catch (error: unknown) {
+            setReplyError(error instanceof Error ? error.message : "Failed to create reply");
+        }
+    };
 
     return (
         <div className="bg-base-100 border border-black rounded px-2 py-2">
@@ -28,18 +58,15 @@ function CommentRow({ comment, isDeleting, onDelete }: CommentRowProps) {
                 <Link className="shrink-0" href={`/profile/${comment.author.id}`}>
                     <div className="h-8 w-8 overflow-hidden rounded-full border border-black bg-base-200">
                         {profilePhotoSrc && (
-                            <Image
-                                alt={`${comment.author.fullName}'s profile`}
+                            <Image alt={`${comment.author.fullName}'s profile`}
                                 className="h-full w-full object-cover"
                                 height={32}
                                 src={profilePhotoSrc}
                                 unoptimized
-                                width={32}
-                            />
+                                width={32} />
                         )}
                     </div>
                 </Link>
-
                 <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
@@ -63,7 +90,26 @@ function CommentRow({ comment, isDeleting, onDelete }: CommentRowProps) {
                     </div>
                     <p className="mt-1 text-sm text-black">{comment.content}</p>
                     <p className="mt-1 text-xs text-gray-500">{new Date(comment.timeStamp).toLocaleString()}</p>
-
+                    <button
+                        className="mt-2 text-xs font-semibold text-black underline"
+                        onClick={() => {
+                            setIsReplying((value) => !value);
+                            setReplyError(null);
+                        }}
+                        type="button"
+                    >
+                        {isReplying ? "Cancel reply" : "Reply"}
+                    </button>
+                    {isReplying && (
+                        <PostCommentForm
+                            content={replyContent}
+                            error={replyError}
+                            isPending={createComment.isPending}
+                            onChange={setReplyContent}
+                            onSubmit={handleReply}
+                            placeholder={`Reply to ${comment.author.fullName}`}
+                        />
+                    )}
                     {comment.replies.length > 0 && (
                         <div className="mt-2 space-y-2 border-l-2 border-black/20 pl-3">
                             {comment.replies.map((reply) => (
@@ -100,12 +146,10 @@ export const PostComments: React.FC<PostCommentsProps> = ({ commentsQuery }) => 
                 <div className="text-sm text-gray-700">No comments yet.</div>
             )}
             {commentsQuery.data?.map((comment) => (
-                <CommentRow
-                    comment={comment}
+                <CommentRow comment={comment}
                     isDeleting={deleteComment.isPending}
                     key={comment.postId}
-                    onDelete={handleDeleteComment}
-                />
+                    onDelete={handleDeleteComment} />
             ))}
         </div>
     );
