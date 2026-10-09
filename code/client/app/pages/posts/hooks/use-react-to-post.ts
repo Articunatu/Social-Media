@@ -6,7 +6,7 @@ import type { ReactionResponse, ReactToPostInput } from '../../../models/api/rea
 import { useAuth } from '../../../authentication/auth-provider';
 import reactionService from '../../../services/reaction-service';
 
-export function useReactToPost(postId: UUID) {
+export function useReactToPost(postId: UUID, parentPostId?: UUID) {
     const qc = useQueryClient();
     const auth = useAuth();
     const currentUserId = auth?.user?.userId as UUID | undefined;
@@ -32,6 +32,9 @@ export function useReactToPost(postId: UUID) {
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ['my-reaction', postId] });
             qc.invalidateQueries({ queryKey: ['post-reactions', postId] });
+            if (parentPostId) {
+                qc.invalidateQueries({ queryKey: ['comments', parentPostId] });
+            }
             qc.invalidateQueries({ queryKey: ['feed'] });
             qc.invalidateQueries({ queryKey: ['explored-posts'] });
             qc.invalidateQueries({ queryKey: ['profile-posts'] });
