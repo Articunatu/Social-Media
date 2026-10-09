@@ -6,6 +6,7 @@ type PostCommentFormProps = {
     isPending: boolean;
     onChange: (value: string) => void;
     onSubmit: (event: React.FormEvent) => void;
+    placeholder?: string;
 };
 
 export const PostCommentForm: React.FC<PostCommentFormProps> = ({
@@ -14,12 +15,13 @@ export const PostCommentForm: React.FC<PostCommentFormProps> = ({
     isPending,
     onChange,
     onSubmit,
+    placeholder = "Reply",
 }) => (
     <form onSubmit={onSubmit} className="mt-3">
         <div className="flex gap-2">
             <input
                 className="input input-bordered w-full"
-                placeholder="Write a comment"
+                placeholder={placeholder}
                 value={content}
                 onChange={(event) => onChange(event.target.value)}
             />
