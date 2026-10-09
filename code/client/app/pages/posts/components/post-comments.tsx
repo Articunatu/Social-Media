@@ -4,10 +4,14 @@ import React from "react";
 import type { UseQueryResult } from "@tanstack/react-query";
 import type { UUID } from "crypto";
 import type { CommentDetails } from "../../../models/api/comment-models";
+import type { ReactionType } from "../../../models/api/reaction-models";
 import { useAuth } from "../../../authentication/auth-provider";
 import { useDeleteComment } from "../hooks/use-delete-comment";
 import { useCreateComment } from "../hooks/use-create-comment";
+import { useMyReaction } from "../hooks/use-my-reaction";
+import { useReactToPost } from "../hooks/use-react-to-post";
 import { PostCommentForm } from "./post-comment-form";
+import { PostReactionButtons } from "./post-reaction-buttons";
 import { getPhotoDataUrl } from "../models/photo-data-url";
 
 type PostCommentsProps = {
@@ -23,11 +27,31 @@ type CommentRowProps = {
 function CommentRow({ comment, isDeleting, onDelete }: CommentRowProps) {
     const auth = useAuth();
     const createComment = useCreateComment();
+    const myReactionQuery = useMyReaction(comment.postId, !!auth?.user);
+    const reactToComment = useReactToPost(comment.postId, comment.parentPostId);
     const [isReplying, setIsReplying] = React.useState(false);
     const [replyContent, setReplyContent] = React.useState("");
     const [replyError, setReplyError] = React.useState<string | null>(null);
+    const [reactionError, setReactionError] = React.useState<string | null>(null);
     const canDelete = auth?.user?.userId === (comment.authorId as UUID);
     const profilePhotoSrc = getPhotoDataUrl(comment.author.profilePhoto);
+
+    const handleReact = async (type: ReactionType) => {
+        setReactionError(null);
+        if (!auth?.user) {
+            setReactionError("You must be logged in to react.");
+            return;
+        }
+
+        try {
+            await reactToComment.mutateAsync({
+                type,
+                currentReaction: myReactionQuery.data ?? null,
+            });
+        } catch (error: unknown) {
+            setReactionError(error instanceof Error ? error.message : "Failed to update reaction");
+        }
+    };
 
     const handleReply = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -90,6 +114,12 @@ function CommentRow({ comment, isDeleting, onDelete }: CommentRowProps) {
                     </div>
                     <p className="mt-1 text-sm text-black">{comment.content}</p>
                     <p className="mt-1 text-xs text-gray-500">{new Date(comment.timeStamp).toLocaleString()}</p>
+                    <PostReactionButtons
+                        currentReaction={myReactionQuery.data ?? null}
+                        disabled={reactToComment.isPending || myReactionQuery.isLoading}
+                        onReact={handleReact}
+                    />
+                    {reactionError && <p className="mt-1 text-sm text-error">{reactionError}</p>}
                     <button
                         className="mt-2 text-xs font-semibold text-black underline"
                         onClick={() => {
