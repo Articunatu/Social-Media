@@ -12,6 +12,7 @@ import { useMyReaction } from "../hooks/use-my-reaction";
 import { useReactToPost } from "../hooks/use-react-to-post";
 import { PostCommentForm } from "./post-comment-form";
 import { PostReactionButtons } from "./post-reaction-buttons";
+import { ReactionDetailModal } from "./reaction-detail-modal";
 import { getPhotoDataUrl } from "../models/photo-data-url";
 
 type PostCommentsProps = {
@@ -33,8 +34,10 @@ function CommentRow({ comment, isDeleting, onDelete }: CommentRowProps) {
     const [replyContent, setReplyContent] = React.useState("");
     const [replyError, setReplyError] = React.useState<string | null>(null);
     const [reactionError, setReactionError] = React.useState<string | null>(null);
+    const [showReactionDetails, setShowReactionDetails] = React.useState(false);
     const canDelete = auth?.user?.userId === (comment.authorId as UUID);
     const profilePhotoSrc = getPhotoDataUrl(comment.author.profilePhoto);
+    const totalReactions = comment.reactionCounts.reduce((sum, reactionCount) => sum + reactionCount.amount, 0);
 
     const handleReact = async (type: ReactionType) => {
         setReactionError(null);
@@ -114,6 +117,17 @@ function CommentRow({ comment, isDeleting, onDelete }: CommentRowProps) {
                     </div>
                     <p className="mt-1 text-sm text-black">{comment.content}</p>
                     <p className="mt-1 text-xs text-gray-500">{new Date(comment.timeStamp).toLocaleString()}</p>
+                    <div className="mt-2 flex items-center gap-3">
+                        <span className="text-sm text-gray-700">{totalReactions}</span>
+                        <button
+                            className="btn btn-xs bg-base-100 border-2 border-black pokeshadow active:translate-x-px active:translate-y-px active:shadow-none"
+                            disabled={totalReactions === 0}
+                            onClick={() => setShowReactionDetails(true)}
+                            type="button"
+                        >
+                            Details
+                        </button>
+                    </div>
                     <PostReactionButtons
                         currentReaction={myReactionQuery.data ?? null}
                         disabled={reactToComment.isPending || myReactionQuery.isLoading}
@@ -154,6 +168,12 @@ function CommentRow({ comment, isDeleting, onDelete }: CommentRowProps) {
                     )}
                 </div>
             </div>
+            <ReactionDetailModal
+                isOpen={showReactionDetails}
+                onClose={() => setShowReactionDetails(false)}
+                postId={comment.postId}
+                reactionCounts={comment.reactionCounts}
+            />
         </div>
     );
 }
