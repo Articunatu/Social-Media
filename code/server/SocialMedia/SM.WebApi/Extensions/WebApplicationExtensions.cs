@@ -8,6 +8,7 @@ public static class WebApplicationExtensions
     {
         app.MapAuthenticationEndpoints();
         app.MapCommentEndpoints();
+        app.MapMessagingEndpoints();
         app.MapPhotoEndpoints();
         app.MapPostEndpoints();
         app.MapReactionEndpoints();
