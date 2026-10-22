@@ -25,6 +25,50 @@ type CommentRowProps = {
     onDelete: (comment: CommentDetails) => void;
 };
 
+function CommentReply({ comment, isDeleting, onDelete }: CommentRowProps) {
+    const auth = useAuth();
+    const canDelete = auth?.user?.userId === (comment.authorId as UUID);
+    const profilePhotoSrc = getPhotoDataUrl(comment.author.profilePhoto);
+
+    return (
+        <div className="flex items-start gap-2 py-2">
+            <Link className="shrink-0" href={`/profile/${comment.author.id}`}>
+                <div className="h-7 w-7 overflow-hidden rounded-full border border-black bg-base-200">
+                    {profilePhotoSrc && (
+                        <Image alt={`${comment.author.fullName}'s profile`}
+                            className="h-full w-full object-cover"
+                            height={28}
+                            src={profilePhotoSrc}
+                            unoptimized
+                            width={28} />
+                    )}
+                </div>
+            </Link>
+            <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 text-sm">
+                        <Link className="font-semibold text-black hover:underline" href={`/profile/${comment.author.id}`}>
+                            {comment.author.fullName}
+                        </Link>
+                        <span className="ml-2 break-words text-black">{comment.content}</span>
+                    </div>
+                    {canDelete && (
+                        <button
+                            className="btn btn-xs btn-error"
+                            disabled={isDeleting}
+                            onClick={() => onDelete(comment)}
+                            type="button"
+                        >
+                            Delete
+                        </button>
+                    )}
+                </div>
+                <p className="mt-1 text-xs text-gray-500">{new Date(comment.timeStamp).toLocaleString()}</p>
+            </div>
+        </div>
+    );
+}
+
 function CommentRow({ comment, isDeleting, onDelete }: CommentRowProps) {
     const auth = useAuth();
     const createComment = useCreateComment();
@@ -35,6 +79,7 @@ function CommentRow({ comment, isDeleting, onDelete }: CommentRowProps) {
     const [replyError, setReplyError] = React.useState<string | null>(null);
     const [reactionError, setReactionError] = React.useState<string | null>(null);
     const [showReactionDetails, setShowReactionDetails] = React.useState(false);
+    const [showReplies, setShowReplies] = React.useState(false);
     const canDelete = auth?.user?.userId === (comment.authorId as UUID);
     const profilePhotoSrc = getPhotoDataUrl(comment.author.profilePhoto);
     const totalReactions = comment.reactionCounts.reduce((sum, reactionCount) => sum + reactionCount.amount, 0);
@@ -155,15 +200,28 @@ function CommentRow({ comment, isDeleting, onDelete }: CommentRowProps) {
                         />
                     )}
                     {comment.replies.length > 0 && (
-                        <div className="mt-2 space-y-2 border-l-2 border-black/20 pl-3">
-                            {comment.replies.map((reply) => (
-                                <CommentRow
-                                    comment={reply}
-                                    isDeleting={isDeleting}
-                                    key={reply.postId}
-                                    onDelete={onDelete}
-                                />
-                            ))}
+                        <div className="mt-3">
+                            <button
+                                className="text-xs font-semibold text-black underline"
+                                onClick={() => setShowReplies((value) => !value)}
+                                type="button"
+                            >
+                                {showReplies
+                                    ? "Hide replies"
+                                    : `View ${comment.replies.length} ${comment.replies.length === 1 ? "reply" : "replies"}`}
+                            </button>
+                            {showReplies && (
+                                <div className="mt-2 divide-y border-l-2 border-black/20 pl-3">
+                                    {comment.replies.map((reply) => (
+                                        <CommentReply
+                                            comment={reply}
+                                            isDeleting={isDeleting}
+                                            key={reply.postId}
+                                            onDelete={onDelete}
+                                        />
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

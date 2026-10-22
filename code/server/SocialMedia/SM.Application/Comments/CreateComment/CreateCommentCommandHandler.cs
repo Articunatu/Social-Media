@@ -26,7 +26,11 @@ internal class CreateCommentCommandHandler(IDbContextFactory<IdentityDbContext> 
 
         if (request.ParentCommentId.HasValue)
         {
-            var parentCommentExists = await contentContext.Comments.AnyAsync(c => c.Id == request.ParentCommentId.Value && c.ParentPostId == request.ParentPostId, cancellationToken);
+            var parentCommentExists = await contentContext.Comments.AnyAsync(c =>
+                c.Id == request.ParentCommentId.Value
+                && c.ParentPostId == request.ParentPostId
+                && c.ParentCommentId == null,
+                cancellationToken);
             if (!parentCommentExists)
                 return Result.Failure<CommentCommand>(new Error("ParentComment.NotFound"), HttpStatusCode.NotFound);
         }
